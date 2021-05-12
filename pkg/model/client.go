@@ -8,8 +8,10 @@ import (
 	"log"
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/migrate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -22,6 +24,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// DataSet is the client for interacting with the DataSet builders.
 	DataSet *DataSetClient
+	// TypeConfig is the client for interacting with the TypeConfig builders.
+	TypeConfig *TypeConfigClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,6 +40,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.DataSet = NewDataSetClient(c.config)
+	c.TypeConfig = NewTypeConfigClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -67,9 +72,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		DataSet: NewDataSetClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		DataSet:    NewDataSetClient(cfg),
+		TypeConfig: NewTypeConfigClient(cfg),
 	}, nil
 }
 
@@ -87,8 +93,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		config:  cfg,
-		DataSet: NewDataSetClient(cfg),
+		config:     cfg,
+		DataSet:    NewDataSetClient(cfg),
+		TypeConfig: NewTypeConfigClient(cfg),
 	}, nil
 }
 
@@ -119,6 +126,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.DataSet.Use(hooks...)
+	c.TypeConfig.Use(hooks...)
 }
 
 // DataSetClient is a client for the DataSet schema.
@@ -209,4 +217,94 @@ func (c *DataSetClient) GetX(ctx context.Context, id int) *DataSet {
 // Hooks returns the client hooks.
 func (c *DataSetClient) Hooks() []Hook {
 	return c.hooks.DataSet
+}
+
+// TypeConfigClient is a client for the TypeConfig schema.
+type TypeConfigClient struct {
+	config
+}
+
+// NewTypeConfigClient returns a client for the TypeConfig from the given config.
+func NewTypeConfigClient(c config) *TypeConfigClient {
+	return &TypeConfigClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `typeconfig.Hooks(f(g(h())))`.
+func (c *TypeConfigClient) Use(hooks ...Hook) {
+	c.hooks.TypeConfig = append(c.hooks.TypeConfig, hooks...)
+}
+
+// Create returns a create builder for TypeConfig.
+func (c *TypeConfigClient) Create() *TypeConfigCreate {
+	mutation := newTypeConfigMutation(c.config, OpCreate)
+	return &TypeConfigCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TypeConfig entities.
+func (c *TypeConfigClient) CreateBulk(builders ...*TypeConfigCreate) *TypeConfigCreateBulk {
+	return &TypeConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TypeConfig.
+func (c *TypeConfigClient) Update() *TypeConfigUpdate {
+	mutation := newTypeConfigMutation(c.config, OpUpdate)
+	return &TypeConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TypeConfigClient) UpdateOne(tc *TypeConfig) *TypeConfigUpdateOne {
+	mutation := newTypeConfigMutation(c.config, OpUpdateOne, withTypeConfig(tc))
+	return &TypeConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TypeConfigClient) UpdateOneID(id schema.TypeKey) *TypeConfigUpdateOne {
+	mutation := newTypeConfigMutation(c.config, OpUpdateOne, withTypeConfigID(id))
+	return &TypeConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TypeConfig.
+func (c *TypeConfigClient) Delete() *TypeConfigDelete {
+	mutation := newTypeConfigMutation(c.config, OpDelete)
+	return &TypeConfigDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *TypeConfigClient) DeleteOne(tc *TypeConfig) *TypeConfigDeleteOne {
+	return c.DeleteOneID(tc.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *TypeConfigClient) DeleteOneID(id schema.TypeKey) *TypeConfigDeleteOne {
+	builder := c.Delete().Where(typeconfig.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TypeConfigDeleteOne{builder}
+}
+
+// Query returns a query builder for TypeConfig.
+func (c *TypeConfigClient) Query() *TypeConfigQuery {
+	return &TypeConfigQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a TypeConfig entity by its id.
+func (c *TypeConfigClient) Get(ctx context.Context, id schema.TypeKey) (*TypeConfig, error) {
+	return c.Query().Where(typeconfig.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TypeConfigClient) GetX(ctx context.Context, id schema.TypeKey) *TypeConfig {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *TypeConfigClient) Hooks() []Hook {
+	return c.hooks.TypeConfig
 }

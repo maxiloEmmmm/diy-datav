@@ -8,3 +8,6 @@ import (
 
 // DataSet is the predicate function for dataset builders.
 type DataSet func(*sql.Selector)
+
+// TypeConfig is the predicate function for typeconfig builders.
+type TypeConfig func(*sql.Selector)

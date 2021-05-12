@@ -21,9 +21,23 @@ var (
 		PrimaryKey:  []*schema.Column{DataSetsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
 	}
+	// TypeConfigsColumns holds the columns for the "type_configs" table.
+	TypeConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "type", Type: field.TypeString, Size: 255},
+		{Name: "config", Type: field.TypeString, Size: 2147483647},
+	}
+	// TypeConfigsTable holds the schema information for the "type_configs" table.
+	TypeConfigsTable = &schema.Table{
+		Name:        "type_configs",
+		Columns:     TypeConfigsColumns,
+		PrimaryKey:  []*schema.Column{TypeConfigsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		DataSetsTable,
+		TypeConfigsTable,
 	}
 )
 

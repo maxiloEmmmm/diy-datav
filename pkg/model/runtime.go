@@ -5,6 +5,7 @@ package model
 import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -17,4 +18,10 @@ func init() {
 	datasetDescType := datasetFields[0].Descriptor()
 	// dataset.TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	dataset.TypeValidator = datasetDescType.Validators[0].(func(string) error)
+	typeconfigFields := schema.TypeConfig{}.Fields()
+	_ = typeconfigFields
+	// typeconfigDescType is the schema descriptor for type field.
+	typeconfigDescType := typeconfigFields[1].Descriptor()
+	// typeconfig.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	typeconfig.TypeValidator = typeconfigDescType.Validators[0].(func(string) error)
 }

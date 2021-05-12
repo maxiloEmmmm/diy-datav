@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// DataSet is the client for interacting with the DataSet builders.
 	DataSet *DataSetClient
+	// TypeConfig is the client for interacting with the TypeConfig builders.
+	TypeConfig *TypeConfigClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.DataSet = NewDataSetClient(tx.config)
+	tx.TypeConfig = NewTypeConfigClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

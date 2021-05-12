@@ -9,6 +9,8 @@ import (
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 
 	"entgo.io/ent"
 )
@@ -22,7 +24,8 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeDataSet = "DataSet"
+	TypeDataSet    = "DataSet"
+	TypeTypeConfig = "TypeConfig"
 )
 
 // DataSetMutation represents an operation that mutates the DataSet nodes in the graph.
@@ -364,4 +367,351 @@ func (m *DataSetMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DataSetMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown DataSet edge %s", name)
+}
+
+// TypeConfigMutation represents an operation that mutates the TypeConfig nodes in the graph.
+type TypeConfigMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *schema.TypeKey
+	_type         *string
+	_config       *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*TypeConfig, error)
+	predicates    []predicate.TypeConfig
+}
+
+var _ ent.Mutation = (*TypeConfigMutation)(nil)
+
+// typeconfigOption allows management of the mutation configuration using functional options.
+type typeconfigOption func(*TypeConfigMutation)
+
+// newTypeConfigMutation creates new mutation for the TypeConfig entity.
+func newTypeConfigMutation(c config, op Op, opts ...typeconfigOption) *TypeConfigMutation {
+	m := &TypeConfigMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTypeConfig,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTypeConfigID sets the ID field of the mutation.
+func withTypeConfigID(id schema.TypeKey) typeconfigOption {
+	return func(m *TypeConfigMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TypeConfig
+		)
+		m.oldValue = func(ctx context.Context) (*TypeConfig, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TypeConfig.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTypeConfig sets the old TypeConfig of the mutation.
+func withTypeConfig(node *TypeConfig) typeconfigOption {
+	return func(m *TypeConfigMutation) {
+		m.oldValue = func(context.Context) (*TypeConfig, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TypeConfigMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TypeConfigMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("model: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TypeConfig entities.
+func (m *TypeConfigMutation) SetID(id schema.TypeKey) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *TypeConfigMutation) ID() (id schema.TypeKey, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetType sets the "type" field.
+func (m *TypeConfigMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *TypeConfigMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the TypeConfig entity.
+// If the TypeConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeConfigMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *TypeConfigMutation) ResetType() {
+	m._type = nil
+}
+
+// SetConfig sets the "config" field.
+func (m *TypeConfigMutation) SetConfig(s string) {
+	m._config = &s
+}
+
+// Config returns the value of the "config" field in the mutation.
+func (m *TypeConfigMutation) Config() (r string, exists bool) {
+	v := m._config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfig returns the old "config" field's value of the TypeConfig entity.
+// If the TypeConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeConfigMutation) OldConfig(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfig: %w", err)
+	}
+	return oldValue.Config, nil
+}
+
+// ResetConfig resets all changes to the "config" field.
+func (m *TypeConfigMutation) ResetConfig() {
+	m._config = nil
+}
+
+// Op returns the operation name.
+func (m *TypeConfigMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (TypeConfig).
+func (m *TypeConfigMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TypeConfigMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m._type != nil {
+		fields = append(fields, typeconfig.FieldType)
+	}
+	if m._config != nil {
+		fields = append(fields, typeconfig.FieldConfig)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TypeConfigMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case typeconfig.FieldType:
+		return m.GetType()
+	case typeconfig.FieldConfig:
+		return m.Config()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TypeConfigMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case typeconfig.FieldType:
+		return m.OldType(ctx)
+	case typeconfig.FieldConfig:
+		return m.OldConfig(ctx)
+	}
+	return nil, fmt.Errorf("unknown TypeConfig field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TypeConfigMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case typeconfig.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case typeconfig.FieldConfig:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfig(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TypeConfig field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TypeConfigMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TypeConfigMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TypeConfigMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown TypeConfig numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TypeConfigMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TypeConfigMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TypeConfigMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown TypeConfig nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TypeConfigMutation) ResetField(name string) error {
+	switch name {
+	case typeconfig.FieldType:
+		m.ResetType()
+		return nil
+	case typeconfig.FieldConfig:
+		m.ResetConfig()
+		return nil
+	}
+	return fmt.Errorf("unknown TypeConfig field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TypeConfigMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TypeConfigMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TypeConfigMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TypeConfigMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TypeConfigMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TypeConfigMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TypeConfigMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown TypeConfig unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TypeConfigMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown TypeConfig edge %s", name)
 }

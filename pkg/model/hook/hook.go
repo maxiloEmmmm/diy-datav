@@ -22,6 +22,19 @@ func (f DataSetFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value,
 	return f(ctx, mv)
 }
 
+// The TypeConfigFunc type is an adapter to allow the use of ordinary
+// function as TypeConfig mutator.
+type TypeConfigFunc func(context.Context, *model.TypeConfigMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TypeConfigFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.TypeConfigMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.TypeConfigMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, model.Mutation) bool
 

@@ -8,6 +8,10 @@ type I7e interface {
 
 type Type string
 
+type EmptyData []interface{}
+
+type DataDesc map[string]interface{}
+
 var Reg = make(map[Type]I7e, 0)
 
 func Load(typ Type, config string) (interface{}, error) {
