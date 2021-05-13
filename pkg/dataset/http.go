@@ -1,6 +1,7 @@
 package dataset
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	httpUtil "net/http"
@@ -18,7 +19,7 @@ type HttpConfig struct {
 	Url string
 }
 
-func (h *http) Load(config string) (interface{}, error) {
+func (h *http) Load(ctx context.Context, config string) (interface{}, error) {
 	hc := &HttpConfig{}
 	err := json.Unmarshal([]byte(config), hc)
 	if err != nil {

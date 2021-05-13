@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	go_tool "github.com/maxiloEmmmm/go-tool"
 	contact "github.com/maxiloEmmmm/go-web/contact"
@@ -280,7 +279,7 @@ func (c *TypeConfigApi) List(help *contact.GinHelp) {
 
 func (c *TypeConfigApi) Delete(help *contact.GinHelp) {
 	uri := &struct {
-		Id schema.TypeKey `uri:"id"`
+		Id int `uri:"id"`
 	}{}
 	help.InValidBindUri(uri)
 
@@ -321,7 +320,7 @@ func (c *TypeConfigApi) Create(help *contact.GinHelp) {
 
 func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 	uri := struct {
-		Id schema.TypeKey `uri:"id"`
+		Id int `uri:"id"`
 	}{}
 	help.InValidBindUri(&uri)
 
@@ -354,7 +353,7 @@ func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 
 func (c *TypeConfigApi) Get(help *contact.GinHelp) {
 	uri := struct {
-		Id schema.TypeKey `uri:"id"`
+		Id int `uri:"id"`
 	}{}
 	help.InValidBindUri(&uri)
 

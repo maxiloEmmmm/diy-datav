@@ -5,8 +5,6 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-type TypeKey int
-
 // TypeConfig holds the schema definition for the TypeConfig entity.
 type TypeConfig struct {
 	ent.Schema
@@ -15,7 +13,7 @@ type TypeConfig struct {
 // Fields of the TypeConfig.
 func (TypeConfig) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").GoType(TypeKey(0)),
+		field.Int("id"),
 		field.String("type").MaxLen(255),
 		field.Text("config"),
 	}

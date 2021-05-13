@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 )
 
@@ -15,7 +14,7 @@ import (
 type TypeConfig struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID schema.TypeKey `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
 	// Config holds the value of the "config" field.
@@ -51,7 +50,7 @@ func (tc *TypeConfig) assignValues(columns []string, values []interface{}) error
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			tc.ID = schema.TypeKey(value.Int64)
+			tc.ID = int(value.Int64)
 		case typeconfig.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])

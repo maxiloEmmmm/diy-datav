@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 )
 
@@ -85,8 +84,8 @@ func (tcq *TypeConfigQuery) FirstX(ctx context.Context) *TypeConfig {
 
 // FirstID returns the first TypeConfig ID from the query.
 // Returns a *NotFoundError when no TypeConfig ID was found.
-func (tcq *TypeConfigQuery) FirstID(ctx context.Context) (id schema.TypeKey, err error) {
-	var ids []schema.TypeKey
+func (tcq *TypeConfigQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = tcq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -98,7 +97,7 @@ func (tcq *TypeConfigQuery) FirstID(ctx context.Context) (id schema.TypeKey, err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (tcq *TypeConfigQuery) FirstIDX(ctx context.Context) schema.TypeKey {
+func (tcq *TypeConfigQuery) FirstIDX(ctx context.Context) int {
 	id, err := tcq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -136,8 +135,8 @@ func (tcq *TypeConfigQuery) OnlyX(ctx context.Context) *TypeConfig {
 // OnlyID is like Only, but returns the only TypeConfig ID in the query.
 // Returns a *NotSingularError when exactly one TypeConfig ID is not found.
 // Returns a *NotFoundError when no entities are found.
-func (tcq *TypeConfigQuery) OnlyID(ctx context.Context) (id schema.TypeKey, err error) {
-	var ids []schema.TypeKey
+func (tcq *TypeConfigQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = tcq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -153,7 +152,7 @@ func (tcq *TypeConfigQuery) OnlyID(ctx context.Context) (id schema.TypeKey, err 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (tcq *TypeConfigQuery) OnlyIDX(ctx context.Context) schema.TypeKey {
+func (tcq *TypeConfigQuery) OnlyIDX(ctx context.Context) int {
 	id, err := tcq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -179,8 +178,8 @@ func (tcq *TypeConfigQuery) AllX(ctx context.Context) []*TypeConfig {
 }
 
 // IDs executes the query and returns a list of TypeConfig IDs.
-func (tcq *TypeConfigQuery) IDs(ctx context.Context) ([]schema.TypeKey, error) {
-	var ids []schema.TypeKey
+func (tcq *TypeConfigQuery) IDs(ctx context.Context) ([]int, error) {
+	var ids []int
 	if err := tcq.Select(typeconfig.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -188,7 +187,7 @@ func (tcq *TypeConfigQuery) IDs(ctx context.Context) ([]schema.TypeKey, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (tcq *TypeConfigQuery) IDsX(ctx context.Context) []schema.TypeKey {
+func (tcq *TypeConfigQuery) IDsX(ctx context.Context) []int {
 	ids, err := tcq.IDs(ctx)
 	if err != nil {
 		panic(err)

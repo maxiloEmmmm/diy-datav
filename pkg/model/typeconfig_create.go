@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 )
 
@@ -33,8 +32,8 @@ func (tcc *TypeConfigCreate) SetConfig(s string) *TypeConfigCreate {
 }
 
 // SetID sets the "id" field.
-func (tcc *TypeConfigCreate) SetID(sk schema.TypeKey) *TypeConfigCreate {
-	tcc.mutation.SetID(sk)
+func (tcc *TypeConfigCreate) SetID(i int) *TypeConfigCreate {
+	tcc.mutation.SetID(i)
 	return tcc
 }
 
@@ -113,7 +112,7 @@ func (tcc *TypeConfigCreate) sqlSave(ctx context.Context) (*TypeConfig, error) {
 	}
 	if _node.ID == 0 {
 		id := _spec.ID.Value.(int64)
-		_node.ID = schema.TypeKey(id)
+		_node.ID = int(id)
 	}
 	return _node, nil
 }
@@ -193,7 +192,7 @@ func (tccb *TypeConfigCreateBulk) Save(ctx context.Context) ([]*TypeConfig, erro
 				}
 				if nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = schema.TypeKey(id)
+					nodes[i].ID = int(id)
 				}
 				return nodes[i], nil
 			})

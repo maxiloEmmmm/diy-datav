@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/migrate"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
@@ -259,7 +258,7 @@ func (c *TypeConfigClient) UpdateOne(tc *TypeConfig) *TypeConfigUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TypeConfigClient) UpdateOneID(id schema.TypeKey) *TypeConfigUpdateOne {
+func (c *TypeConfigClient) UpdateOneID(id int) *TypeConfigUpdateOne {
 	mutation := newTypeConfigMutation(c.config, OpUpdateOne, withTypeConfigID(id))
 	return &TypeConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -276,7 +275,7 @@ func (c *TypeConfigClient) DeleteOne(tc *TypeConfig) *TypeConfigDeleteOne {
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *TypeConfigClient) DeleteOneID(id schema.TypeKey) *TypeConfigDeleteOne {
+func (c *TypeConfigClient) DeleteOneID(id int) *TypeConfigDeleteOne {
 	builder := c.Delete().Where(typeconfig.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -291,12 +290,12 @@ func (c *TypeConfigClient) Query() *TypeConfigQuery {
 }
 
 // Get returns a TypeConfig entity by its id.
-func (c *TypeConfigClient) Get(ctx context.Context, id schema.TypeKey) (*TypeConfig, error) {
+func (c *TypeConfigClient) Get(ctx context.Context, id int) (*TypeConfig, error) {
 	return c.Query().Where(typeconfig.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TypeConfigClient) GetX(ctx context.Context, id schema.TypeKey) *TypeConfig {
+func (c *TypeConfigClient) GetX(ctx context.Context, id int) *TypeConfig {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

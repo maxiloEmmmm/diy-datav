@@ -1,0 +1,20 @@
+### list typeconfig
+GET {{ host }}/api/typeconfig
+
+### Create typeconfig
+POST {{ host }}/api/typeconfig
+Content-Type: {{ ct }}
+
+{"payload": {"type": "dataset.mysql", "config": "{\"host\":\"exp\", \"user\":\"exp\", \"pass\":\"exp\", \"db\":\"exp\", \"port\":3306}"}}
+
+### get typeconfig
+GET {{ host }}/api/typeconfig/6
+
+### Create dataset
+POST {{ host }}/api/dataset
+Content-Type: {{ ct }}
+
+{"payload": {"type": "dataset.mysql", "config": "{\"sql\":\"select * from exp\", \"engine\":1}"}}
+
+### data get
+GET {{ host }}/api/data/1

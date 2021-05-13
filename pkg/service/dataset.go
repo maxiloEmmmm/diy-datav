@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
 	datasetUtil "github.com/maxiloEmmmm/diy-datav/pkg/dataset"
 )
@@ -10,10 +11,10 @@ type DataSetServiceI7e interface {
 }
 
 type DataSetService struct {
-	Context
+	context.Context
 }
 
-func NewDataSetService(context Context) *DataSetService {
+func NewDataSetService(context context.Context) *DataSetService {
 	return &DataSetService{Context: context}
 }
 
@@ -23,7 +24,7 @@ func (d *DataSetService) Load(sdId int) (interface{}, error) {
 		return nil, err
 	}
 
-	return datasetUtil.Load(dataset.Type, dataset.Config)
+	return datasetUtil.Load(d.Context, dataset.Type, dataset.Config)
 }
 
 

@@ -9,7 +9,6 @@ import (
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 
 	"entgo.io/ent"
@@ -374,7 +373,7 @@ type TypeConfigMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *schema.TypeKey
+	id            *int
 	_type         *string
 	_config       *string
 	clearedFields map[string]struct{}
@@ -403,7 +402,7 @@ func newTypeConfigMutation(c config, op Op, opts ...typeconfigOption) *TypeConfi
 }
 
 // withTypeConfigID sets the ID field of the mutation.
-func withTypeConfigID(id schema.TypeKey) typeconfigOption {
+func withTypeConfigID(id int) typeconfigOption {
 	return func(m *TypeConfigMutation) {
 		var (
 			err   error
@@ -455,13 +454,13 @@ func (m TypeConfigMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of TypeConfig entities.
-func (m *TypeConfigMutation) SetID(id schema.TypeKey) {
+func (m *TypeConfigMutation) SetID(id int) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID
 // is only available if it was provided to the builder.
-func (m *TypeConfigMutation) ID() (id schema.TypeKey, exists bool) {
+func (m *TypeConfigMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}

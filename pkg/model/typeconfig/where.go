@@ -5,32 +5,31 @@ package typeconfig
 import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id schema.TypeKey) predicate.TypeConfig {
+func ID(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id schema.TypeKey) predicate.TypeConfig {
+func IDEQ(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id schema.TypeKey) predicate.TypeConfig {
+func IDNEQ(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldID), id))
 	})
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...schema.TypeKey) predicate.TypeConfig {
+func IDIn(ids ...int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -47,7 +46,7 @@ func IDIn(ids ...schema.TypeKey) predicate.TypeConfig {
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...schema.TypeKey) predicate.TypeConfig {
+func IDNotIn(ids ...int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -64,28 +63,28 @@ func IDNotIn(ids ...schema.TypeKey) predicate.TypeConfig {
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id schema.TypeKey) predicate.TypeConfig {
+func IDGT(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldID), id))
 	})
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id schema.TypeKey) predicate.TypeConfig {
+func IDGTE(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldID), id))
 	})
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id schema.TypeKey) predicate.TypeConfig {
+func IDLT(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldID), id))
 	})
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id schema.TypeKey) predicate.TypeConfig {
+func IDLTE(id int) predicate.TypeConfig {
 	return predicate.TypeConfig(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldID), id))
 	})
