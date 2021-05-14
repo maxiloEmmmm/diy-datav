@@ -19,6 +19,6 @@ func main() {
 	}
 
 	curd := model.NewCurdBuilder(app.Db)
-	curd.Route("/", apiGroup, nil)
+	curd.Route("/", apiGroup, []string{model.TypeTypeConfig})
 	engine.Run(":8000")
 }

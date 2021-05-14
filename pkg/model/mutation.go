@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 
 	"entgo.io/ent"
 )
@@ -23,9 +26,329 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeAssets     = "Assets"
 	TypeDataSet    = "DataSet"
 	TypeTypeConfig = "TypeConfig"
+	TypeView       = "View"
+	TypeViewBlock  = "ViewBlock"
 )
+
+// AssetsMutation represents an operation that mutates the Assets nodes in the graph.
+type AssetsMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	clearedFields map[string]struct{}
+	view          map[int]struct{}
+	removedview   map[int]struct{}
+	clearedview   bool
+	done          bool
+	oldValue      func(context.Context) (*Assets, error)
+	predicates    []predicate.Assets
+}
+
+var _ ent.Mutation = (*AssetsMutation)(nil)
+
+// assetsOption allows management of the mutation configuration using functional options.
+type assetsOption func(*AssetsMutation)
+
+// newAssetsMutation creates new mutation for the Assets entity.
+func newAssetsMutation(c config, op Op, opts ...assetsOption) *AssetsMutation {
+	m := &AssetsMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAssets,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAssetsID sets the ID field of the mutation.
+func withAssetsID(id int) assetsOption {
+	return func(m *AssetsMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Assets
+		)
+		m.oldValue = func(ctx context.Context) (*Assets, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Assets.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAssets sets the old Assets of the mutation.
+func withAssets(node *Assets) assetsOption {
+	return func(m *AssetsMutation) {
+		m.oldValue = func(context.Context) (*Assets, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AssetsMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AssetsMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("model: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *AssetsMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// AddViewIDs adds the "view" edge to the View entity by ids.
+func (m *AssetsMutation) AddViewIDs(ids ...int) {
+	if m.view == nil {
+		m.view = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.view[ids[i]] = struct{}{}
+	}
+}
+
+// ClearView clears the "view" edge to the View entity.
+func (m *AssetsMutation) ClearView() {
+	m.clearedview = true
+}
+
+// ViewCleared reports if the "view" edge to the View entity was cleared.
+func (m *AssetsMutation) ViewCleared() bool {
+	return m.clearedview
+}
+
+// RemoveViewIDs removes the "view" edge to the View entity by IDs.
+func (m *AssetsMutation) RemoveViewIDs(ids ...int) {
+	if m.removedview == nil {
+		m.removedview = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedview[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedView returns the removed IDs of the "view" edge to the View entity.
+func (m *AssetsMutation) RemovedViewIDs() (ids []int) {
+	for id := range m.removedview {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ViewIDs returns the "view" edge IDs in the mutation.
+func (m *AssetsMutation) ViewIDs() (ids []int) {
+	for id := range m.view {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetView resets all changes to the "view" edge.
+func (m *AssetsMutation) ResetView() {
+	m.view = nil
+	m.clearedview = false
+	m.removedview = nil
+}
+
+// Op returns the operation name.
+func (m *AssetsMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Assets).
+func (m *AssetsMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AssetsMutation) Fields() []string {
+	fields := make([]string, 0, 0)
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AssetsMutation) Field(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AssetsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	return nil, fmt.Errorf("unknown Assets field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AssetsMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Assets field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AssetsMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AssetsMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AssetsMutation) AddField(name string, value ent.Value) error {
+	return fmt.Errorf("unknown Assets numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AssetsMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AssetsMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AssetsMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Assets nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AssetsMutation) ResetField(name string) error {
+	return fmt.Errorf("unknown Assets field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AssetsMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.view != nil {
+		edges = append(edges, assets.EdgeView)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AssetsMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case assets.EdgeView:
+		ids := make([]ent.Value, 0, len(m.view))
+		for id := range m.view {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AssetsMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedview != nil {
+		edges = append(edges, assets.EdgeView)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AssetsMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case assets.EdgeView:
+		ids := make([]ent.Value, 0, len(m.removedview))
+		for id := range m.removedview {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AssetsMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedview {
+		edges = append(edges, assets.EdgeView)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AssetsMutation) EdgeCleared(name string) bool {
+	switch name {
+	case assets.EdgeView:
+		return m.clearedview
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AssetsMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Assets unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AssetsMutation) ResetEdge(name string) error {
+	switch name {
+	case assets.EdgeView:
+		m.ResetView()
+		return nil
+	}
+	return fmt.Errorf("unknown Assets edge %s", name)
+}
 
 // DataSetMutation represents an operation that mutates the DataSet nodes in the graph.
 type DataSetMutation struct {
@@ -36,6 +359,8 @@ type DataSetMutation struct {
 	_type         *string
 	_config       *string
 	clearedFields map[string]struct{}
+	block         *int
+	clearedblock  bool
 	done          bool
 	oldValue      func(context.Context) (*DataSet, error)
 	predicates    []predicate.DataSet
@@ -192,6 +517,45 @@ func (m *DataSetMutation) ResetConfig() {
 	m._config = nil
 }
 
+// SetBlockID sets the "block" edge to the ViewBlock entity by id.
+func (m *DataSetMutation) SetBlockID(id int) {
+	m.block = &id
+}
+
+// ClearBlock clears the "block" edge to the ViewBlock entity.
+func (m *DataSetMutation) ClearBlock() {
+	m.clearedblock = true
+}
+
+// BlockCleared reports if the "block" edge to the ViewBlock entity was cleared.
+func (m *DataSetMutation) BlockCleared() bool {
+	return m.clearedblock
+}
+
+// BlockID returns the "block" edge ID in the mutation.
+func (m *DataSetMutation) BlockID() (id int, exists bool) {
+	if m.block != nil {
+		return *m.block, true
+	}
+	return
+}
+
+// BlockIDs returns the "block" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BlockID instead. It exists only for internal usage by the builders.
+func (m *DataSetMutation) BlockIDs() (ids []int) {
+	if id := m.block; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBlock resets all changes to the "block" edge.
+func (m *DataSetMutation) ResetBlock() {
+	m.block = nil
+	m.clearedblock = false
+}
+
 // Op returns the operation name.
 func (m *DataSetMutation) Op() Op {
 	return m.op
@@ -322,49 +686,77 @@ func (m *DataSetMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DataSetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.block != nil {
+		edges = append(edges, dataset.EdgeBlock)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *DataSetMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case dataset.EdgeBlock:
+		if id := m.block; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DataSetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *DataSetMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DataSetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedblock {
+		edges = append(edges, dataset.EdgeBlock)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *DataSetMutation) EdgeCleared(name string) bool {
+	switch name {
+	case dataset.EdgeBlock:
+		return m.clearedblock
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *DataSetMutation) ClearEdge(name string) error {
+	switch name {
+	case dataset.EdgeBlock:
+		m.ClearBlock()
+		return nil
+	}
 	return fmt.Errorf("unknown DataSet unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *DataSetMutation) ResetEdge(name string) error {
+	switch name {
+	case dataset.EdgeBlock:
+		m.ResetBlock()
+		return nil
+	}
 	return fmt.Errorf("unknown DataSet edge %s", name)
 }
 
@@ -713,4 +1105,988 @@ func (m *TypeConfigMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TypeConfigMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown TypeConfig edge %s", name)
+}
+
+// ViewMutation represents an operation that mutates the View nodes in the graph.
+type ViewMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	desc          *string
+	_config       *string
+	clearedFields map[string]struct{}
+	bg            *int
+	clearedbg     bool
+	blocks        map[int]struct{}
+	removedblocks map[int]struct{}
+	clearedblocks bool
+	done          bool
+	oldValue      func(context.Context) (*View, error)
+	predicates    []predicate.View
+}
+
+var _ ent.Mutation = (*ViewMutation)(nil)
+
+// viewOption allows management of the mutation configuration using functional options.
+type viewOption func(*ViewMutation)
+
+// newViewMutation creates new mutation for the View entity.
+func newViewMutation(c config, op Op, opts ...viewOption) *ViewMutation {
+	m := &ViewMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeView,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withViewID sets the ID field of the mutation.
+func withViewID(id int) viewOption {
+	return func(m *ViewMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *View
+		)
+		m.oldValue = func(ctx context.Context) (*View, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().View.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withView sets the old View of the mutation.
+func withView(node *View) viewOption {
+	return func(m *ViewMutation) {
+		m.oldValue = func(context.Context) (*View, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ViewMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ViewMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("model: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *ViewMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetDesc sets the "desc" field.
+func (m *ViewMutation) SetDesc(s string) {
+	m.desc = &s
+}
+
+// Desc returns the value of the "desc" field in the mutation.
+func (m *ViewMutation) Desc() (r string, exists bool) {
+	v := m.desc
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDesc returns the old "desc" field's value of the View entity.
+// If the View object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ViewMutation) OldDesc(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldDesc is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldDesc requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDesc: %w", err)
+	}
+	return oldValue.Desc, nil
+}
+
+// ResetDesc resets all changes to the "desc" field.
+func (m *ViewMutation) ResetDesc() {
+	m.desc = nil
+}
+
+// SetConfig sets the "config" field.
+func (m *ViewMutation) SetConfig(s string) {
+	m._config = &s
+}
+
+// Config returns the value of the "config" field in the mutation.
+func (m *ViewMutation) Config() (r string, exists bool) {
+	v := m._config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfig returns the old "config" field's value of the View entity.
+// If the View object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ViewMutation) OldConfig(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfig: %w", err)
+	}
+	return oldValue.Config, nil
+}
+
+// ResetConfig resets all changes to the "config" field.
+func (m *ViewMutation) ResetConfig() {
+	m._config = nil
+}
+
+// SetBgID sets the "bg" edge to the Assets entity by id.
+func (m *ViewMutation) SetBgID(id int) {
+	m.bg = &id
+}
+
+// ClearBg clears the "bg" edge to the Assets entity.
+func (m *ViewMutation) ClearBg() {
+	m.clearedbg = true
+}
+
+// BgCleared reports if the "bg" edge to the Assets entity was cleared.
+func (m *ViewMutation) BgCleared() bool {
+	return m.clearedbg
+}
+
+// BgID returns the "bg" edge ID in the mutation.
+func (m *ViewMutation) BgID() (id int, exists bool) {
+	if m.bg != nil {
+		return *m.bg, true
+	}
+	return
+}
+
+// BgIDs returns the "bg" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BgID instead. It exists only for internal usage by the builders.
+func (m *ViewMutation) BgIDs() (ids []int) {
+	if id := m.bg; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBg resets all changes to the "bg" edge.
+func (m *ViewMutation) ResetBg() {
+	m.bg = nil
+	m.clearedbg = false
+}
+
+// AddBlockIDs adds the "blocks" edge to the ViewBlock entity by ids.
+func (m *ViewMutation) AddBlockIDs(ids ...int) {
+	if m.blocks == nil {
+		m.blocks = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.blocks[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBlocks clears the "blocks" edge to the ViewBlock entity.
+func (m *ViewMutation) ClearBlocks() {
+	m.clearedblocks = true
+}
+
+// BlocksCleared reports if the "blocks" edge to the ViewBlock entity was cleared.
+func (m *ViewMutation) BlocksCleared() bool {
+	return m.clearedblocks
+}
+
+// RemoveBlockIDs removes the "blocks" edge to the ViewBlock entity by IDs.
+func (m *ViewMutation) RemoveBlockIDs(ids ...int) {
+	if m.removedblocks == nil {
+		m.removedblocks = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedblocks[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBlocks returns the removed IDs of the "blocks" edge to the ViewBlock entity.
+func (m *ViewMutation) RemovedBlocksIDs() (ids []int) {
+	for id := range m.removedblocks {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BlocksIDs returns the "blocks" edge IDs in the mutation.
+func (m *ViewMutation) BlocksIDs() (ids []int) {
+	for id := range m.blocks {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBlocks resets all changes to the "blocks" edge.
+func (m *ViewMutation) ResetBlocks() {
+	m.blocks = nil
+	m.clearedblocks = false
+	m.removedblocks = nil
+}
+
+// Op returns the operation name.
+func (m *ViewMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (View).
+func (m *ViewMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ViewMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.desc != nil {
+		fields = append(fields, view.FieldDesc)
+	}
+	if m._config != nil {
+		fields = append(fields, view.FieldConfig)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ViewMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case view.FieldDesc:
+		return m.Desc()
+	case view.FieldConfig:
+		return m.Config()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ViewMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case view.FieldDesc:
+		return m.OldDesc(ctx)
+	case view.FieldConfig:
+		return m.OldConfig(ctx)
+	}
+	return nil, fmt.Errorf("unknown View field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ViewMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case view.FieldDesc:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDesc(v)
+		return nil
+	case view.FieldConfig:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfig(v)
+		return nil
+	}
+	return fmt.Errorf("unknown View field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ViewMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ViewMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ViewMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown View numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ViewMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ViewMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ViewMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown View nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ViewMutation) ResetField(name string) error {
+	switch name {
+	case view.FieldDesc:
+		m.ResetDesc()
+		return nil
+	case view.FieldConfig:
+		m.ResetConfig()
+		return nil
+	}
+	return fmt.Errorf("unknown View field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ViewMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.bg != nil {
+		edges = append(edges, view.EdgeBg)
+	}
+	if m.blocks != nil {
+		edges = append(edges, view.EdgeBlocks)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ViewMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case view.EdgeBg:
+		if id := m.bg; id != nil {
+			return []ent.Value{*id}
+		}
+	case view.EdgeBlocks:
+		ids := make([]ent.Value, 0, len(m.blocks))
+		for id := range m.blocks {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ViewMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedblocks != nil {
+		edges = append(edges, view.EdgeBlocks)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ViewMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case view.EdgeBlocks:
+		ids := make([]ent.Value, 0, len(m.removedblocks))
+		for id := range m.removedblocks {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ViewMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedbg {
+		edges = append(edges, view.EdgeBg)
+	}
+	if m.clearedblocks {
+		edges = append(edges, view.EdgeBlocks)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ViewMutation) EdgeCleared(name string) bool {
+	switch name {
+	case view.EdgeBg:
+		return m.clearedbg
+	case view.EdgeBlocks:
+		return m.clearedblocks
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ViewMutation) ClearEdge(name string) error {
+	switch name {
+	case view.EdgeBg:
+		m.ClearBg()
+		return nil
+	}
+	return fmt.Errorf("unknown View unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ViewMutation) ResetEdge(name string) error {
+	switch name {
+	case view.EdgeBg:
+		m.ResetBg()
+		return nil
+	case view.EdgeBlocks:
+		m.ResetBlocks()
+		return nil
+	}
+	return fmt.Errorf("unknown View edge %s", name)
+}
+
+// ViewBlockMutation represents an operation that mutates the ViewBlock nodes in the graph.
+type ViewBlockMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	_type          *string
+	_config        *string
+	clearedFields  map[string]struct{}
+	view           *int
+	clearedview    bool
+	dataset        map[int]struct{}
+	removeddataset map[int]struct{}
+	cleareddataset bool
+	done           bool
+	oldValue       func(context.Context) (*ViewBlock, error)
+	predicates     []predicate.ViewBlock
+}
+
+var _ ent.Mutation = (*ViewBlockMutation)(nil)
+
+// viewblockOption allows management of the mutation configuration using functional options.
+type viewblockOption func(*ViewBlockMutation)
+
+// newViewBlockMutation creates new mutation for the ViewBlock entity.
+func newViewBlockMutation(c config, op Op, opts ...viewblockOption) *ViewBlockMutation {
+	m := &ViewBlockMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeViewBlock,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withViewBlockID sets the ID field of the mutation.
+func withViewBlockID(id int) viewblockOption {
+	return func(m *ViewBlockMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ViewBlock
+		)
+		m.oldValue = func(ctx context.Context) (*ViewBlock, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ViewBlock.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withViewBlock sets the old ViewBlock of the mutation.
+func withViewBlock(node *ViewBlock) viewblockOption {
+	return func(m *ViewBlockMutation) {
+		m.oldValue = func(context.Context) (*ViewBlock, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ViewBlockMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ViewBlockMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("model: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *ViewBlockMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetType sets the "type" field.
+func (m *ViewBlockMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *ViewBlockMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the ViewBlock entity.
+// If the ViewBlock object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ViewBlockMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *ViewBlockMutation) ResetType() {
+	m._type = nil
+}
+
+// SetConfig sets the "config" field.
+func (m *ViewBlockMutation) SetConfig(s string) {
+	m._config = &s
+}
+
+// Config returns the value of the "config" field in the mutation.
+func (m *ViewBlockMutation) Config() (r string, exists bool) {
+	v := m._config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfig returns the old "config" field's value of the ViewBlock entity.
+// If the ViewBlock object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ViewBlockMutation) OldConfig(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfig: %w", err)
+	}
+	return oldValue.Config, nil
+}
+
+// ResetConfig resets all changes to the "config" field.
+func (m *ViewBlockMutation) ResetConfig() {
+	m._config = nil
+}
+
+// SetViewID sets the "view" edge to the View entity by id.
+func (m *ViewBlockMutation) SetViewID(id int) {
+	m.view = &id
+}
+
+// ClearView clears the "view" edge to the View entity.
+func (m *ViewBlockMutation) ClearView() {
+	m.clearedview = true
+}
+
+// ViewCleared reports if the "view" edge to the View entity was cleared.
+func (m *ViewBlockMutation) ViewCleared() bool {
+	return m.clearedview
+}
+
+// ViewID returns the "view" edge ID in the mutation.
+func (m *ViewBlockMutation) ViewID() (id int, exists bool) {
+	if m.view != nil {
+		return *m.view, true
+	}
+	return
+}
+
+// ViewIDs returns the "view" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ViewID instead. It exists only for internal usage by the builders.
+func (m *ViewBlockMutation) ViewIDs() (ids []int) {
+	if id := m.view; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetView resets all changes to the "view" edge.
+func (m *ViewBlockMutation) ResetView() {
+	m.view = nil
+	m.clearedview = false
+}
+
+// AddDatasetIDs adds the "dataset" edge to the DataSet entity by ids.
+func (m *ViewBlockMutation) AddDatasetIDs(ids ...int) {
+	if m.dataset == nil {
+		m.dataset = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.dataset[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDataset clears the "dataset" edge to the DataSet entity.
+func (m *ViewBlockMutation) ClearDataset() {
+	m.cleareddataset = true
+}
+
+// DatasetCleared reports if the "dataset" edge to the DataSet entity was cleared.
+func (m *ViewBlockMutation) DatasetCleared() bool {
+	return m.cleareddataset
+}
+
+// RemoveDatasetIDs removes the "dataset" edge to the DataSet entity by IDs.
+func (m *ViewBlockMutation) RemoveDatasetIDs(ids ...int) {
+	if m.removeddataset == nil {
+		m.removeddataset = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removeddataset[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDataset returns the removed IDs of the "dataset" edge to the DataSet entity.
+func (m *ViewBlockMutation) RemovedDatasetIDs() (ids []int) {
+	for id := range m.removeddataset {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DatasetIDs returns the "dataset" edge IDs in the mutation.
+func (m *ViewBlockMutation) DatasetIDs() (ids []int) {
+	for id := range m.dataset {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDataset resets all changes to the "dataset" edge.
+func (m *ViewBlockMutation) ResetDataset() {
+	m.dataset = nil
+	m.cleareddataset = false
+	m.removeddataset = nil
+}
+
+// Op returns the operation name.
+func (m *ViewBlockMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (ViewBlock).
+func (m *ViewBlockMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ViewBlockMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m._type != nil {
+		fields = append(fields, viewblock.FieldType)
+	}
+	if m._config != nil {
+		fields = append(fields, viewblock.FieldConfig)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ViewBlockMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case viewblock.FieldType:
+		return m.GetType()
+	case viewblock.FieldConfig:
+		return m.Config()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ViewBlockMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case viewblock.FieldType:
+		return m.OldType(ctx)
+	case viewblock.FieldConfig:
+		return m.OldConfig(ctx)
+	}
+	return nil, fmt.Errorf("unknown ViewBlock field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ViewBlockMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case viewblock.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case viewblock.FieldConfig:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfig(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ViewBlock field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ViewBlockMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ViewBlockMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ViewBlockMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ViewBlock numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ViewBlockMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ViewBlockMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ViewBlockMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ViewBlock nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ViewBlockMutation) ResetField(name string) error {
+	switch name {
+	case viewblock.FieldType:
+		m.ResetType()
+		return nil
+	case viewblock.FieldConfig:
+		m.ResetConfig()
+		return nil
+	}
+	return fmt.Errorf("unknown ViewBlock field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ViewBlockMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.view != nil {
+		edges = append(edges, viewblock.EdgeView)
+	}
+	if m.dataset != nil {
+		edges = append(edges, viewblock.EdgeDataset)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ViewBlockMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case viewblock.EdgeView:
+		if id := m.view; id != nil {
+			return []ent.Value{*id}
+		}
+	case viewblock.EdgeDataset:
+		ids := make([]ent.Value, 0, len(m.dataset))
+		for id := range m.dataset {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ViewBlockMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removeddataset != nil {
+		edges = append(edges, viewblock.EdgeDataset)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ViewBlockMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case viewblock.EdgeDataset:
+		ids := make([]ent.Value, 0, len(m.removeddataset))
+		for id := range m.removeddataset {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ViewBlockMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedview {
+		edges = append(edges, viewblock.EdgeView)
+	}
+	if m.cleareddataset {
+		edges = append(edges, viewblock.EdgeDataset)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ViewBlockMutation) EdgeCleared(name string) bool {
+	switch name {
+	case viewblock.EdgeView:
+		return m.clearedview
+	case viewblock.EdgeDataset:
+		return m.cleareddataset
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ViewBlockMutation) ClearEdge(name string) error {
+	switch name {
+	case viewblock.EdgeView:
+		m.ClearView()
+		return nil
+	}
+	return fmt.Errorf("unknown ViewBlock unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ViewBlockMutation) ResetEdge(name string) error {
+	switch name {
+	case viewblock.EdgeView:
+		m.ResetView()
+		return nil
+	case viewblock.EdgeDataset:
+		m.ResetDataset()
+		return nil
+	}
+	return fmt.Errorf("unknown ViewBlock edge %s", name)
 }

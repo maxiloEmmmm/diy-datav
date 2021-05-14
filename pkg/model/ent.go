@@ -10,8 +10,11 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -32,8 +35,11 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
+		assets.Table:     assets.ValidColumn,
 		dataset.Table:    dataset.ValidColumn,
 		typeconfig.Table: typeconfig.ValidColumn,
+		view.Table:       view.ValidColumn,
+		viewblock.Table:  viewblock.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

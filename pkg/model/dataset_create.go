@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // DataSetCreate is the builder for creating a DataSet entity.
@@ -29,6 +30,25 @@ func (dsc *DataSetCreate) SetType(s string) *DataSetCreate {
 func (dsc *DataSetCreate) SetConfig(s string) *DataSetCreate {
 	dsc.mutation.SetConfig(s)
 	return dsc
+}
+
+// SetBlockID sets the "block" edge to the ViewBlock entity by ID.
+func (dsc *DataSetCreate) SetBlockID(id int) *DataSetCreate {
+	dsc.mutation.SetBlockID(id)
+	return dsc
+}
+
+// SetNillableBlockID sets the "block" edge to the ViewBlock entity by ID if the given value is not nil.
+func (dsc *DataSetCreate) SetNillableBlockID(id *int) *DataSetCreate {
+	if id != nil {
+		dsc = dsc.SetBlockID(*id)
+	}
+	return dsc
+}
+
+// SetBlock sets the "block" edge to the ViewBlock entity.
+func (dsc *DataSetCreate) SetBlock(v *ViewBlock) *DataSetCreate {
+	return dsc.SetBlockID(v.ID)
 }
 
 // Mutation returns the DataSetMutation object of the builder.
@@ -135,6 +155,26 @@ func (dsc *DataSetCreate) createSpec() (*DataSet, *sqlgraph.CreateSpec) {
 			Column: dataset.FieldConfig,
 		})
 		_node.Config = value
+	}
+	if nodes := dsc.mutation.BlockIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   dataset.BlockTable,
+			Columns: []string{dataset.BlockColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: viewblock.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.view_block_dataset = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

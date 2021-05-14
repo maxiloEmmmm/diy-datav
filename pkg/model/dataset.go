@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // DataSet is the model entity for the DataSet schema.
@@ -19,6 +20,33 @@ type DataSet struct {
 	Type string `json:"type,omitempty"`
 	// Config holds the value of the "config" field.
 	Config string `json:"config,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the DataSetQuery when eager-loading is set.
+	Edges              DataSetEdges `json:"edges"`
+	view_block_dataset *int
+}
+
+// DataSetEdges holds the relations/edges for other nodes in the graph.
+type DataSetEdges struct {
+	// Block holds the value of the block edge.
+	Block *ViewBlock `json:"block,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// BlockOrErr returns the Block value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DataSetEdges) BlockOrErr() (*ViewBlock, error) {
+	if e.loadedTypes[0] {
+		if e.Block == nil {
+			// The edge block was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: viewblock.Label}
+		}
+		return e.Block, nil
+	}
+	return nil, &NotLoadedError{edge: "block"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -30,6 +58,8 @@ func (*DataSet) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case dataset.FieldType, dataset.FieldConfig:
 			values[i] = new(sql.NullString)
+		case dataset.ForeignKeys[0]: // view_block_dataset
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type DataSet", columns[i])
 		}
@@ -63,9 +93,21 @@ func (ds *DataSet) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				ds.Config = value.String
 			}
+		case dataset.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field view_block_dataset", value)
+			} else if value.Valid {
+				ds.view_block_dataset = new(int)
+				*ds.view_block_dataset = int(value.Int64)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryBlock queries the "block" edge of the DataSet entity.
+func (ds *DataSet) QueryBlock() *ViewBlockQuery {
+	return (&DataSetClient{config: ds.config}).QueryBlock(ds)
 }
 
 // Update returns a builder for updating this DataSet.

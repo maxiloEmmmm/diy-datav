@@ -6,12 +6,36 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model"
+	"github.com/pkg/errors"
 	"log"
 )
 
 var (
 	Db *model.Client
 )
+
+func WithTx(ctx context.Context, fn func(tx *model.Tx) error) error {
+	tx, err := Db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if v := recover(); v != nil {
+			tx.Rollback()
+			panic(v)
+		}
+	}()
+	if err := fn(tx); err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = errors.Wrapf(err, "rolling back transaction: %v", rerr)
+		}
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return errors.Wrapf(err, "committing transaction: %v", err)
+	}
+	return nil
+}
 
 func init() {
 	db, err := model.Open("sqlite3", "file:./ent.db?cache=shared&mode=rwc&_fk=1", model.Debug())

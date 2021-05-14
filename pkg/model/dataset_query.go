@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // DataSetQuery is the builder for querying DataSet entities.
@@ -24,6 +25,9 @@ type DataSetQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.DataSet
+	// eager-loading edges.
+	withBlock *ViewBlockQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +62,28 @@ func (dsq *DataSetQuery) Unique(unique bool) *DataSetQuery {
 func (dsq *DataSetQuery) Order(o ...OrderFunc) *DataSetQuery {
 	dsq.order = append(dsq.order, o...)
 	return dsq
+}
+
+// QueryBlock chains the current query on the "block" edge.
+func (dsq *DataSetQuery) QueryBlock() *ViewBlockQuery {
+	query := &ViewBlockQuery{config: dsq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(dataset.Table, dataset.FieldID, selector),
+			sqlgraph.To(viewblock.Table, viewblock.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, dataset.BlockTable, dataset.BlockColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first DataSet entity from the query.
@@ -241,10 +267,22 @@ func (dsq *DataSetQuery) Clone() *DataSetQuery {
 		offset:     dsq.offset,
 		order:      append([]OrderFunc{}, dsq.order...),
 		predicates: append([]predicate.DataSet{}, dsq.predicates...),
+		withBlock:  dsq.withBlock.Clone(),
 		// clone intermediate query.
 		sql:  dsq.sql.Clone(),
 		path: dsq.path,
 	}
+}
+
+// WithBlock tells the query-builder to eager-load the nodes that are connected to
+// the "block" edge. The optional arguments are used to configure the query builder of the edge.
+func (dsq *DataSetQuery) WithBlock(opts ...func(*ViewBlockQuery)) *DataSetQuery {
+	query := &ViewBlockQuery{config: dsq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	dsq.withBlock = query
+	return dsq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -310,9 +348,19 @@ func (dsq *DataSetQuery) prepareQuery(ctx context.Context) error {
 
 func (dsq *DataSetQuery) sqlAll(ctx context.Context) ([]*DataSet, error) {
 	var (
-		nodes = []*DataSet{}
-		_spec = dsq.querySpec()
+		nodes       = []*DataSet{}
+		withFKs     = dsq.withFKs
+		_spec       = dsq.querySpec()
+		loadedTypes = [1]bool{
+			dsq.withBlock != nil,
+		}
 	)
+	if dsq.withBlock != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, dataset.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &DataSet{config: dsq.config}
 		nodes = append(nodes, node)
@@ -323,6 +371,7 @@ func (dsq *DataSetQuery) sqlAll(ctx context.Context) ([]*DataSet, error) {
 			return fmt.Errorf("model: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, dsq.driver, _spec); err != nil {
@@ -331,6 +380,36 @@ func (dsq *DataSetQuery) sqlAll(ctx context.Context) ([]*DataSet, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := dsq.withBlock; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*DataSet)
+		for i := range nodes {
+			if nodes[i].view_block_dataset == nil {
+				continue
+			}
+			fk := *nodes[i].view_block_dataset
+			if _, ok := nodeids[fk]; !ok {
+				ids = append(ids, fk)
+			}
+			nodeids[fk] = append(nodeids[fk], nodes[i])
+		}
+		query.Where(viewblock.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "view_block_dataset" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Block = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

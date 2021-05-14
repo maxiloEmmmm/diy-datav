@@ -7,8 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 	go_tool "github.com/maxiloEmmmm/go-tool"
 	contact "github.com/maxiloEmmmm/go-web/contact"
 )
@@ -70,15 +73,21 @@ type Endpoint interface {
 
 type CurdBuilder struct {
 	Apis struct {
+		Assets     *AssetsApi
 		DataSet    *DataSetApi
 		TypeConfig *TypeConfigApi
+		View       *ViewApi
+		ViewBlock  *ViewBlockApi
 	}
 }
 
 func NewCurdBuilder(client *Client) *CurdBuilder {
 	cb := &CurdBuilder{}
+	cb.Apis.Assets = NewAssetsApi(client, nil)
 	cb.Apis.DataSet = NewDataSetApi(client, nil)
 	cb.Apis.TypeConfig = NewTypeConfigApi(client, nil)
+	cb.Apis.View = NewViewApi(client, nil)
+	cb.Apis.ViewBlock = NewViewBlockApi(client, nil)
 	return cb
 }
 
@@ -89,11 +98,20 @@ func (cb *CurdBuilder) Route(prefix string, r gin.IRouter, pick []string) *gin.R
 	g := r.Group(prefix)
 
 	hasPick := pick != nil && len(pick) > 0
+	if !hasPick || go_tool.InArray(pick, TypeAssets) {
+		cb.Group(g, "assets", cb.Apis.Assets)
+	}
 	if !hasPick || go_tool.InArray(pick, TypeDataSet) {
 		cb.Group(g, "dataset", cb.Apis.DataSet)
 	}
 	if !hasPick || go_tool.InArray(pick, TypeTypeConfig) {
 		cb.Group(g, "typeconfig", cb.Apis.TypeConfig)
+	}
+	if !hasPick || go_tool.InArray(pick, TypeView) {
+		cb.Group(g, "view", cb.Apis.View)
+	}
+	if !hasPick || go_tool.InArray(pick, TypeViewBlock) {
+		cb.Group(g, "viewblock", cb.Apis.ViewBlock)
 	}
 
 	return g
@@ -108,6 +126,132 @@ func (cb *CurdBuilder) Group(group *gin.RouterGroup, path string, api Endpoint) 
 	apiGroup.DELETE("/:id", contact.GinHelpHandle(api.Delete))
 }
 
+type AssetsApi struct {
+	*Api
+	Filter             AssetsApiFilter
+	SkipCreateAutoEdge bool
+	SkipUpdateAutoEdge bool
+}
+
+type AssetsApiFilter struct {
+	CreatePipe   func(help *contact.GinHelp, createPipe *AssetsCreate, edges AssetsEdges)
+	CreateAfter  func(help *contact.GinHelp, item *Assets, edges AssetsEdges)
+	UpdatePipe   func(help *contact.GinHelp, updatePipe *AssetsUpdateOne, edges AssetsEdges)
+	UpdateAfter  func(help *contact.GinHelp, item *Assets, edges AssetsEdges)
+	ListPipe     func(help *contact.GinHelp, listPipe *AssetsQuery)
+	ListData     func(help *contact.GinHelp, items []*Assets) interface{}
+	DeleteBefore func(help *contact.GinHelp, item *Assets)
+	GetPipe      func(help *contact.GinHelp, getPipe *AssetsQuery)
+}
+
+func NewAssetsApi(client *Client, opt *ApiOption) *AssetsApi {
+	return &AssetsApi{Api: newApi(client, opt)}
+}
+
+func (c *AssetsApi) List(help *contact.GinHelp) {
+	help.ResourcePage(func(start int, size int) (interface{}, int) {
+		pipe := c.Client.Assets.Query()
+		if c.Filter.ListPipe != nil {
+			c.Filter.ListPipe(help, pipe)
+		}
+		clonePipe := pipe.Clone()
+
+		pipe = pipe.Offset(start).Limit(size)
+		items := pipe.AllX(help.AppContext)
+
+		var data interface{} = items
+		if c.Filter.ListData != nil {
+			data = c.Filter.ListData(help, items)
+		}
+		return data, clonePipe.CountX(help.AppContext)
+	})
+}
+
+func (c *AssetsApi) Delete(help *contact.GinHelp) {
+	uri := &struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(uri)
+
+	item := c.Client.Assets.GetX(help.AppContext, uri.Id)
+	if c.Filter.DeleteBefore != nil {
+		c.Filter.DeleteBefore(help, item)
+	}
+	c.Client.Assets.DeleteOne(item).ExecX(help.AppContext)
+	help.ResourceDelete()
+}
+
+func (c *AssetsApi) Create(help *contact.GinHelp) {
+	body := &struct {
+		Payload Assets
+	}{}
+	help.InValidBind(body)
+
+	pipe := c.Client.Assets.Create()
+	if !c.SkipCreateAutoEdge {
+		if body.Payload.Edges.View != nil {
+			pipe.AddView(body.Payload.Edges.View...)
+		}
+	}
+
+	if c.Filter.CreatePipe != nil {
+		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+	}
+
+	item := pipe.SaveX(help.AppContext)
+
+	if c.Filter.CreateAfter != nil {
+		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+	}
+
+	help.Resource(item)
+}
+
+func (c *AssetsApi) Update(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	body := &struct {
+		Payload Assets
+	}{}
+
+	item := c.Client.Assets.GetX(help.AppContext, uri.Id)
+	if item == nil {
+		help.InValid("resource", "not found")
+	} else {
+		pipe := item.Update()
+		if !c.SkipUpdateAutoEdge {
+			if body.Payload.Edges.View != nil {
+				pipe.AddView(body.Payload.Edges.View...)
+			}
+		}
+
+		if c.Filter.UpdatePipe != nil {
+			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+		}
+		item = pipe.SaveX(help.AppContext)
+		if c.Filter.UpdateAfter != nil {
+			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+		}
+	}
+	help.Resource(item)
+}
+
+func (c *AssetsApi) Get(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	pipe := c.Client.Assets.Query().Where(assets.ID(uri.Id))
+	if c.Filter.GetPipe != nil {
+		c.Filter.GetPipe(help, pipe)
+	}
+	help.Resource(pipe.FirstX(help.AppContext))
+}
+
 type DataSetApi struct {
 	*Api
 	Filter             DataSetApiFilter
@@ -116,10 +260,10 @@ type DataSetApi struct {
 }
 
 type DataSetApiFilter struct {
-	CreatePipe   func(help *contact.GinHelp, createPipe *DataSetCreate)
-	CreateAfter  func(help *contact.GinHelp, item *DataSet)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *DataSetUpdateOne)
-	UpdateAfter  func(help *contact.GinHelp, item *DataSet)
+	CreatePipe   func(help *contact.GinHelp, createPipe *DataSetCreate, edges DataSetEdges)
+	CreateAfter  func(help *contact.GinHelp, item *DataSet, edges DataSetEdges)
+	UpdatePipe   func(help *contact.GinHelp, updatePipe *DataSetUpdateOne, edges DataSetEdges)
+	UpdateAfter  func(help *contact.GinHelp, item *DataSet, edges DataSetEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *DataSetQuery)
 	ListData     func(help *contact.GinHelp, items []*DataSet) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *DataSet)
@@ -176,15 +320,20 @@ func (c *DataSetApi) Create(help *contact.GinHelp) {
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[dataset.FieldConfig] {
 		pipe.SetConfig(body.Payload.Config)
 	}
+	if !c.SkipCreateAutoEdge {
+		if body.Payload.Edges.Block != nil {
+			pipe.SetBlock(body.Payload.Edges.Block)
+		}
+	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe)
+		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item)
+		c.Filter.CreateAfter(help, item, body.Payload.Edges)
 	}
 
 	help.Resource(item)
@@ -211,13 +360,18 @@ func (c *DataSetApi) Update(help *contact.GinHelp) {
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[dataset.FieldConfig] {
 			pipe.SetConfig(body.Payload.Config)
 		}
+		if !c.SkipUpdateAutoEdge {
+			if body.Payload.Edges.Block != nil {
+				pipe.SetBlock(body.Payload.Edges.Block)
+			}
+		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe)
+			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
 		}
 		item = pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item)
+			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
 		}
 	}
 	help.Resource(item)
@@ -358,6 +512,294 @@ func (c *TypeConfigApi) Get(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	pipe := c.Client.TypeConfig.Query().Where(typeconfig.ID(uri.Id))
+	if c.Filter.GetPipe != nil {
+		c.Filter.GetPipe(help, pipe)
+	}
+	help.Resource(pipe.FirstX(help.AppContext))
+}
+
+type ViewApi struct {
+	*Api
+	Filter             ViewApiFilter
+	SkipCreateAutoEdge bool
+	SkipUpdateAutoEdge bool
+}
+
+type ViewApiFilter struct {
+	CreatePipe   func(help *contact.GinHelp, createPipe *ViewCreate, edges ViewEdges)
+	CreateAfter  func(help *contact.GinHelp, item *View, edges ViewEdges)
+	UpdatePipe   func(help *contact.GinHelp, updatePipe *ViewUpdateOne, edges ViewEdges)
+	UpdateAfter  func(help *contact.GinHelp, item *View, edges ViewEdges)
+	ListPipe     func(help *contact.GinHelp, listPipe *ViewQuery)
+	ListData     func(help *contact.GinHelp, items []*View) interface{}
+	DeleteBefore func(help *contact.GinHelp, item *View)
+	GetPipe      func(help *contact.GinHelp, getPipe *ViewQuery)
+}
+
+func NewViewApi(client *Client, opt *ApiOption) *ViewApi {
+	return &ViewApi{Api: newApi(client, opt)}
+}
+
+func (c *ViewApi) List(help *contact.GinHelp) {
+	help.ResourcePage(func(start int, size int) (interface{}, int) {
+		pipe := c.Client.View.Query()
+		if c.Filter.ListPipe != nil {
+			c.Filter.ListPipe(help, pipe)
+		}
+		clonePipe := pipe.Clone()
+
+		pipe = pipe.Offset(start).Limit(size)
+		items := pipe.AllX(help.AppContext)
+
+		var data interface{} = items
+		if c.Filter.ListData != nil {
+			data = c.Filter.ListData(help, items)
+		}
+		return data, clonePipe.CountX(help.AppContext)
+	})
+}
+
+func (c *ViewApi) Delete(help *contact.GinHelp) {
+	uri := &struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(uri)
+
+	item := c.Client.View.GetX(help.AppContext, uri.Id)
+	if c.Filter.DeleteBefore != nil {
+		c.Filter.DeleteBefore(help, item)
+	}
+	c.Client.View.DeleteOne(item).ExecX(help.AppContext)
+	help.ResourceDelete()
+}
+
+func (c *ViewApi) Create(help *contact.GinHelp) {
+	body := &struct {
+		Payload View
+	}{}
+	help.InValidBind(body)
+
+	pipe := c.Client.View.Create()
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[view.FieldDesc] {
+		pipe.SetDesc(body.Payload.Desc)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[view.FieldConfig] {
+		pipe.SetConfig(body.Payload.Config)
+	}
+	if !c.SkipCreateAutoEdge {
+		if body.Payload.Edges.Bg != nil {
+			pipe.SetBg(body.Payload.Edges.Bg)
+		}
+		if body.Payload.Edges.Blocks != nil {
+			pipe.AddBlocks(body.Payload.Edges.Blocks...)
+		}
+	}
+
+	if c.Filter.CreatePipe != nil {
+		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+	}
+
+	item := pipe.SaveX(help.AppContext)
+
+	if c.Filter.CreateAfter != nil {
+		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+	}
+
+	help.Resource(item)
+}
+
+func (c *ViewApi) Update(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	body := &struct {
+		Payload View
+	}{}
+
+	item := c.Client.View.GetX(help.AppContext, uri.Id)
+	if item == nil {
+		help.InValid("resource", "not found")
+	} else {
+		pipe := item.Update()
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[view.FieldDesc] {
+			pipe.SetDesc(body.Payload.Desc)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[view.FieldConfig] {
+			pipe.SetConfig(body.Payload.Config)
+		}
+		if !c.SkipUpdateAutoEdge {
+			if body.Payload.Edges.Bg != nil {
+				pipe.SetBg(body.Payload.Edges.Bg)
+			}
+			if body.Payload.Edges.Blocks != nil {
+				pipe.AddBlocks(body.Payload.Edges.Blocks...)
+			}
+		}
+
+		if c.Filter.UpdatePipe != nil {
+			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+		}
+		item = pipe.SaveX(help.AppContext)
+		if c.Filter.UpdateAfter != nil {
+			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+		}
+	}
+	help.Resource(item)
+}
+
+func (c *ViewApi) Get(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	pipe := c.Client.View.Query().Where(view.ID(uri.Id))
+	if c.Filter.GetPipe != nil {
+		c.Filter.GetPipe(help, pipe)
+	}
+	help.Resource(pipe.FirstX(help.AppContext))
+}
+
+type ViewBlockApi struct {
+	*Api
+	Filter             ViewBlockApiFilter
+	SkipCreateAutoEdge bool
+	SkipUpdateAutoEdge bool
+}
+
+type ViewBlockApiFilter struct {
+	CreatePipe   func(help *contact.GinHelp, createPipe *ViewBlockCreate, edges ViewBlockEdges)
+	CreateAfter  func(help *contact.GinHelp, item *ViewBlock, edges ViewBlockEdges)
+	UpdatePipe   func(help *contact.GinHelp, updatePipe *ViewBlockUpdateOne, edges ViewBlockEdges)
+	UpdateAfter  func(help *contact.GinHelp, item *ViewBlock, edges ViewBlockEdges)
+	ListPipe     func(help *contact.GinHelp, listPipe *ViewBlockQuery)
+	ListData     func(help *contact.GinHelp, items []*ViewBlock) interface{}
+	DeleteBefore func(help *contact.GinHelp, item *ViewBlock)
+	GetPipe      func(help *contact.GinHelp, getPipe *ViewBlockQuery)
+}
+
+func NewViewBlockApi(client *Client, opt *ApiOption) *ViewBlockApi {
+	return &ViewBlockApi{Api: newApi(client, opt)}
+}
+
+func (c *ViewBlockApi) List(help *contact.GinHelp) {
+	help.ResourcePage(func(start int, size int) (interface{}, int) {
+		pipe := c.Client.ViewBlock.Query()
+		if c.Filter.ListPipe != nil {
+			c.Filter.ListPipe(help, pipe)
+		}
+		clonePipe := pipe.Clone()
+
+		pipe = pipe.Offset(start).Limit(size)
+		items := pipe.AllX(help.AppContext)
+
+		var data interface{} = items
+		if c.Filter.ListData != nil {
+			data = c.Filter.ListData(help, items)
+		}
+		return data, clonePipe.CountX(help.AppContext)
+	})
+}
+
+func (c *ViewBlockApi) Delete(help *contact.GinHelp) {
+	uri := &struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(uri)
+
+	item := c.Client.ViewBlock.GetX(help.AppContext, uri.Id)
+	if c.Filter.DeleteBefore != nil {
+		c.Filter.DeleteBefore(help, item)
+	}
+	c.Client.ViewBlock.DeleteOne(item).ExecX(help.AppContext)
+	help.ResourceDelete()
+}
+
+func (c *ViewBlockApi) Create(help *contact.GinHelp) {
+	body := &struct {
+		Payload ViewBlock
+	}{}
+	help.InValidBind(body)
+
+	pipe := c.Client.ViewBlock.Create()
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[viewblock.FieldType] {
+		pipe.SetType(body.Payload.Type)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[viewblock.FieldConfig] {
+		pipe.SetConfig(body.Payload.Config)
+	}
+	if !c.SkipCreateAutoEdge {
+		if body.Payload.Edges.View != nil {
+			pipe.SetView(body.Payload.Edges.View)
+		}
+		if body.Payload.Edges.Dataset != nil {
+			pipe.AddDataset(body.Payload.Edges.Dataset...)
+		}
+	}
+
+	if c.Filter.CreatePipe != nil {
+		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+	}
+
+	item := pipe.SaveX(help.AppContext)
+
+	if c.Filter.CreateAfter != nil {
+		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+	}
+
+	help.Resource(item)
+}
+
+func (c *ViewBlockApi) Update(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	body := &struct {
+		Payload ViewBlock
+	}{}
+
+	item := c.Client.ViewBlock.GetX(help.AppContext, uri.Id)
+	if item == nil {
+		help.InValid("resource", "not found")
+	} else {
+		pipe := item.Update()
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[viewblock.FieldType] {
+			pipe.SetType(body.Payload.Type)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[viewblock.FieldConfig] {
+			pipe.SetConfig(body.Payload.Config)
+		}
+		if !c.SkipUpdateAutoEdge {
+			if body.Payload.Edges.View != nil {
+				pipe.SetView(body.Payload.Edges.View)
+			}
+			if body.Payload.Edges.Dataset != nil {
+				pipe.AddDataset(body.Payload.Edges.Dataset...)
+			}
+		}
+
+		if c.Filter.UpdatePipe != nil {
+			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+		}
+		item = pipe.SaveX(help.AppContext)
+		if c.Filter.UpdateAfter != nil {
+			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+		}
+	}
+	help.Resource(item)
+}
+
+func (c *ViewBlockApi) Get(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	pipe := c.Client.ViewBlock.Query().Where(viewblock.ID(uri.Id))
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}

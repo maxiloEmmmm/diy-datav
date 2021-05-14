@@ -11,8 +11,17 @@ const (
 	FieldType = "type"
 	// FieldConfig holds the string denoting the config field in the database.
 	FieldConfig = "config"
+	// EdgeBlock holds the string denoting the block edge name in mutations.
+	EdgeBlock = "block"
 	// Table holds the table name of the dataset in the database.
 	Table = "data_sets"
+	// BlockTable is the table the holds the block relation/edge.
+	BlockTable = "data_sets"
+	// BlockInverseTable is the table name for the ViewBlock entity.
+	// It exists in this package in order to avoid circular dependency with the "viewblock" package.
+	BlockInverseTable = "view_blocks"
+	// BlockColumn is the table column denoting the block relation/edge.
+	BlockColumn = "view_block_dataset"
 )
 
 // Columns holds all SQL columns for dataset fields.
@@ -22,10 +31,21 @@ var Columns = []string{
 	FieldConfig,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "data_sets"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"view_block_dataset",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

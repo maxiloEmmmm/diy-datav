@@ -9,11 +9,15 @@ import (
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/migrate"
 
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -21,10 +25,16 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Assets is the client for interacting with the Assets builders.
+	Assets *AssetsClient
 	// DataSet is the client for interacting with the DataSet builders.
 	DataSet *DataSetClient
 	// TypeConfig is the client for interacting with the TypeConfig builders.
 	TypeConfig *TypeConfigClient
+	// View is the client for interacting with the View builders.
+	View *ViewClient
+	// ViewBlock is the client for interacting with the ViewBlock builders.
+	ViewBlock *ViewBlockClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -38,8 +48,11 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Assets = NewAssetsClient(c.config)
 	c.DataSet = NewDataSetClient(c.config)
 	c.TypeConfig = NewTypeConfigClient(c.config)
+	c.View = NewViewClient(c.config)
+	c.ViewBlock = NewViewBlockClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -73,8 +86,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:        ctx,
 		config:     cfg,
+		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
+		View:       NewViewClient(cfg),
+		ViewBlock:  NewViewBlockClient(cfg),
 	}, nil
 }
 
@@ -93,15 +109,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
 		config:     cfg,
+		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
+		View:       NewViewClient(cfg),
+		ViewBlock:  NewViewBlockClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		DataSet.
+//		Assets.
 //		Query().
 //		Count(ctx)
 //
@@ -124,8 +143,117 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Assets.Use(hooks...)
 	c.DataSet.Use(hooks...)
 	c.TypeConfig.Use(hooks...)
+	c.View.Use(hooks...)
+	c.ViewBlock.Use(hooks...)
+}
+
+// AssetsClient is a client for the Assets schema.
+type AssetsClient struct {
+	config
+}
+
+// NewAssetsClient returns a client for the Assets from the given config.
+func NewAssetsClient(c config) *AssetsClient {
+	return &AssetsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `assets.Hooks(f(g(h())))`.
+func (c *AssetsClient) Use(hooks ...Hook) {
+	c.hooks.Assets = append(c.hooks.Assets, hooks...)
+}
+
+// Create returns a create builder for Assets.
+func (c *AssetsClient) Create() *AssetsCreate {
+	mutation := newAssetsMutation(c.config, OpCreate)
+	return &AssetsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Assets entities.
+func (c *AssetsClient) CreateBulk(builders ...*AssetsCreate) *AssetsCreateBulk {
+	return &AssetsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Assets.
+func (c *AssetsClient) Update() *AssetsUpdate {
+	mutation := newAssetsMutation(c.config, OpUpdate)
+	return &AssetsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AssetsClient) UpdateOne(a *Assets) *AssetsUpdateOne {
+	mutation := newAssetsMutation(c.config, OpUpdateOne, withAssets(a))
+	return &AssetsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AssetsClient) UpdateOneID(id int) *AssetsUpdateOne {
+	mutation := newAssetsMutation(c.config, OpUpdateOne, withAssetsID(id))
+	return &AssetsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Assets.
+func (c *AssetsClient) Delete() *AssetsDelete {
+	mutation := newAssetsMutation(c.config, OpDelete)
+	return &AssetsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *AssetsClient) DeleteOne(a *Assets) *AssetsDeleteOne {
+	return c.DeleteOneID(a.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *AssetsClient) DeleteOneID(id int) *AssetsDeleteOne {
+	builder := c.Delete().Where(assets.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AssetsDeleteOne{builder}
+}
+
+// Query returns a query builder for Assets.
+func (c *AssetsClient) Query() *AssetsQuery {
+	return &AssetsQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Assets entity by its id.
+func (c *AssetsClient) Get(ctx context.Context, id int) (*Assets, error) {
+	return c.Query().Where(assets.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AssetsClient) GetX(ctx context.Context, id int) *Assets {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryView queries the view edge of a Assets.
+func (c *AssetsClient) QueryView(a *Assets) *ViewQuery {
+	query := &ViewQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(assets.Table, assets.FieldID, id),
+			sqlgraph.To(view.Table, view.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, assets.ViewTable, assets.ViewColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AssetsClient) Hooks() []Hook {
+	return c.hooks.Assets
 }
 
 // DataSetClient is a client for the DataSet schema.
@@ -211,6 +339,22 @@ func (c *DataSetClient) GetX(ctx context.Context, id int) *DataSet {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryBlock queries the block edge of a DataSet.
+func (c *DataSetClient) QueryBlock(ds *DataSet) *ViewBlockQuery {
+	query := &ViewBlockQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ds.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(dataset.Table, dataset.FieldID, id),
+			sqlgraph.To(viewblock.Table, viewblock.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, dataset.BlockTable, dataset.BlockColumn),
+		)
+		fromV = sqlgraph.Neighbors(ds.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -306,4 +450,248 @@ func (c *TypeConfigClient) GetX(ctx context.Context, id int) *TypeConfig {
 // Hooks returns the client hooks.
 func (c *TypeConfigClient) Hooks() []Hook {
 	return c.hooks.TypeConfig
+}
+
+// ViewClient is a client for the View schema.
+type ViewClient struct {
+	config
+}
+
+// NewViewClient returns a client for the View from the given config.
+func NewViewClient(c config) *ViewClient {
+	return &ViewClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `view.Hooks(f(g(h())))`.
+func (c *ViewClient) Use(hooks ...Hook) {
+	c.hooks.View = append(c.hooks.View, hooks...)
+}
+
+// Create returns a create builder for View.
+func (c *ViewClient) Create() *ViewCreate {
+	mutation := newViewMutation(c.config, OpCreate)
+	return &ViewCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of View entities.
+func (c *ViewClient) CreateBulk(builders ...*ViewCreate) *ViewCreateBulk {
+	return &ViewCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for View.
+func (c *ViewClient) Update() *ViewUpdate {
+	mutation := newViewMutation(c.config, OpUpdate)
+	return &ViewUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ViewClient) UpdateOne(v *View) *ViewUpdateOne {
+	mutation := newViewMutation(c.config, OpUpdateOne, withView(v))
+	return &ViewUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ViewClient) UpdateOneID(id int) *ViewUpdateOne {
+	mutation := newViewMutation(c.config, OpUpdateOne, withViewID(id))
+	return &ViewUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for View.
+func (c *ViewClient) Delete() *ViewDelete {
+	mutation := newViewMutation(c.config, OpDelete)
+	return &ViewDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ViewClient) DeleteOne(v *View) *ViewDeleteOne {
+	return c.DeleteOneID(v.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ViewClient) DeleteOneID(id int) *ViewDeleteOne {
+	builder := c.Delete().Where(view.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ViewDeleteOne{builder}
+}
+
+// Query returns a query builder for View.
+func (c *ViewClient) Query() *ViewQuery {
+	return &ViewQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a View entity by its id.
+func (c *ViewClient) Get(ctx context.Context, id int) (*View, error) {
+	return c.Query().Where(view.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ViewClient) GetX(ctx context.Context, id int) *View {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBg queries the bg edge of a View.
+func (c *ViewClient) QueryBg(v *View) *AssetsQuery {
+	query := &AssetsQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(view.Table, view.FieldID, id),
+			sqlgraph.To(assets.Table, assets.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, view.BgTable, view.BgColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBlocks queries the blocks edge of a View.
+func (c *ViewClient) QueryBlocks(v *View) *ViewBlockQuery {
+	query := &ViewBlockQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(view.Table, view.FieldID, id),
+			sqlgraph.To(viewblock.Table, viewblock.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, view.BlocksTable, view.BlocksColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ViewClient) Hooks() []Hook {
+	return c.hooks.View
+}
+
+// ViewBlockClient is a client for the ViewBlock schema.
+type ViewBlockClient struct {
+	config
+}
+
+// NewViewBlockClient returns a client for the ViewBlock from the given config.
+func NewViewBlockClient(c config) *ViewBlockClient {
+	return &ViewBlockClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `viewblock.Hooks(f(g(h())))`.
+func (c *ViewBlockClient) Use(hooks ...Hook) {
+	c.hooks.ViewBlock = append(c.hooks.ViewBlock, hooks...)
+}
+
+// Create returns a create builder for ViewBlock.
+func (c *ViewBlockClient) Create() *ViewBlockCreate {
+	mutation := newViewBlockMutation(c.config, OpCreate)
+	return &ViewBlockCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ViewBlock entities.
+func (c *ViewBlockClient) CreateBulk(builders ...*ViewBlockCreate) *ViewBlockCreateBulk {
+	return &ViewBlockCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ViewBlock.
+func (c *ViewBlockClient) Update() *ViewBlockUpdate {
+	mutation := newViewBlockMutation(c.config, OpUpdate)
+	return &ViewBlockUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ViewBlockClient) UpdateOne(vb *ViewBlock) *ViewBlockUpdateOne {
+	mutation := newViewBlockMutation(c.config, OpUpdateOne, withViewBlock(vb))
+	return &ViewBlockUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ViewBlockClient) UpdateOneID(id int) *ViewBlockUpdateOne {
+	mutation := newViewBlockMutation(c.config, OpUpdateOne, withViewBlockID(id))
+	return &ViewBlockUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ViewBlock.
+func (c *ViewBlockClient) Delete() *ViewBlockDelete {
+	mutation := newViewBlockMutation(c.config, OpDelete)
+	return &ViewBlockDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ViewBlockClient) DeleteOne(vb *ViewBlock) *ViewBlockDeleteOne {
+	return c.DeleteOneID(vb.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ViewBlockClient) DeleteOneID(id int) *ViewBlockDeleteOne {
+	builder := c.Delete().Where(viewblock.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ViewBlockDeleteOne{builder}
+}
+
+// Query returns a query builder for ViewBlock.
+func (c *ViewBlockClient) Query() *ViewBlockQuery {
+	return &ViewBlockQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ViewBlock entity by its id.
+func (c *ViewBlockClient) Get(ctx context.Context, id int) (*ViewBlock, error) {
+	return c.Query().Where(viewblock.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ViewBlockClient) GetX(ctx context.Context, id int) *ViewBlock {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryView queries the view edge of a ViewBlock.
+func (c *ViewBlockClient) QueryView(vb *ViewBlock) *ViewQuery {
+	query := &ViewQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := vb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(viewblock.Table, viewblock.FieldID, id),
+			sqlgraph.To(view.Table, view.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, viewblock.ViewTable, viewblock.ViewColumn),
+		)
+		fromV = sqlgraph.Neighbors(vb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDataset queries the dataset edge of a ViewBlock.
+func (c *ViewBlockClient) QueryDataset(vb *ViewBlock) *DataSetQuery {
+	query := &DataSetQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := vb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(viewblock.Table, viewblock.FieldID, id),
+			sqlgraph.To(dataset.Table, dataset.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, viewblock.DatasetTable, viewblock.DatasetColumn),
+		)
+		fromV = sqlgraph.Neighbors(vb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ViewBlockClient) Hooks() []Hook {
+	return c.hooks.ViewBlock
 }

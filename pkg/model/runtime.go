@@ -6,6 +6,8 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/schema"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -24,4 +26,16 @@ func init() {
 	typeconfigDescType := typeconfigFields[1].Descriptor()
 	// typeconfig.TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	typeconfig.TypeValidator = typeconfigDescType.Validators[0].(func(string) error)
+	viewFields := schema.View{}.Fields()
+	_ = viewFields
+	// viewDescDesc is the schema descriptor for desc field.
+	viewDescDesc := viewFields[0].Descriptor()
+	// view.DescValidator is a validator for the "desc" field. It is called by the builders before save.
+	view.DescValidator = viewDescDesc.Validators[0].(func(string) error)
+	viewblockFields := schema.ViewBlock{}.Fields()
+	_ = viewblockFields
+	// viewblockDescType is the schema descriptor for type field.
+	viewblockDescType := viewblockFields[0].Descriptor()
+	// viewblock.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	viewblock.TypeValidator = viewblockDescType.Validators[0].(func(string) error)
 }

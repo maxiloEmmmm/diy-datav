@@ -9,6 +9,19 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model"
 )
 
+// The AssetsFunc type is an adapter to allow the use of ordinary
+// function as Assets mutator.
+type AssetsFunc func(context.Context, *model.AssetsMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AssetsFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.AssetsMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.AssetsMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The DataSetFunc type is an adapter to allow the use of ordinary
 // function as DataSet mutator.
 type DataSetFunc func(context.Context, *model.DataSetMutation) (model.Value, error)
@@ -31,6 +44,32 @@ func (f TypeConfigFunc) Mutate(ctx context.Context, m model.Mutation) (model.Val
 	mv, ok := m.(*model.TypeConfigMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.TypeConfigMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ViewFunc type is an adapter to allow the use of ordinary
+// function as View mutator.
+type ViewFunc func(context.Context, *model.ViewMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ViewFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.ViewMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.ViewMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ViewBlockFunc type is an adapter to allow the use of ordinary
+// function as ViewBlock mutator.
+type ViewBlockFunc func(context.Context, *model.ViewBlockMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ViewBlockFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.ViewBlockMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.ViewBlockMutation", m)
 	}
 	return f(ctx, mv)
 }

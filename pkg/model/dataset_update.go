@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
 
 // DataSetUpdate is the builder for updating DataSet entities.
@@ -38,9 +39,34 @@ func (dsu *DataSetUpdate) SetConfig(s string) *DataSetUpdate {
 	return dsu
 }
 
+// SetBlockID sets the "block" edge to the ViewBlock entity by ID.
+func (dsu *DataSetUpdate) SetBlockID(id int) *DataSetUpdate {
+	dsu.mutation.SetBlockID(id)
+	return dsu
+}
+
+// SetNillableBlockID sets the "block" edge to the ViewBlock entity by ID if the given value is not nil.
+func (dsu *DataSetUpdate) SetNillableBlockID(id *int) *DataSetUpdate {
+	if id != nil {
+		dsu = dsu.SetBlockID(*id)
+	}
+	return dsu
+}
+
+// SetBlock sets the "block" edge to the ViewBlock entity.
+func (dsu *DataSetUpdate) SetBlock(v *ViewBlock) *DataSetUpdate {
+	return dsu.SetBlockID(v.ID)
+}
+
 // Mutation returns the DataSetMutation object of the builder.
 func (dsu *DataSetUpdate) Mutation() *DataSetMutation {
 	return dsu.mutation
+}
+
+// ClearBlock clears the "block" edge to the ViewBlock entity.
+func (dsu *DataSetUpdate) ClearBlock() *DataSetUpdate {
+	dsu.mutation.ClearBlock()
+	return dsu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -142,6 +168,41 @@ func (dsu *DataSetUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: dataset.FieldConfig,
 		})
 	}
+	if dsu.mutation.BlockCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   dataset.BlockTable,
+			Columns: []string{dataset.BlockColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: viewblock.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dsu.mutation.BlockIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   dataset.BlockTable,
+			Columns: []string{dataset.BlockColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: viewblock.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, dsu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{dataset.Label}
@@ -173,9 +234,34 @@ func (dsuo *DataSetUpdateOne) SetConfig(s string) *DataSetUpdateOne {
 	return dsuo
 }
 
+// SetBlockID sets the "block" edge to the ViewBlock entity by ID.
+func (dsuo *DataSetUpdateOne) SetBlockID(id int) *DataSetUpdateOne {
+	dsuo.mutation.SetBlockID(id)
+	return dsuo
+}
+
+// SetNillableBlockID sets the "block" edge to the ViewBlock entity by ID if the given value is not nil.
+func (dsuo *DataSetUpdateOne) SetNillableBlockID(id *int) *DataSetUpdateOne {
+	if id != nil {
+		dsuo = dsuo.SetBlockID(*id)
+	}
+	return dsuo
+}
+
+// SetBlock sets the "block" edge to the ViewBlock entity.
+func (dsuo *DataSetUpdateOne) SetBlock(v *ViewBlock) *DataSetUpdateOne {
+	return dsuo.SetBlockID(v.ID)
+}
+
 // Mutation returns the DataSetMutation object of the builder.
 func (dsuo *DataSetUpdateOne) Mutation() *DataSetMutation {
 	return dsuo.mutation
+}
+
+// ClearBlock clears the "block" edge to the ViewBlock entity.
+func (dsuo *DataSetUpdateOne) ClearBlock() *DataSetUpdateOne {
+	dsuo.mutation.ClearBlock()
+	return dsuo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -300,6 +386,41 @@ func (dsuo *DataSetUpdateOne) sqlSave(ctx context.Context) (_node *DataSet, err 
 			Value:  value,
 			Column: dataset.FieldConfig,
 		})
+	}
+	if dsuo.mutation.BlockCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   dataset.BlockTable,
+			Columns: []string{dataset.BlockColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: viewblock.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dsuo.mutation.BlockIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   dataset.BlockTable,
+			Columns: []string{dataset.BlockColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: viewblock.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &DataSet{config: dsuo.config}
 	_spec.Assign = _node.assignValues

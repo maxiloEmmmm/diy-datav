@@ -6,8 +6,17 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Assets is the predicate function for assets builders.
+type Assets func(*sql.Selector)
+
 // DataSet is the predicate function for dataset builders.
 type DataSet func(*sql.Selector)
 
 // TypeConfig is the predicate function for typeconfig builders.
 type TypeConfig func(*sql.Selector)
+
+// View is the predicate function for view builders.
+type View func(*sql.Selector)
+
+// ViewBlock is the predicate function for viewblock builders.
+type ViewBlock func(*sql.Selector)
