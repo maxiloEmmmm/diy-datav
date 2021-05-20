@@ -9,7 +9,7 @@ type I7e interface {
 	Load(ctx context.Context, config string) (interface{}, error)
 }
 
-type EmptyData []struct{}
+type EmptyData []*DataDesc
 
 type DataDesc map[string]interface{}
 
@@ -21,6 +21,3 @@ func Load(ctx context.Context, typ string, config string) (interface{}, error) {
 	}
 	return nil, errors.New("dataset type not found")
 }
-
-
-

@@ -20,10 +20,10 @@ func init() {
 	Reg[Mysql] = &mysql{}
 }
 
-type mysql struct {}
+type mysql struct{}
 
 type mysqlConfig struct {
-	Sql string
+	Sql    string
 	Engine int
 }
 
@@ -44,7 +44,7 @@ func (h *mysql) Load(ctx context.Context, config string) (interface{}, error) {
 		return EmptyData{}, err
 	}
 
-	result := make([]*DataDesc, 0)
+	result := EmptyData{}
 	cts, err := rows.ColumnTypes()
 	if err != nil {
 		return EmptyData{}, err
@@ -99,7 +99,7 @@ type mysqlOpenConfig struct {
 	Port int
 	Pass string
 	User string
-	DB string
+	DB   string
 }
 
 func NewMysqlEngine(ctx context.Context, id int) (MysqlEngineType, error) {

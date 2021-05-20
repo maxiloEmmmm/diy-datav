@@ -13,7 +13,7 @@ func init() {
 	Reg[Http] = &http{}
 }
 
-type http struct {}
+type http struct{}
 
 type HttpConfig struct {
 	Url string
@@ -39,8 +39,8 @@ func (h *http) Load(ctx context.Context, config string) (interface{}, error) {
 		return EmptyData{}, err
 	}
 
-	td := &DataDesc{}
-	err = json.Unmarshal(data, td)
+	td := EmptyData{}
+	err = json.Unmarshal(data, &td)
 	if err != nil {
 		return EmptyData{}, err
 	}
