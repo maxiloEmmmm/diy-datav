@@ -12,14 +12,14 @@ import (
 )
 
 type ViewServiceI7e interface {
-	Load(sdId int) (interface{}, error)
+	Store(view *types.View) (*types.View, error)
 }
 
 type ViewService struct {
 	context.Context
 }
 
-func NewViewService(context context.Context) *ViewService {
+func NewViewService(context context.Context) ViewServiceI7e {
 	return &ViewService{Context: context}
 }
 

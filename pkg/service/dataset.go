@@ -14,7 +14,7 @@ type DataSetService struct {
 	context.Context
 }
 
-func NewDataSetService(context context.Context) *DataSetService {
+func NewDataSetService(context context.Context) DataSetServiceI7e {
 	return &DataSetService{Context: context}
 }
 
