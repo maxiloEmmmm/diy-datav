@@ -3,6 +3,9 @@ import App from './App.vue'
 
 let app = createApp(App)
 
+import components from './components'
+app.use(components)
+
 import 'ant-design-vue/dist/antd.css'
 import antd from 'ant-design-vue'
 app.use(antd)
