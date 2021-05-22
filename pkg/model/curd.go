@@ -188,6 +188,15 @@ func (c *AssetsApi) Create(help *contact.GinHelp) {
 	help.InValidBind(body)
 
 	pipe := c.Client.Assets.Create()
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldPath] {
+		pipe.SetPath(body.Payload.Path)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldExt] {
+		pipe.SetExt(body.Payload.Ext)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldType] {
+		pipe.SetType(body.Payload.Type)
+	}
 	if !c.SkipCreateAutoEdge {
 		if body.Payload.Edges.View != nil {
 			pipe.AddView(body.Payload.Edges.View...)
@@ -222,6 +231,15 @@ func (c *AssetsApi) Update(help *contact.GinHelp) {
 		help.InValid("resource", "not found")
 	} else {
 		pipe := item.Update()
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldPath] {
+			pipe.SetPath(body.Payload.Path)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldExt] {
+			pipe.SetExt(body.Payload.Ext)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldType] {
+			pipe.SetType(body.Payload.Type)
+		}
 		if !c.SkipUpdateAutoEdge {
 			if body.Payload.Edges.View != nil {
 				pipe.AddView(body.Payload.Edges.View...)

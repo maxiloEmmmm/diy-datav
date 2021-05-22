@@ -2,10 +2,10 @@ package dataset
 
 import (
 	"context"
-	"errors"
+	"fmt"
 )
 
-type I7e interface {
+type DataSet interface {
 	Load(ctx context.Context, config string) (interface{}, error)
 }
 
@@ -13,11 +13,13 @@ type EmptyData []*DataDesc
 
 type DataDesc map[string]interface{}
 
-var Reg = make(map[string]I7e, 0)
+var Reg = make(map[string]DataSet, 0)
 
-func Load(ctx context.Context, typ string, config string) (interface{}, error) {
+func NewDataSet(typ string) (DataSet, error) {
 	if instance, exist := Reg[typ]; exist {
-		return instance.Load(ctx, config)
+		return instance, nil
 	}
-	return nil, errors.New("dataset type not found")
+
+	return nil, fmt.Errorf("not found dataset type for %s", typ)
 }
+

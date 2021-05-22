@@ -39,6 +39,9 @@ type AssetsMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	_path         *string
+	ext           *string
+	_type         *string
 	clearedFields map[string]struct{}
 	view          map[int]struct{}
 	removedview   map[int]struct{}
@@ -127,6 +130,114 @@ func (m *AssetsMutation) ID() (id int, exists bool) {
 	return *m.id, true
 }
 
+// SetPath sets the "path" field.
+func (m *AssetsMutation) SetPath(s string) {
+	m._path = &s
+}
+
+// Path returns the value of the "path" field in the mutation.
+func (m *AssetsMutation) Path() (r string, exists bool) {
+	v := m._path
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPath returns the old "path" field's value of the Assets entity.
+// If the Assets object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetsMutation) OldPath(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPath is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPath requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPath: %w", err)
+	}
+	return oldValue.Path, nil
+}
+
+// ResetPath resets all changes to the "path" field.
+func (m *AssetsMutation) ResetPath() {
+	m._path = nil
+}
+
+// SetExt sets the "ext" field.
+func (m *AssetsMutation) SetExt(s string) {
+	m.ext = &s
+}
+
+// Ext returns the value of the "ext" field in the mutation.
+func (m *AssetsMutation) Ext() (r string, exists bool) {
+	v := m.ext
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExt returns the old "ext" field's value of the Assets entity.
+// If the Assets object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetsMutation) OldExt(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldExt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldExt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExt: %w", err)
+	}
+	return oldValue.Ext, nil
+}
+
+// ResetExt resets all changes to the "ext" field.
+func (m *AssetsMutation) ResetExt() {
+	m.ext = nil
+}
+
+// SetType sets the "type" field.
+func (m *AssetsMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *AssetsMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Assets entity.
+// If the Assets object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetsMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *AssetsMutation) ResetType() {
+	m._type = nil
+}
+
 // AddViewIDs adds the "view" edge to the View entity by ids.
 func (m *AssetsMutation) AddViewIDs(ids ...int) {
 	if m.view == nil {
@@ -194,7 +305,16 @@ func (m *AssetsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AssetsMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 3)
+	if m._path != nil {
+		fields = append(fields, assets.FieldPath)
+	}
+	if m.ext != nil {
+		fields = append(fields, assets.FieldExt)
+	}
+	if m._type != nil {
+		fields = append(fields, assets.FieldType)
+	}
 	return fields
 }
 
@@ -202,6 +322,14 @@ func (m *AssetsMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *AssetsMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case assets.FieldPath:
+		return m.Path()
+	case assets.FieldExt:
+		return m.Ext()
+	case assets.FieldType:
+		return m.GetType()
+	}
 	return nil, false
 }
 
@@ -209,6 +337,14 @@ func (m *AssetsMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *AssetsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case assets.FieldPath:
+		return m.OldPath(ctx)
+	case assets.FieldExt:
+		return m.OldExt(ctx)
+	case assets.FieldType:
+		return m.OldType(ctx)
+	}
 	return nil, fmt.Errorf("unknown Assets field %s", name)
 }
 
@@ -217,6 +353,27 @@ func (m *AssetsMutation) OldField(ctx context.Context, name string) (ent.Value, 
 // type.
 func (m *AssetsMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case assets.FieldPath:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPath(v)
+		return nil
+	case assets.FieldExt:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExt(v)
+		return nil
+	case assets.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Assets field %s", name)
 }
@@ -238,6 +395,8 @@ func (m *AssetsMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *AssetsMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Assets numeric field %s", name)
 }
 
@@ -263,6 +422,17 @@ func (m *AssetsMutation) ClearField(name string) error {
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *AssetsMutation) ResetField(name string) error {
+	switch name {
+	case assets.FieldPath:
+		m.ResetPath()
+		return nil
+	case assets.FieldExt:
+		m.ResetExt()
+		return nil
+	case assets.FieldType:
+		m.ResetType()
+		return nil
+	}
 	return fmt.Errorf("unknown Assets field %s", name)
 }
 

@@ -12,9 +12,15 @@ import (
 
 // Assets is the model entity for the Assets schema.
 type Assets struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Path holds the value of the "path" field.
+	Path string `json:"path,omitempty"`
+	// Ext holds the value of the "ext" field.
+	Ext string `json:"ext,omitempty"`
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AssetsQuery when eager-loading is set.
 	Edges AssetsEdges `json:"edges"`
@@ -45,6 +51,8 @@ func (*Assets) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case assets.FieldID:
 			values[i] = new(sql.NullInt64)
+		case assets.FieldPath, assets.FieldExt, assets.FieldType:
+			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Assets", columns[i])
 		}
@@ -66,6 +74,24 @@ func (a *Assets) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			a.ID = int(value.Int64)
+		case assets.FieldPath:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field path", values[i])
+			} else if value.Valid {
+				a.Path = value.String
+			}
+		case assets.FieldExt:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ext", values[i])
+			} else if value.Valid {
+				a.Ext = value.String
+			}
+		case assets.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				a.Type = value.String
+			}
 		}
 	}
 	return nil
@@ -99,6 +125,12 @@ func (a *Assets) String() string {
 	var builder strings.Builder
 	builder.WriteString("Assets(")
 	builder.WriteString(fmt.Sprintf("id=%v", a.ID))
+	builder.WriteString(", path=")
+	builder.WriteString(a.Path)
+	builder.WriteString(", ext=")
+	builder.WriteString(a.Ext)
+	builder.WriteString(", type=")
+	builder.WriteString(a.Type)
 	builder.WriteByte(')')
 	return builder.String()
 }

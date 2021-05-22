@@ -4,6 +4,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -17,6 +18,24 @@ type AssetsCreate struct {
 	config
 	mutation *AssetsMutation
 	hooks    []Hook
+}
+
+// SetPath sets the "path" field.
+func (ac *AssetsCreate) SetPath(s string) *AssetsCreate {
+	ac.mutation.SetPath(s)
+	return ac
+}
+
+// SetExt sets the "ext" field.
+func (ac *AssetsCreate) SetExt(s string) *AssetsCreate {
+	ac.mutation.SetExt(s)
+	return ac
+}
+
+// SetType sets the "type" field.
+func (ac *AssetsCreate) SetType(s string) *AssetsCreate {
+	ac.mutation.SetType(s)
+	return ac
 }
 
 // AddViewIDs adds the "view" edge to the View entity by IDs.
@@ -85,6 +104,15 @@ func (ac *AssetsCreate) SaveX(ctx context.Context) *Assets {
 
 // check runs all checks and user-defined validators on the builder.
 func (ac *AssetsCreate) check() error {
+	if _, ok := ac.mutation.Path(); !ok {
+		return &ValidationError{Name: "path", err: errors.New("model: missing required field \"path\"")}
+	}
+	if _, ok := ac.mutation.Ext(); !ok {
+		return &ValidationError{Name: "ext", err: errors.New("model: missing required field \"ext\"")}
+	}
+	if _, ok := ac.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New("model: missing required field \"type\"")}
+	}
 	return nil
 }
 
@@ -112,6 +140,30 @@ func (ac *AssetsCreate) createSpec() (*Assets, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := ac.mutation.Path(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldPath,
+		})
+		_node.Path = value
+	}
+	if value, ok := ac.mutation.Ext(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldExt,
+		})
+		_node.Ext = value
+	}
+	if value, ok := ac.mutation.GetType(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldType,
+		})
+		_node.Type = value
+	}
 	if nodes := ac.mutation.ViewIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,

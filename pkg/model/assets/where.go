@@ -91,6 +91,360 @@ func IDLTE(id int) predicate.Assets {
 	})
 }
 
+// Path applies equality check predicate on the "path" field. It's identical to PathEQ.
+func Path(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPath), v))
+	})
+}
+
+// Ext applies equality check predicate on the "ext" field. It's identical to ExtEQ.
+func Ext(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldExt), v))
+	})
+}
+
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldType), v))
+	})
+}
+
+// PathEQ applies the EQ predicate on the "path" field.
+func PathEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPath), v))
+	})
+}
+
+// PathNEQ applies the NEQ predicate on the "path" field.
+func PathNEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPath), v))
+	})
+}
+
+// PathIn applies the In predicate on the "path" field.
+func PathIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldPath), v...))
+	})
+}
+
+// PathNotIn applies the NotIn predicate on the "path" field.
+func PathNotIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldPath), v...))
+	})
+}
+
+// PathGT applies the GT predicate on the "path" field.
+func PathGT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPath), v))
+	})
+}
+
+// PathGTE applies the GTE predicate on the "path" field.
+func PathGTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPath), v))
+	})
+}
+
+// PathLT applies the LT predicate on the "path" field.
+func PathLT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPath), v))
+	})
+}
+
+// PathLTE applies the LTE predicate on the "path" field.
+func PathLTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPath), v))
+	})
+}
+
+// PathContains applies the Contains predicate on the "path" field.
+func PathContains(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldPath), v))
+	})
+}
+
+// PathHasPrefix applies the HasPrefix predicate on the "path" field.
+func PathHasPrefix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldPath), v))
+	})
+}
+
+// PathHasSuffix applies the HasSuffix predicate on the "path" field.
+func PathHasSuffix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldPath), v))
+	})
+}
+
+// PathEqualFold applies the EqualFold predicate on the "path" field.
+func PathEqualFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldPath), v))
+	})
+}
+
+// PathContainsFold applies the ContainsFold predicate on the "path" field.
+func PathContainsFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldPath), v))
+	})
+}
+
+// ExtEQ applies the EQ predicate on the "ext" field.
+func ExtEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldExt), v))
+	})
+}
+
+// ExtNEQ applies the NEQ predicate on the "ext" field.
+func ExtNEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldExt), v))
+	})
+}
+
+// ExtIn applies the In predicate on the "ext" field.
+func ExtIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldExt), v...))
+	})
+}
+
+// ExtNotIn applies the NotIn predicate on the "ext" field.
+func ExtNotIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldExt), v...))
+	})
+}
+
+// ExtGT applies the GT predicate on the "ext" field.
+func ExtGT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldExt), v))
+	})
+}
+
+// ExtGTE applies the GTE predicate on the "ext" field.
+func ExtGTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldExt), v))
+	})
+}
+
+// ExtLT applies the LT predicate on the "ext" field.
+func ExtLT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldExt), v))
+	})
+}
+
+// ExtLTE applies the LTE predicate on the "ext" field.
+func ExtLTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldExt), v))
+	})
+}
+
+// ExtContains applies the Contains predicate on the "ext" field.
+func ExtContains(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldExt), v))
+	})
+}
+
+// ExtHasPrefix applies the HasPrefix predicate on the "ext" field.
+func ExtHasPrefix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldExt), v))
+	})
+}
+
+// ExtHasSuffix applies the HasSuffix predicate on the "ext" field.
+func ExtHasSuffix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldExt), v))
+	})
+}
+
+// ExtEqualFold applies the EqualFold predicate on the "ext" field.
+func ExtEqualFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldExt), v))
+	})
+}
+
+// ExtContainsFold applies the ContainsFold predicate on the "ext" field.
+func ExtContainsFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldExt), v))
+	})
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldType), v))
+	})
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldType), v))
+	})
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldType), v...))
+	})
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Assets {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Assets(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldType), v...))
+	})
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldType), v))
+	})
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldType), v))
+	})
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldType), v))
+	})
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldType), v))
+	})
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldType), v))
+	})
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldType), v))
+	})
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldType), v))
+	})
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldType), v))
+	})
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Assets {
+	return predicate.Assets(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldType), v))
+	})
+}
+
 // HasView applies the HasEdge predicate on the "view" edge.
 func HasView() predicate.Assets {
 	return predicate.Assets(func(s *sql.Selector) {

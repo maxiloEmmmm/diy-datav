@@ -24,7 +24,12 @@ func (d *DataSetService) Load(sdId int) (interface{}, error) {
 		return nil, err
 	}
 
-	return datasetUtil.Load(d.Context, dataset.Type, dataset.Config)
+	datasetEngine, err := datasetUtil.NewDataSet(dataset.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	return datasetEngine.Load(d.Context, dataset.Config)
 }
 
 

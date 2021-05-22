@@ -7,6 +7,12 @@ const (
 	Label = "assets"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPath holds the string denoting the path field in the database.
+	FieldPath = "path"
+	// FieldExt holds the string denoting the ext field in the database.
+	FieldExt = "ext"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// EdgeView holds the string denoting the view edge name in mutations.
 	EdgeView = "view"
 	// Table holds the table name of the assets in the database.
@@ -23,6 +29,9 @@ const (
 // Columns holds all SQL columns for assets fields.
 var Columns = []string{
 	FieldID,
+	FieldPath,
+	FieldExt,
+	FieldType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

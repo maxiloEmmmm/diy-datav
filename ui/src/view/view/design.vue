@@ -1,12 +1,14 @@
 <script lang="jsx">
-import { ViewBlockType } from 'type'
+import { ViewType, ViewBlockType } from 'type'
 export default {
     render() {
-        let blocks = this.blocks.map(block => {
-            return <block-wrap class='view-block'>{block.refresh}</block-wrap>
+        let blocks = this.view.blocks.map(block => {
+            return <block-wrap class='view-block'>{block.config.common.refresh}</block-wrap>
         })
         let bg = <div id='diy-data-view_bg'></div>
-        let util = <div id='diy-data-view_util'></div>
+        let util = <div id='diy-data-view_util'>
+            <a-button onClick={this.newBlock}>添加块</a-button>
+        </div>
 
         return <div id='diy-datav-view'>
             {bg}
@@ -16,7 +18,12 @@ export default {
     },
     data() {
         return {
-            blocks: [ViewBlockType()]
+            view: ViewType()
+        }
+    },
+    methods: {
+        newBlock() {
+            this.view.newBlockAndStore()
         }
     }
 }
@@ -31,7 +38,7 @@ export default {
     }
 
     #diy-data-view_util {
-        position: absolute; right: 0; left: 0; z-index: 2;
+        position: absolute; right: 0; top: 0; z-index: 2;
     }
 
     .view-block {

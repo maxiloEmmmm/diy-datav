@@ -9,10 +9,15 @@ import (
 	modelView "github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
+	"github.com/maxiloEmmmm/diy-datav/pkg/upload"
+	"io"
+	"net/http"
 )
 
 type ViewServiceI7e interface {
 	Store(view *types.View) (*types.View, error)
+	Upload(typ string, reader io.Reader, ext string) (*types.UploadResource, error)
+	WebDownloadBG(id int, rw http.ResponseWriter, req *http.Request) error
 }
 
 type ViewService struct {
@@ -21,6 +26,50 @@ type ViewService struct {
 
 func NewViewService(context context.Context) ViewServiceI7e {
 	return &ViewService{Context: context}
+}
+
+func (v *ViewService)Upload(typ string, reader io.Reader, ext string) (*types.UploadResource, error) {
+	var (
+		err error
+		path string
+	)
+
+	uploadUtil, err := upload.NewUpload(typ)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil && path != "" {
+			_ = uploadUtil.Remove(path)
+		}
+	}()
+
+	assertId := 0
+	err = app.WithTx(v.Context, func(tx *model.Tx) error {
+		// TODO: fill path
+		path, err = uploadUtil.Upload("", reader)
+		if err != nil {
+			return err
+		}
+
+		assetsInstance, err := app.Db.Assets.Create().SetPath(path).SetExt(ext).SetType(typ).Save(v.Context)
+		if err != nil {
+			return err
+		}
+
+		assertId = assetsInstance.ID
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.UploadResource{
+		Id:   assertId,
+		Path: path,
+	}, nil
 }
 
 func(v *ViewService)Store(view *types.View) (*types.View, error) {
@@ -69,13 +118,13 @@ func(v *ViewService)Store(view *types.View) (*types.View, error) {
 
 			block.Id = blockInstance.ID
 
-			vbci := &types.ViewBlockConfigInput{}
+			vbci := &types.ViewBlockConfig{}
 			err = json.Unmarshal([]byte(block.Config), vbci)
 			if err != nil {
 				return err
 			}
 
-			for _, dsc := range vbci.Input {
+			for _, dsc := range vbci.Common.Input {
 				dsInstance, err := tx.DataSet.Create().SetType(dsc.Type).SetConfig(dsc.Config).SetBlock(blockInstance).Save(v.Context)
 				if err != nil {
 					return err
@@ -96,4 +145,23 @@ func(v *ViewService)Store(view *types.View) (*types.View, error) {
 
 		return nil
 	})
+}
+
+func (v *ViewService)WebDownloadBG(id int, rw http.ResponseWriter, req *http.Request) error {
+	view, err := app.Db.View.Get(v.Context, id)
+	if err != nil {
+		return err
+	}
+
+	bg, err := view.QueryBg().First(v.Context)
+	if err != nil {
+		return err
+	}
+
+	uploadUtil, err := upload.NewUpload(bg.Type)
+	if err != nil {
+		return err
+	}
+
+	return uploadUtil.WebDownload(bg.Path, bg.Ext, rw, req)
 }

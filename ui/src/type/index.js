@@ -1,2 +1,2 @@
-export * from './block'
+export * from './view'
 export * from './common'

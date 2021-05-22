@@ -287,6 +287,19 @@ func (aq *AssetsQuery) WithView(opts ...func(*ViewQuery)) *AssetsQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Path string `json:"path,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Assets.Query().
+//		GroupBy(assets.FieldPath).
+//		Aggregate(model.Count()).
+//		Scan(ctx, &v)
+//
 func (aq *AssetsQuery) GroupBy(field string, fields ...string) *AssetsGroupBy {
 	group := &AssetsGroupBy{config: aq.config}
 	group.fields = append([]string{field}, fields...)
@@ -301,6 +314,17 @@ func (aq *AssetsQuery) GroupBy(field string, fields ...string) *AssetsGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Path string `json:"path,omitempty"`
+//	}
+//
+//	client.Assets.Query().
+//		Select(assets.FieldPath).
+//		Scan(ctx, &v)
+//
 func (aq *AssetsQuery) Select(field string, fields ...string) *AssetsSelect {
 	aq.fields = append([]string{field}, fields...)
 	return &AssetsSelect{AssetsQuery: aq}

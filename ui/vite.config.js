@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       '@': path.join(__dirname, 'src'),
       'type': path.join(__dirname, 'src/type'),
+      'pkg': path.join(__dirname, 'src/pkg'),
     }
   },
   plugins: [

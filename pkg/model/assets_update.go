@@ -27,6 +27,24 @@ func (au *AssetsUpdate) Where(ps ...predicate.Assets) *AssetsUpdate {
 	return au
 }
 
+// SetPath sets the "path" field.
+func (au *AssetsUpdate) SetPath(s string) *AssetsUpdate {
+	au.mutation.SetPath(s)
+	return au
+}
+
+// SetExt sets the "ext" field.
+func (au *AssetsUpdate) SetExt(s string) *AssetsUpdate {
+	au.mutation.SetExt(s)
+	return au
+}
+
+// SetType sets the "type" field.
+func (au *AssetsUpdate) SetType(s string) *AssetsUpdate {
+	au.mutation.SetType(s)
+	return au
+}
+
 // AddViewIDs adds the "view" edge to the View entity by IDs.
 func (au *AssetsUpdate) AddViewIDs(ids ...int) *AssetsUpdate {
 	au.mutation.AddViewIDs(ids...)
@@ -137,6 +155,27 @@ func (au *AssetsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := au.mutation.Path(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldPath,
+		})
+	}
+	if value, ok := au.mutation.Ext(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldExt,
+		})
+	}
+	if value, ok := au.mutation.GetType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldType,
+		})
+	}
 	if au.mutation.ViewCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -208,6 +247,24 @@ type AssetsUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AssetsMutation
+}
+
+// SetPath sets the "path" field.
+func (auo *AssetsUpdateOne) SetPath(s string) *AssetsUpdateOne {
+	auo.mutation.SetPath(s)
+	return auo
+}
+
+// SetExt sets the "ext" field.
+func (auo *AssetsUpdateOne) SetExt(s string) *AssetsUpdateOne {
+	auo.mutation.SetExt(s)
+	return auo
+}
+
+// SetType sets the "type" field.
+func (auo *AssetsUpdateOne) SetType(s string) *AssetsUpdateOne {
+	auo.mutation.SetType(s)
+	return auo
 }
 
 // AddViewIDs adds the "view" edge to the View entity by IDs.
@@ -343,6 +400,27 @@ func (auo *AssetsUpdateOne) sqlSave(ctx context.Context) (_node *Assets, err err
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := auo.mutation.Path(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldPath,
+		})
+	}
+	if value, ok := auo.mutation.Ext(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldExt,
+		})
+	}
+	if value, ok := auo.mutation.GetType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: assets.FieldType,
+		})
 	}
 	if auo.mutation.ViewCleared() {
 		edge := &sqlgraph.EdgeSpec{
