@@ -2,7 +2,7 @@
   "name": "diy-datav-ui",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite -m dev",
     "build": "vite build",
     "serve": "vite preview"
   },

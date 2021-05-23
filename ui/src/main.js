@@ -3,6 +3,9 @@ import App from './App.vue'
 
 let app = createApp(App)
 
+import api from './api'
+app.use(api)
+
 import components from './components'
 app.use(components)
 
