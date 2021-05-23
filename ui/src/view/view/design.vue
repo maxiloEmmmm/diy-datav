@@ -22,7 +22,7 @@ export default {
         }
     },
     created() {
-        this.$api[this.$apiType.ViewStore].handler({id: 1})
+        this.$api[this.$apiType.ViewStore]({id: 1})
             .then(response => {
                 console.log(response.data.body)
             })
