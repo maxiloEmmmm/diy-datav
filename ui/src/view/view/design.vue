@@ -21,6 +21,12 @@ export default {
             view: ViewType()
         }
     },
+    created() {
+        this.$api[this.$apiType.ViewStore].handler({id: 1})
+            .then(response => {
+                console.log(response.data.body)
+            })
+    },
     methods: {
         newBlock() {
             this.view.newBlockAndStore()
