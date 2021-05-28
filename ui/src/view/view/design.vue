@@ -1,11 +1,12 @@
 <script lang="jsx">
 import { ViewType, ViewBlockType } from 'type'
+import bgAssetsDev from '@/assets/bg_design.png'
 export default {
     render() {
         let blocks = this.view.blocks.map(block => {
-            return <block-wrap class='view-block'>{block.config.common.refresh}</block-wrap>
+            return <block-wrap>{block.config.common.refresh}</block-wrap>
         })
-        let bg = <div id='diy-data-view_bg'></div>
+        let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
         let util = <div id='diy-data-view_util'>
             <a-button onClick={this.newBlock}>添加块</a-button>
         </div>
@@ -27,6 +28,14 @@ export default {
                 console.log(response.data.body)
             })
     },
+    computed: {
+        _bg_style() {
+            return {
+                backgroundImage: `url(${bgAssetsDev})`,
+                backgroundSize: '100% 100%'
+            }
+        }
+    },
     methods: {
         newBlock() {
             this.view.newBlockAndStore()
@@ -45,10 +54,6 @@ export default {
 
     #diy-data-view_util {
         position: absolute; right: 0; top: 0; z-index: 2;
-    }
-
-    .view-block {
-        position: absolute; z-index: 3;
     }
 }
 </style>

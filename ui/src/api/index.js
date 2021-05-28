@@ -3,10 +3,10 @@ import mockUtil from './mock'
 import http from 'pkg/http'
 import * as type from './type'
 
-http.baseURL = import.meta.env.VITE_API
+http.defaults.baseURL = import.meta.env.VITE_API
 
 const api = {
-    [type.ViewStore]() {
+    [type.ViewStore](view) {
         return http.put('view', view)
     },
     [type.ViewUploadBG](file) {
@@ -20,6 +20,7 @@ export default {
         app.config.globalProperties.$apiType = type
 
         if(import.meta.env.VITE_MOCK == 'on') {
+            // TODO: repalce api generate
             mockUtil()
         }
     }
