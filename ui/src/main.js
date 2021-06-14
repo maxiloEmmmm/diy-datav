@@ -9,6 +9,9 @@ app.use(api)
 import components from './components'
 app.use(components)
 
+import store from './store'
+app.use(store)
+
 import 'ant-design-vue/dist/antd.css'
 import antd from 'ant-design-vue'
 app.use(antd)

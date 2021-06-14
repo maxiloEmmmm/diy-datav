@@ -12,5 +12,3 @@ require (
 	github.com/maxiloEmmmm/go-web v0.0.19-beta16
 	github.com/pkg/errors v0.9.1
 )
-
-replace github.com/maxiloEmmmm/go-web => /Users/maxilozoz/Downloads/code/_TEST/go-web
