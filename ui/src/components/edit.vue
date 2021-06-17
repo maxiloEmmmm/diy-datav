@@ -1,7 +1,10 @@
-<script type="tsx">
+<script lang="tsx">
 export default {
     render() {
-        return <div></div>
+        let context = this.$slots.default()
+        return <div>
+            {context}
+        </div>
     }
 }
 </script>

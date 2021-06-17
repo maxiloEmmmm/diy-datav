@@ -1,21 +1,17 @@
-<script type="tsx">
+<script lang="tsx">
 export default {
     render() {
+        let context = this.$slots.default()
         return <div
-            onMousedown={this.onMouseDown}
+            style="width:120px; height:120px"
         >
-
+            {context}
         </div>
     },
     data() {
         return {
-            inMove: false
+            inMove: false,
         }
     },
-    methods: {
-        onMouseDown(e) {
-
-        }
-    }
 }
 </script>

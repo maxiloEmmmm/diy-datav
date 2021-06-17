@@ -4,16 +4,17 @@ import bgAssetsDev from '@/assets/bg_design.png'
 export default {
     render() {
         let blocks = this.view.blocks.map((block, blockIndex) => {
-            return <block-wrap block-key={blockIndex}>{block.config.common.refresh}</block-wrap>
+            return <block-wrap class="diy-data-view_block" block-key={blockIndex}>{block.config.common.refresh}</block-wrap>
         })
         let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
         let util = <div id='diy-data-view_util'>
             <a-button onClick={this.newBlock}>添加块</a-button>
-            current drag id: { this.dragBlockID }
+            current drag id: { this.dragBlockID }, focus: {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </div>
 
         return <div id='diy-datav-view'
             onDrop={this.onDrop}
+            onMousedown={this.onMouseDown}
         >
             {bg}
             {util}
@@ -30,6 +31,8 @@ export default {
             .then(response => {
                 console.log(response.data.body)
             })
+
+        this._initFocus()
     },
     computed: {
         _bg_style() {
@@ -48,6 +51,9 @@ export default {
         },
         onDrop() {
 
+        },
+        onMouseDown() {
+            this._doFocus()
         }
     }
 }
@@ -63,6 +69,10 @@ export default {
 
     #diy-data-view_util {
         position: absolute; right: 0; top: 0; z-index: 2;
+    }
+
+    .diy-data-view_block {
+        position: absolute; z-index: 3; border: 1px red dashed
     }
 }
 </style>

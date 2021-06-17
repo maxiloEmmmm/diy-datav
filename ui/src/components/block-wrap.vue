@@ -9,14 +9,15 @@ export default {
     },
     render(){
         let context = this.$slots.default()
-        let attrs = {}
+        let moveAttrs = {class: this.$attrs.class}
 
-        return <move>
+        return <move
+            {...moveAttrs}
+            onMousedown={this.onMouseDown}
+        >
             <edit>
-                <div
-                    {...attrs}>
-                    {context}
-                </div>
+                {context}
+                {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
             </edit>
         </move>
     },
@@ -26,6 +27,14 @@ export default {
     props: {
         blockKey: {type: Number}
     },
-    methods: {}
+    created() {
+        this._initFocus()
+    },
+    methods: {
+        onMouseDown(e) {
+            e.stopPropagation()
+            this._doFocus()
+        },
+    }
 }
 </script>
