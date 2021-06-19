@@ -18,10 +18,6 @@ app.use(components)
 import store from './store/index.js'
 app.use(store)
 
-import 'ant-design-vue/dist/antd.css'
-import antd from 'ant-design-vue'
-app.use(antd)
-
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 app.use(createRouter({

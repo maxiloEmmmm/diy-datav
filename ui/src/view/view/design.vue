@@ -32,7 +32,7 @@ export default {
                 console.log(response.data.body)
             })
 
-        this._initFocus()
+        this.mixinInitFocus()
     },
     computed: {
         _bg_style() {
@@ -53,7 +53,7 @@ export default {
 
         },
         onMouseDown() {
-            this._doFocus()
+            this.mixinDoFocus()
         }
     }
 }

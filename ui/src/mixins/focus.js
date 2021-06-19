@@ -10,12 +10,12 @@ export default {
         }
     },
     methods: {
-        async _initFocus() {
+        async mixinInitFocus() {
             this.app_mixin.focus.do = await this.$store.dispatch("view/addFocusItem", (isFocus) => {
                 this.app_mixin.focus.in = isFocus
             })
         },
-        _doFocus() {
+        mixinDoFocus() {
             if(this.app_mixin.focus.do != null && !this.app_mixin.focus.in) {
                 this.app_mixin.focus.do()
             }
