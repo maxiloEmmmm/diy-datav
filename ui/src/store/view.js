@@ -2,6 +2,7 @@ import util from 'pkg/util'
 
 const state = {
     dragBlockId: "",
+
     focus: {
         item: "",
         map: {}

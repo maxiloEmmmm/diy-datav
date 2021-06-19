@@ -13,13 +13,22 @@ export default {
         let moveAttrs = {class: ['ext-wrap', ...this.$attrs.class]}
 
         let help = this.hasHelp ? <div class="ext-help">
-            {this.helps.map(help => help.component())}
+            {this.helps.map(help => {
+                let Component = help.component()
+                return <Component onClick={help.cb}/>
+            })}
         </div> : null
 
         return <move
+            ref="move"
             {...moveAttrs}
             onMousedown={this.onMouseDown}
+            onMousemove={this.onMouseMove}
+            onMouseup={this.onMouseUp}
+            onMouseenter={this.onMouseEnter}
+            onMouseleave={this.onMouseLeave}
             enable={this.app_mixin.focus.in}
+            moving={this.status.mouse.move}
         >
             <edit>
                 {help}
@@ -29,7 +38,18 @@ export default {
         </move>
     },
     data() {
-        return {}
+        return {
+            status: {
+                mouse: {
+                    down: false,
+                    move: false,
+                    downPosition: {
+                        left: null,
+                        right: null
+                    }
+                }
+            }
+        }
     },
     computed: {
         ...mapGetters('view', {
@@ -52,7 +72,29 @@ export default {
         onMouseDown(e) {
             e.stopPropagation()
             this.mixinDoFocus()
+            this.status.mouse.down = true
+
+            // TODO: save position
+
+            let moveCb = () => {
+                // TODO: move block by current position
+                this.status.mouse.move = true
+            }
+
+            let upCb = () => {
+                this.status.mouse.down = false
+                this.status.mouse.move = false
+                document.removeEventListener('mouseup', upCb)
+                document.removeEventListener('mousemove', moveCb)
+            }
+
+            document.addEventListener('mouseup', upCb)
+            document.addEventListener('mousemove', moveCb)
         },
+        onMouseMove(e) { },
+        onMouseUp(e) {},
+        onMouseEnter(e) {},
+        onMouseLeave(e) {}
     }
 }
 </script>

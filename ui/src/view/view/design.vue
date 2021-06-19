@@ -3,8 +3,9 @@ import { ViewType, ViewBlockType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 export default {
     render() {
-        let blocks = this.view.blocks.map((block, blockIndex) => {
-            return <block-wrap class="diy-data-view_block" block-key={blockIndex}>{block.config.common.refresh}</block-wrap>
+        let blocks = this.view.blocks.map(block => {
+            let blockKey = block.getKey()
+            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>{block.config.common.refresh}</block-wrap>
         })
         let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
         let util = <div id='diy-data-view_util'>

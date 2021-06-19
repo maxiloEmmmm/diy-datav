@@ -17,6 +17,9 @@ export default {
     props: {
         enable: {
             type: Boolean, default: false
+        },
+        moving: {
+            type: Boolean, default: false
         }
     },
     data() {
@@ -24,27 +27,18 @@ export default {
         }
     },
     watch: {
-        enable: {
-            immediate: true,
-            handler(val) {
-                (val ? this.mixinActiveHelp : this.mixinDisableHelp)(HelpModule.ViewBlock, "move")
-            }
+        enable(val) {
+            (val ? this.mixinActiveHelp : this.mixinDisableHelp)(HelpModule.ViewBlock, "move")
         }
     },
-    // TODO: created is after watch immediate, so use beforeCreate to add help
-    // but can't use mixin addHelp func, because in beforeCreate mixins is not complete
-    // wait resolve to use mixin addHelp func
-    beforeCreate(){
-        this.$store.commit('view/addHelp', {
-            typ: HelpModule.ViewBlock,
-            helps: [
-                {key: "move", component() {
-                    return <DragOutlined/>
-                }, cb: () => {
-                    console.log("move help click")
-                }}
-            ]
-        })
+    created(){
+        this.mixinAddHelp(HelpModule.ViewBlock, [
+            {key: "move", component() {
+                return <DragOutlined/>
+            }, cb: () => {
+                console.log("move help click")
+            }, disable: !this.enable}
+        ])
     }
 }
 </script>

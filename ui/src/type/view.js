@@ -1,7 +1,11 @@
 import * as common from './common'
-
+import util from 'pkg/util'
 export const ViewBlockType = function() {
+    let blockKey = util.uuid()
     return {
+        getKey() {
+            return blockKey
+        },
         id: '',
         type: '',
         config: {
@@ -29,6 +33,9 @@ export const ViewType = function() {
             let block = this.newBlock()
             this.blocks.push(block)
             return block
-        }
+        },
+        pushBlock(block) {
+            this.blocks.push(block)
+        },
     }
 }
