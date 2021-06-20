@@ -3,6 +3,7 @@ import move from './move.vue'
 import edit from './edit.vue'
 import {mapGetters} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
+import util from 'pkg/util'
 export default {
     name: 'block-wrap',
     components: {
@@ -10,7 +11,13 @@ export default {
     },
     render(){
         let context = this.$slots.default()
-        let moveAttrs = {class: ['ext-wrap', ...this.$attrs.class]}
+        let moveAttrs = {
+            class: ['ext-wrap', ...this.$attrs.class],
+            style: {
+                left: `${this.status.position.left}%`,
+                top: `${this.status.position.top}%`
+            }
+        }
 
         let help = this.hasHelp ? <div class="ext-help">
             {this.helps.map(help => {
@@ -43,10 +50,16 @@ export default {
                 mouse: {
                     down: false,
                     move: false,
-                    downPosition: {
-                        left: null,
-                        right: null
+                    oldPosition: {
+                        domLeft: 0,
+                        domTop: 0,
+                        left: 0,
+                        top: 0
                     }
+                },
+                position: {
+                    left: 0,
+                    top: 0
                 }
             }
         }
@@ -63,23 +76,34 @@ export default {
         }
     },
     props: {
-        blockKey: {type: Number}
+        blockKey: {type: String}
     },
     created() {
         this.mixinInitFocus()
     },
     methods: {
         onMouseDown(e) {
+            e.preventDefault()
             e.stopPropagation()
             this.mixinDoFocus()
             this.status.mouse.down = true
+            this.status.mouse.oldPosition.left = e.clientX
+            this.status.mouse.oldPosition.top = e.clientY
+            this.status.mouse.oldPosition.domLeft = this.$refs.move.$el.offsetLeft
+            this.status.mouse.oldPosition.domTop = this.$refs.move.$el.offsetTop
 
-            // TODO: save position
+            let moveCb = util.throttle((e) => {
+                this.$nextTick(() => {
+                    let x = this.status.mouse.oldPosition.domLeft + e.clientX - this.status.mouse.oldPosition.left
+                    let y = this.status.mouse.oldPosition.domTop + e.clientY - this.status.mouse.oldPosition.top
+                    x = x < 0 ? 0 : (x > document.body.clientWidth ? document.body.clientWidth : x)
+                    y = y < 0 ? 0 : (y > document.body.clientHeight ? document.body.clientHeight : y)
 
-            let moveCb = () => {
-                // TODO: move block by current position
-                this.status.mouse.move = true
-            }
+                    this.status.position.left = `${(x / document.body.clientWidth).toFixed(3) * 100}`
+                    this.status.position.top = `${(y / document.body.clientHeight).toFixed(3) * 100}`
+                    this.status.mouse.move = true
+                })
+            }, 25)
 
             let upCb = () => {
                 this.status.mouse.down = false
@@ -101,7 +125,6 @@ export default {
 
 <style lang="scss" scoped>
 .ext-wrap {
-    position: relative;
     .ext-help {
         position: absolute;
         left: 0; right: 0; top: 0; bottom: 0;
