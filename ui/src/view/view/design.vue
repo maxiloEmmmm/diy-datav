@@ -73,7 +73,7 @@ export default {
     }
 
     .diy-data-view_block {
-        position: absolute; z-index: 3; border: 1px red dashed
+        position: absolute; z-index: 3;
     }
 }
 </style>
