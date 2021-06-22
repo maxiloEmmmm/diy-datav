@@ -2,7 +2,11 @@
 import {Module as HelpModule} from '@/mixins/help'
 import { DragOutlined } from '@ant-design/icons-vue';
 import util from 'pkg/util'
-import {UpCircleOutlined, DownCircleOutlined, LeftCircleOutlined, RightCircleOutlined} from '@ant-design/icons-vue'
+import {
+    UpCircleOutlined, DownCircleOutlined, LeftCircleOutlined,
+    RightCircleOutlined, RadiusUpleftOutlined, RadiusBottomleftOutlined,
+    RadiusBottomrightOutlined, RadiusUprightOutlined
+} from '@ant-design/icons-vue'
 
 export default {
     render() {
@@ -10,25 +14,31 @@ export default {
         let attrs = {
             class: this.$attrs.class,
             style: {
-                left: `${this.status.position.left}%`,
-                top: `${this.status.position.top}%`,
+                left: `${this.status.box.left}%`,
+                top: `${this.status.box.top}%`,
+                height: `${this.status.box.height}%`,
+                width: `${this.status.box.width}%`,
                 border: this.enable ? '1px red dashed' : 'unset'
             }
         }
 
         // bar view in body or current move?
         // move must e.stopPropagation
+
         let bar = this.enable ? <div style="position:absolute; inset: 0;">
-            <UpCircleOutlined onMousedown={e => e.stopPropagation()} onClick={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
-            <DownCircleOutlined onMousedown={e => e.stopPropagation()} onClick={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
-            <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onClick={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
-            <RightCircleOutlined onMousedown={e => e.stopPropagation()} onClick={() => this.onBarMove('right')} style="position:absolute; right: -2rem; bottom: 50%; cursor: pointer"/>
+            <RadiusBottomrightOutlined onMousedown={this.onBarDown} style="position:absolute; right: -2rem; bottom: -2rem; cursor: pointer"/>
+        </div> : null
+
+        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0;">
+            <UpCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
+            <DownCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
+            <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
+            <RightCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('right')} style="position:absolute; right: -2rem; bottom: 50%; cursor: pointer"/>
         </div> : null
 
         return <div
             ref="move"
             {...attrs}
-            style="width:120px; height:120px"
 
             onMousedown={this.onMouseDown}
             onMousemove={this.onMouseMove}
@@ -37,6 +47,7 @@ export default {
             onMouseleave={this.onMouseLeave}
         >
             {bar}
+            {moveMiniBar}
             {context}
         </div>
     },
@@ -48,6 +59,11 @@ export default {
     data() {
         return {
             status: {
+                barMouse: {
+                    down: false,
+                    move: false,
+                    icon: null
+                },
                 mouse: {
                     down: false,
                     move: false,
@@ -58,9 +74,13 @@ export default {
                         top: 0
                     }
                 },
-                position: {
-                    left: 0,
-                    top: 0
+                box: {
+                    width: 10,
+                    height: 10,
+                    old: {
+                        width: 10,
+                        height: 10
+                    }
                 }
             }
         }
@@ -93,16 +113,14 @@ export default {
             this.status.mouse.oldPosition.domTop = this.$refs.move.offsetTop
 
             let moveCb = (e) => {
-                this.$nextTick(() => {
-                    let x = this.status.mouse.oldPosition.domLeft + e.clientX - this.status.mouse.oldPosition.left
-                    let y = this.status.mouse.oldPosition.domTop + e.clientY - this.status.mouse.oldPosition.top
-                    x = x < 0 ? 0 : (x > document.body.clientWidth ? document.body.clientWidth : x)
-                    y = y < 0 ? 0 : (y > document.body.clientHeight ? document.body.clientHeight : y)
+                let x = this.status.mouse.oldPosition.domLeft + e.clientX - this.status.mouse.oldPosition.left
+                let y = this.status.mouse.oldPosition.domTop + e.clientY - this.status.mouse.oldPosition.top
+                x = x < 0 ? 0 : (x > document.body.clientWidth ? document.body.clientWidth : x)
+                y = y < 0 ? 0 : (y > document.body.clientHeight ? document.body.clientHeight : y)
 
-                    this.status.position.left = `${(x / document.body.clientWidth).toFixed(3) * 100}`
-                    this.status.position.top = `${(y / document.body.clientHeight).toFixed(3) * 100}`
-                    this.status.mouse.move = true
-                })
+                this.status.box.left = `${(x / document.body.clientWidth).toFixed(3) * 100}`
+                this.status.box.top = `${(y / document.body.clientHeight).toFixed(3) * 100}`
+                this.status.mouse.move = true
             }
 
             let upCb = () => {
@@ -119,25 +137,59 @@ export default {
         onMouseUp(e) {},
         onMouseEnter(e) {},
         onMouseLeave(e) {},
+        onBarDown(e) {
+            this.status.mouse.oldPosition.left = e.clientX
+            this.status.mouse.oldPosition.top = e.clientY
+            this.status.mouse.oldPosition.domLeft = this.$refs.move.offsetLeft
+            this.status.mouse.oldPosition.domTop = this.$refs.move.offsetTop
+            this.status.box.old.width = this.$refs.move.clientWidth
+            this.status.box.old.height = this.$refs.move.clientHeight
+
+            e.preventDefault()
+            e.stopPropagation()
+            this.status.barMouse.down = true
+            let moveCb = (e) => {
+                let width = this.status.box.old.width + e.clientX - this.status.mouse.oldPosition.left
+                let height = this.status.box.old.height + e.clientY - this.status.mouse.oldPosition.top
+                let maxWidth = document.body.clientWidth - this.status.mouse.oldPosition.domLeft
+                width = width < 0 ? 0 : (width > maxWidth ? maxWidth : width)
+                let maxHeight = document.body.clientHeight - this.status.mouse.oldPosition.domTop
+                height = height < 0 ? 0 : (height > maxHeight ? maxHeight : height)
+
+                this.status.box.width = `${(width / document.body.clientWidth).toFixed(3) * 100}`
+                this.status.box.height = `${(height / document.body.clientHeight).toFixed(3) * 100}`
+                this.status.barMouse.move = true
+            }
+
+            let upCb = () => {
+                this.status.barMouse.down = false
+                this.status.barMouse.move = false
+                document.removeEventListener('mouseup', upCb)
+                document.removeEventListener('mousemove', moveCb)
+            }
+
+            document.addEventListener('mouseup', upCb)
+            document.addEventListener('mousemove', moveCb)
+        },
         onBarMove(typ) {
             let tmp
             let step = 0.1
             switch (typ) {
                 case 'up':
-                    tmp = parseFloat(this.status.position.top) - step
-                    this.status.position.top = tmp < 0 ? 0 : tmp
+                    tmp = parseFloat(this.status.box.top) - step
+                    this.status.box.top = tmp < 0 ? 0 : tmp
                     break
                 case 'down':
-                    tmp = parseFloat(this.status.position.top) + step
-                    this.status.position.top = tmp > 100 ? 100 : tmp
+                    tmp = parseFloat(this.status.box.top) + step
+                    this.status.box.top = tmp > 100 ? 100 : tmp
                     break
                 case 'left':
-                    tmp = parseFloat(this.status.position.left) - step
-                    this.status.position.left = tmp < 0 ? 0 : tmp
+                    tmp = parseFloat(this.status.box.left) - step
+                    this.status.box.left = tmp < 0 ? 0 : tmp
                     break
                 case 'right':
-                    tmp = parseFloat(this.status.position.left) + step
-                    this.status.position.left = tmp > 100 ? 100 : tmp
+                    tmp = parseFloat(this.status.box.left) + step
+                    this.status.box.left = tmp > 100 ? 100 : tmp
                     break
             }
         }
