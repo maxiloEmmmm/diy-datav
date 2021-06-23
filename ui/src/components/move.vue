@@ -18,7 +18,7 @@ export default {
                 top: `${this.status.box.top}%`,
                 height: `${this.status.box.height}%`,
                 width: `${this.status.box.width}%`,
-                border: this.enable ? '1px red dashed' : 'unset'
+                border: '1px red dashed'
             }
         }
 

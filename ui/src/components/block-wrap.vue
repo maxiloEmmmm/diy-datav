@@ -1,12 +1,11 @@
 <script lang="tsx">
 import move from './move.vue'
-import edit from './edit.vue'
 import {mapGetters} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
 export default {
     name: 'block-wrap',
     components: {
-        edit, move
+        move
     },
     render(){
         let context = this.$slots.default()
@@ -26,11 +25,9 @@ export default {
             onMousedown={this.onMouseDown}
             enable={this.app_mixin.focus.in}
         >
-            <edit>
-                {help}
-                {context}
-                {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
-            </edit>
+            {help}
+            {context}
+            {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </move>
     },
     data() {

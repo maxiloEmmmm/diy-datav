@@ -10,7 +10,7 @@ export const ViewBlockType = function() {
         type: '',
         config: {
             common: {
-                postion: common.PositionType(),
+                position: common.PositionType(),
                 input: [],
                 refresh: 10 * 1000,
             },
