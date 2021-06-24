@@ -1,7 +1,10 @@
 const util = {
     uuid,
     debounce,
-    throttle
+    throttle,
+    has,
+    set,
+    get
 }
 
 export default {
@@ -40,4 +43,69 @@ function throttle(cb, timeout) {
             }, timeout)
         }
     }
+}
+
+const has = function (
+    obj,
+    path,
+    returnValue = false,
+    endValue = undefined,
+    failBack = null) {
+    let pathInfo = path.split('.')
+    let x = []
+    let tmp = {}
+    pathInfo.forEach(v => {
+        if (/\[/.test(v)) {
+            //find [a]b[c] | b[a]c | [a][b]c => a.b.c
+            let arrayPathInfo = v.match(/(\[([^\[\]]+?)\]|[^\[\]]+)+?/g)
+            if (arrayPathInfo !== null) {
+                arrayPathInfo.forEach(q => {
+                    x.push(q.replace('[', '').replace(']', ''))
+                })
+            }
+        } else {
+            x.push(v)
+        }
+    })
+    let x_len = x.length
+    for (let i = 0; i < x_len; i++) {
+        let v = x[i]
+        if (!['[object Array]', '[object Object]'].includes(Object.prototype.toString.call(obj))
+            || !(v in obj)) {
+            if (failBack !== null) {
+                failBack(obj, x.slice(i))
+            }
+
+            if(!returnValue) {
+                return false
+            }
+            return returnValue ? endValue : false
+        }
+        tmp = obj
+        obj = obj[v]
+    }
+    if (failBack !== null) {
+        failBack(tmp, [x[x_len - 1]])
+    }
+    return returnValue ? obj : true
+}
+
+const get = function (obj, path, d = null) {
+    let value = has(obj, path, true)
+    return value === undefined ? d : value
+}
+
+const set = function (obj, path, d) {
+    has(obj, path, false, false, function (obj, pathInfo) {
+        let p_len = pathInfo.length
+        for (let i = 0; i < p_len; i++) {
+            let v = pathInfo[i]
+            if (i + 1 < p_len) {
+                let tmp = {}
+                obj = obj[v] = tmp
+            } else {
+                obj[v] = d
+            }
+        }
+    })
 }

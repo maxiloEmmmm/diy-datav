@@ -1,7 +1,7 @@
 <script type="tsx">
 
 import antvType from './types/antv'
-
+import util from 'pkg/util'
 export default {
     components: {
         antvType,
@@ -15,10 +15,12 @@ export default {
     data() {
         return {
             cfg: {
-                common: {},
+                common: {
+                    input: []
+                },
                 type: ""
             },
-            data: {}
+            data: []
         }
     },
     props: {
@@ -31,8 +33,10 @@ export default {
             default: "",
         },
         config: {
-            type: String,
-            default: "",
+            type: [String, Object],
+            default() {
+                return ""
+            },
         }
     },
     watch: {
@@ -41,10 +45,49 @@ export default {
             handler: 'transformTypeConfig'
         }
     },
+    created: 'fetch',
     methods: {
         transformTypeConfig() {
-        // TODO: parse config from props, get common and type config
-        // TODO: use common.input config to fetch data
+            // TODO: wait alert
+            // TODO: parse config from props, get common and type config
+            switch (typeof this.config) {
+                case 'object':
+                    this.mergeConfig(this.config)
+                    break
+                case 'string':
+                    try {
+                        this.mergeConfig(JSON.parse(this.config))
+                    }catch(e) {
+                        return
+                    }
+                    break
+                default:
+                    return
+            }
+        },
+        mergeConfig(config) {
+            let common = config.common
+            this.cfg.common.input = this.normalInput(common.input)
+            this.cfg.type = common.type || ""
+        },
+        normalInput(inputs) {
+            if(!Array.isArray(inputs)) {
+                return []
+            }
+
+            return inputs.filter(input => !!input.id)
+        },
+        fetch() {
+            this.cfg.common.input.forEach((index, input) => {
+                this.$store.commit('view/loadData', {
+                    id: input.id,
+                    //TODO: wait edit
+                    refresh: 1000,
+                    cb: (data) => {
+                        this.data[index] = data
+                    }
+                })
+            })
         }
     }
 }
