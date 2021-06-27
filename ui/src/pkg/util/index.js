@@ -1,18 +1,4 @@
-const util = {
-    uuid,
-    debounce,
-    throttle,
-    has,
-    set,
-    get
-}
 
-export default {
-    ...util,
-    install(app) {
-        app.config.globalProperties.$util = util
-    }
-}
 
 function uuid() {
     function S4() {
@@ -108,4 +94,20 @@ const set = function (obj, path, d) {
             }
         }
     })
+}
+
+const util = {
+    uuid,
+    debounce,
+    throttle,
+    has,
+    set,
+    get
+}
+
+export default {
+    ...util,
+    install(app) {
+        app.config.globalProperties.$util = util
+    }
 }

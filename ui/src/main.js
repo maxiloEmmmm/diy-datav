@@ -23,7 +23,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 app.use(createRouter({
     history: createWebHashHistory(),
     routes: [
-        {path: '/view/design', component: () => import('./view/view/design.vue')}
+        {path: '/view/design', component: () => import('./view/view/design.vue')},
+        {path: '/test/antv', component: () => import('./view/test/antv.vue')}
     ]
 }))
 

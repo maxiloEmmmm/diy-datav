@@ -123,8 +123,8 @@ const actions = {
                 if(getters.fetchAble) {
                     for(let id in state.dataSet) {
                         const ds = state.dataSet[id]
-                        if(ds.refresh % state.clock === 0) {
-                            fetchEngine?(id)
+                        if(ds.refresh % state.clock === 0 && fetchEngine !== null) {
+                            fetchEngine(id)
                                 .then(data => {
                                     ds.cb(data)
                                 })
