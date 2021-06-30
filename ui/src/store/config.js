@@ -1,10 +1,10 @@
 const state = {
     global: {},
     block: {
-        type: "",
+        type: "antv",
         config: ""
     },
-    show: false
+    show: true
 }
 
 const getters = {}

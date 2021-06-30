@@ -1,5 +1,6 @@
 <script lang="tsx">
 import { Chart } from '@antv/g2'
+import {AntVConfig} from 'type'
 export default {
     props: {
         data: {
@@ -18,29 +19,7 @@ export default {
     },
     data() {
         return {
-            cfg: {
-                // TODO: 支持多类型
-                type: '',
-                color: '',
-                coordinate: {
-                    type: '',
-                    transpose: false
-                },
-                scale: {
-                    x: {
-                        field: "",
-                        alias: "",
-                        format: {
-                            prefix: '',
-                            suffix: ''
-                        }
-                    },
-                    y: {
-                        field: ""
-                    }
-                },
-                cats: []
-            }
+            cfg: AntVConfig()
         }
     },
     chart: null,
@@ -96,6 +75,7 @@ export default {
             this.cfg.cats.forEach(cat => {
                 switch (cat.type) {
                     case 'size':
+                        // string, array
                         geometry.size(cat.field, cat.enum)
                         break
                     case 'shape':

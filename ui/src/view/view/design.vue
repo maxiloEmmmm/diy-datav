@@ -1,6 +1,8 @@
 <script lang="jsx">
 import { ViewType, ViewBlockType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
+import {mapState} from 'vuex'
+import configComponent from '@/components/types/config.js'
 export default {
     render() {
         let blocks = this.view.blocks.map(block => {
@@ -13,6 +15,11 @@ export default {
             current drag id: { this.dragBlockID }, focus: {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </div>
 
+        let cm = configComponent[this.currentConfigBlockType]
+        let configBar = <a-drawer visible={this.configShow && !!cm} onClick={this.onConfigBarClose}>
+            <cm config={this.currentConfigBlockConfig}/>
+        </a-drawer>
+
         return <div id='diy-datav-view'
             onDrop={this.onDrop}
             onMousedown={this.onMouseDown}
@@ -20,6 +27,8 @@ export default {
             {bg}
             {util}
             {blocks}
+
+            {configBar}
         </div>
     },
     data() {
@@ -44,7 +53,12 @@ export default {
         },
         dragBlockID() {
             return this.$store.state.view.dragBlockId
-        }
+        },
+        ...mapState('config', {
+            configShow: 'show',
+            currentConfigBlockType: state => state.block.type,
+            currentConfigBlockConfig: state => state.block.config
+        })
     },
     methods: {
         newBlock() {
@@ -55,6 +69,9 @@ export default {
         },
         onMouseDown() {
             this.mixinDoFocus()
+        },
+        onConfigBarClose() {
+            this.mixinConfigHidden()
         }
     }
 }

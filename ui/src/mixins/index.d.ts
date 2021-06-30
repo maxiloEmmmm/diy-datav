@@ -26,6 +26,16 @@ declare module '@vue/runtime-core' {
         mixinActiveHelp(typ: string, key: string),
         // 移除帮助
         mixinRemoveHelp(typ: string, key: string),
+        // 显示配置
+        mixinConfigShow(),
+        // 隐藏配置
+        mixinConfigHidden(),
+        // 设置配置的类型
+        mixinSetConfigType(typ: string),
+        // 设置配置的类型和配置
+        mixinSetConfigTypeAndConfig(typ: string, config: string),
+        // 设置配置的配置
+        mixinSetConfigConfig(config: string),
         // 全局混合数据
         app_mixin: {
             // focus模块
