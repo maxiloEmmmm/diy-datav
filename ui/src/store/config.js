@@ -2,7 +2,8 @@ const state = {
     global: {},
     block: {
         type: "antv",
-        config: ""
+        config: '',
+        key: ''
     },
     show: true
 }
@@ -15,6 +16,9 @@ const mutations = {
     },
     SetBlockType(state, type) {
         state.block.type = type
+    },
+    SetBlockKey(state, key) {
+        state.block.key = key
     },
     SetActive(state, active) {
         state.show = active

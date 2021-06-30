@@ -1,18 +1,8 @@
 <script lang="tsx">
-import {AntVConfig} from 'type'
+import {AntVConfig, AntVConfigParse} from 'type/types/index.js'
+import configMixin from './config-mixin'
 export default {
-    props: {
-        config: {
-            type: String,
-            default: ''
-        }
-    },
-    watch: {
-        config: {
-            immediate: true,
-            handler: 'transformConfig'
-        }
-    },
+    mixins: [configMixin],
     data() {
         return {
             cfg: AntVConfig()
@@ -23,8 +13,12 @@ export default {
     },
     methods: {
         transformConfig() {
-
-        }
+            try {
+                this.cfg = AntVConfigParse(JSON.parse(this.config))
+            }catch(e) {
+                console.log('AntV config parse failed in antv-config', e, this.config)
+            }
+        },
     }
 }
 </script>

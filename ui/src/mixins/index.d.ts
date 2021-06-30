@@ -30,6 +30,8 @@ declare module '@vue/runtime-core' {
         mixinConfigShow(),
         // 隐藏配置
         mixinConfigHidden(),
+        // 设置配置块标识
+        mixinSetConfigKey(key: string),
         // 设置配置的类型
         mixinSetConfigType(typ: string),
         // 设置配置的类型和配置

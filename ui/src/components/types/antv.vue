@@ -1,6 +1,6 @@
 <script lang="tsx">
 import { Chart } from '@antv/g2'
-import {AntVConfig} from 'type'
+import {AntVConfig, AntVConfigParse} from 'type/types/index.js'
 export default {
     props: {
         data: {
@@ -43,9 +43,7 @@ export default {
             })
 
             // coordinate
-            if(this.cfg.coordinate.type) {
-                chart.coordinate(this.cfg.coordinate.type)
-            }
+            chart.coordinate(this.cfg.coordinate.type)
 
             if(this.cfg.coordinate.transpose) {
                 chart.getCoordinate().transpose()
@@ -101,7 +99,11 @@ export default {
     },
     methods: {
         parse() {
-
+            try {
+                this.cfg = AntVConfigParse(JSON.parse(this.config))
+            }catch(e) {
+                console.log('AntV config parse failed in antv-config', e, this.config)
+            }
         },
         renderAfter() {
             const e = document.createEvent('Event')

@@ -76,6 +76,22 @@ const has = function (
     return returnValue ? obj : true
 }
 
+const getType = v => {
+    let str = Object.prototype.toString.call(v);
+    return str.slice(8, str.length-1);
+}
+
+const isDefine = function (obj, path) {
+    let value = has(obj, path, true)
+    return value !== undefined
+}
+
+const typeEQ = function (o, o2) {
+    return getType(o) === getType(o2)
+}
+
+const isObject = o => getType(o) === 'Object'
+const isArray = o => getType(o) === 'Array'
 const get = function (obj, path, d = null) {
     let value = has(obj, path, true)
     return value === undefined ? d : value
@@ -96,13 +112,14 @@ const set = function (obj, path, d) {
     })
 }
 
+
 const util = {
     uuid,
     debounce,
     throttle,
     has,
     set,
-    get
+    get,
 }
 
 export default {

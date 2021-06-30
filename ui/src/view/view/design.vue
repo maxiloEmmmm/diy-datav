@@ -3,11 +3,18 @@ import { ViewType, ViewBlockType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
 import configComponent from '@/components/types/config.js'
+import typeConfigComponent from '@/components/types/type-config.vue'
+import {Module as HelpModule} from '@/mixins/help'
 export default {
+    components: {
+        typeConfigComponent
+    },
     render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
-            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>{block.config.common.refresh}</block-wrap>
+            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>
+                <block type={block.type} config={block.config}></block>
+            </block-wrap>
         })
         let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
         let util = <div id='diy-data-view_util'>
@@ -16,8 +23,9 @@ export default {
         </div>
 
         let cm = configComponent[this.currentConfigBlockType]
-        let configBar = <a-drawer visible={this.configShow && !!cm} onClick={this.onConfigBarClose}>
-            <cm config={this.currentConfigBlockConfig}/>
+        let configBar = <a-drawer visible={this.configShow} onClick={this.onConfigBarClose}>
+            <type-config-component></type-config-component>
+            {!!cm ? <cm config={this.currentConfigBlockConfig} onChange={this.onConfigChange}/> : null}
         </a-drawer>
 
         return <div id='diy-datav-view'
@@ -43,6 +51,26 @@ export default {
             })
 
         this.mixinInitFocus()
+
+        this.mixinAddHelp(HelpModule.ViewBlock, [
+            {key: "edit", component() {
+                    return <DragOutlined twoToneColor="red"/>
+                }, cb: (payload) => {
+                    if(!payload.blockKey) {
+                        return
+                    }
+
+                    const block = this.view.blocks.filter(block => block.getKey() === payload.blockKey)[0]
+                    if (!!block) {
+                        this.mixinSetConfigKey(payload.blockKey)
+                        // TODO: how to get config edit action to edit block config
+                        this.mixinSetConfigTypeAndConfig(block.type, block.config)
+                        this.mixinConfigShow()
+                    }
+                },
+                disable: !this.enable
+            }
+        ])
     },
     computed: {
         _bg_style() {
@@ -57,7 +85,8 @@ export default {
         ...mapState('config', {
             configShow: 'show',
             currentConfigBlockType: state => state.block.type,
-            currentConfigBlockConfig: state => state.block.config
+            currentConfigBlockConfig: state => state.block.config,
+            currentConfigBlockKey: state => state.block.key
         })
     },
     methods: {
@@ -72,6 +101,12 @@ export default {
         },
         onConfigBarClose() {
             this.mixinConfigHidden()
+        },
+        onConfigChange(data) {
+            const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]
+            if (!!block) {
+                block.config = data
+            }
         }
     }
 }

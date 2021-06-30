@@ -6,6 +6,9 @@ export default {
         mixinConfigHidden() {
             this.$store.commit('config/SetActive', false)
         },
+        mixinSetConfigKey(key = "") {
+            this.$store.commit("config/SetBlockKey", key)
+        },
         mixinSetConfigType(typ = "") {
             this.$store.commit("config/SetBlockType", typ)
         },

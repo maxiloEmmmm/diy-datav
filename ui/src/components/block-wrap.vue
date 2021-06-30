@@ -16,7 +16,10 @@ export default {
         let help = this.hasHelp ? <div class="ext-help">
             {this.helps.map(help => {
                 const Component = help.component()
-                return <Component onClick={help.cb}/>
+                return <Component onClick={e => help.cb({
+                    e,
+                    blockKey: this.blockKey
+                })}/>
             })}
         </div> : null
 

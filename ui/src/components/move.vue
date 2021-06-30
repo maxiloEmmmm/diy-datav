@@ -96,7 +96,7 @@ export default {
             e.preventDefault()
             e.stopPropagation()
 
-            this.mixinSetHelp(HelpModule.ViewBlock, [
+            this.mixinAddHelp(HelpModule.ViewBlock, [
                 {key: "move", component() {
                         return <DragOutlined twoToneColor="red"/>
                     }, cb: () => {

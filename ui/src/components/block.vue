@@ -1,16 +1,19 @@
-<script type="tsx">
-
-import antvType from './types/antv'
+<script lang="tsx">
+import antvType from './types/antv.vue'
 import util from 'pkg/util'
 export default {
     components: {
         antvType,
     },
+    name: 'block',
     render() {
         let Component = {
             antv: antvType
         }[this.type]
-        return <Component config={this.cfg.type} data={this.data}/>
+
+        return !Component
+            ? <div>unknown block type: {this.type}</div>
+            : <Component config={this.cfg.type} data={this.data}/>
     },
     data() {
         return {
@@ -26,10 +29,6 @@ export default {
     props: {
         type: {
             type: String,
-            default: "",
-        },
-        id: {
-            type: Number,
             default: "",
         },
         config: {
