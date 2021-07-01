@@ -1,11 +1,13 @@
 const state = {
     global: {},
     block: {
-        type: "antv",
+        type: '',
         config: '',
-        key: ''
+        key: '',
+        history: [],
+        current: -1,
     },
-    show: true
+    show: false
 }
 
 const getters = {}
@@ -18,10 +20,39 @@ const mutations = {
         state.block.type = type
     },
     SetBlockKey(state, key) {
+        state.block.history = []
         state.block.key = key
     },
     SetActive(state, active) {
         state.show = active
+    },
+    AddHistory(state) {
+        if(state.block.current < state.block.history.length - 1) {
+            state.block.history = state.block.history.slice(0, state.block.current)
+        }
+
+        state.block.history.push({
+            type: state.block.type,
+            config: state.block.config
+        })
+
+        state.block.current = state.block.history.length - 1
+    },
+    GoHistory(state, step) {
+        if(!state.block.key || step === 0) {
+            return
+        }
+
+        const hl = state.block.history.length
+        const targetIndex = hl - 1 + step
+        if (targetIndex > hl - 1) {
+            return
+        }
+
+        state.block.current = targetIndex
+        const record = state.block.history[state.block.current]
+        state.block.type = record.type
+        state.block.config = record.config
     }
 }
 

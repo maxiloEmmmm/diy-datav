@@ -6,18 +6,23 @@ export default {
         mixinConfigHidden() {
             this.$store.commit('config/SetActive', false)
         },
+        mixinSetConfigTypeAndConfig(typ = "", config = "") {
+            this.$store.commit('config/SetBlockType', typ)
+            this.$store.commit('config/SetBlockConfig', config)
+            this.$store.commit('config/AddHistory')
+        },
         mixinSetConfigKey(key = "") {
             this.$store.commit("config/SetBlockKey", key)
         },
-        mixinSetConfigType(typ = "") {
-            this.$store.commit("config/SetBlockType", typ)
+        mixinClearConfig(key = "") {
+            this.mixinSetConfigKey()
+            this.mixinSetConfigTypeAndConfig()
         },
-        mixinSetConfigTypeAndConfig(typ = "", config = "") {
-            this.mixinSetConfigType(typ)
-            this.mixinSetConfigConfig(config)
+        mixinBackHistory() {
+            this.$store.commit("config/GoHistory", -1)
         },
-        mixinSetConfigConfig(config = "") {
-            this.$store.commit("config/SetBlockConfig", config)
+        mixinForwardHistory() {
+            this.$store.commit("config/GoHistory", 1)
         }
     }
 }

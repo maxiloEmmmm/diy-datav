@@ -16,10 +16,9 @@ export default {
         let help = this.hasHelp ? <div class="ext-help">
             {this.helps.map(help => {
                 const Component = help.component()
-                return <Component onClick={e => help.cb({
-                    e,
-                    blockKey: this.blockKey
-                })}/>
+                return <Component
+                    onMousedown={e => e.stopPropagation()}
+                    onClick={e => this.onHelpComponentClick(e, help)}/>
             })}
         </div> : null
 
@@ -56,6 +55,13 @@ export default {
     methods: {
         onMouseDown() {
             this.mixinDoFocus()
+        },
+        onHelpComponentClick(e, help) {
+            e.stopPropagation()
+            help.cb({
+                e,
+                blockKey: this.blockKey
+            })
         }
     }
 }

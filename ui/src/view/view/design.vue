@@ -5,6 +5,7 @@ import {mapState} from 'vuex'
 import configComponent from '@/components/types/config.js'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import {Module as HelpModule} from '@/mixins/help'
+import { BarChartOutlined } from '@ant-design/icons-vue';
 export default {
     components: {
         typeConfigComponent
@@ -13,7 +14,7 @@ export default {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
             return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>
-                <block type={block.type} config={block.config}></block>
+                <view-block type={block.type} config={block.config}></view-block>
             </block-wrap>
         })
         let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
@@ -23,8 +24,9 @@ export default {
         </div>
 
         let cm = configComponent[this.currentConfigBlockType]
-        let configBar = <a-drawer visible={this.configShow} onClick={this.onConfigBarClose}>
+        let configBar = <a-drawer width="40%" visible={this.configShow} onClose={this.onConfigBarClose}>
             <type-config-component></type-config-component>
+            <a-divider />
             {!!cm ? <cm config={this.currentConfigBlockConfig} onChange={this.onConfigChange}/> : null}
         </a-drawer>
 
@@ -54,7 +56,7 @@ export default {
 
         this.mixinAddHelp(HelpModule.ViewBlock, [
             {key: "edit", component() {
-                    return <DragOutlined twoToneColor="red"/>
+                    return <BarChartOutlined twoToneColor="red"/>
                 }, cb: (payload) => {
                     if(!payload.blockKey) {
                         return
@@ -68,7 +70,6 @@ export default {
                         this.mixinConfigShow()
                     }
                 },
-                disable: !this.enable
             }
         ])
     },
@@ -101,6 +102,7 @@ export default {
         },
         onConfigBarClose() {
             this.mixinConfigHidden()
+            this.mixinSetConfigTypeAndConfig()
         },
         onConfigChange(data) {
             const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]

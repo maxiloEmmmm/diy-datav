@@ -49,7 +49,11 @@ const mutations = {
             state.help[payload.typ] = []
         }
 
-        state.help[payload.typ].push(...payload.helps.map(normalHelp))
+        state.help[payload.typ].push(...payload.helps.map(normalHelp).filter(help => !(state.help[payload.typ] || []).some((val) => {
+            if(val.key === help.key) {
+                return true
+            }
+        })))
     },
     setHelp(state, payload = {typ: "", helps: []}) {
         state.help[payload.typ] = payload.helps.map(normalHelp)

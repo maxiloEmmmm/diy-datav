@@ -32,12 +32,14 @@ declare module '@vue/runtime-core' {
         mixinConfigHidden(),
         // 设置配置块标识
         mixinSetConfigKey(key: string),
-        // 设置配置的类型
-        mixinSetConfigType(typ: string),
         // 设置配置的类型和配置
         mixinSetConfigTypeAndConfig(typ: string, config: string),
-        // 设置配置的配置
-        mixinSetConfigConfig(config: string),
+        // 清空配置
+        mixinClearConfig(),
+        // 回退配置
+        mixinBackHistory(),
+        // 前进配置
+        mixinForwardHistory(),
         // 全局混合数据
         app_mixin: {
             // focus模块

@@ -5,7 +5,7 @@ export default {
     components: {
         antvType,
     },
-    name: 'block',
+    name: 'view-block',
     render() {
         let Component = {
             antv: antvType
@@ -44,7 +44,9 @@ export default {
             handler: 'transformTypeConfig'
         }
     },
-    created: 'fetch',
+    created() {
+        this.fetch()
+    },
     methods: {
         transformTypeConfig() {
             // TODO: wait alert
