@@ -17,6 +17,10 @@ export default {
         mixinClearConfig(key = "") {
             this.mixinSetConfigKey()
             this.mixinSetConfigTypeAndConfig()
+            this.mixinClearHistory()
+        },
+        mixinClearHistory() {
+            this.$store.commit("config/ClearHistory")
         },
         mixinBackHistory() {
             this.$store.commit("config/GoHistory", -1)

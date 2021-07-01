@@ -26,6 +26,9 @@ const mutations = {
     SetActive(state, active) {
         state.show = active
     },
+    ClearHistory() {
+        state.block.history = []
+    },
     AddHistory(state) {
         if(state.block.current < state.block.history.length - 1) {
             state.block.history = state.block.history.slice(0, state.block.current)

@@ -36,6 +36,8 @@ declare module '@vue/runtime-core' {
         mixinSetConfigTypeAndConfig(typ: string, config: string),
         // 清空配置
         mixinClearConfig(),
+        // 清空配置历史
+        mixinClearHistory(),
         // 回退配置
         mixinBackHistory(),
         // 前进配置
