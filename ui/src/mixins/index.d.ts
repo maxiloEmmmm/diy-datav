@@ -42,6 +42,8 @@ declare module '@vue/runtime-core' {
         mixinBackHistory(),
         // 前进配置
         mixinForwardHistory(),
+        // 出发resize事件
+        mixinDispatchWindowResize(),
         // 全局混合数据
         app_mixin: {
             // focus模块

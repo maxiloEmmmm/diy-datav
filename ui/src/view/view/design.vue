@@ -26,11 +26,12 @@ export default {
 
         let cm = configComponent[this.currentConfigBlockType]
 
-        let configView = this.configShow ? <div id='config-view'>
-            <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
-        </div> : null
+        // TODO: 考虑要不要加个预览在配置旁边
+        // let configView = this.configShow ? <div id='config-view'>
+        //     <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
+        // </div> : null
 
-        let configBar = <a-drawer width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
+        let configBar = <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
             <type-config-component />
             <a-divider />
             {!!cm ? <cm config={this.currentConfigBlockConfig} onChange={this.onConfigChange}/> : null}
@@ -44,7 +45,6 @@ export default {
             {util}
             {blocks}
 
-            {configView}
             {configBar}
         </div>
     },
@@ -104,7 +104,7 @@ export default {
                         blocks: response.data.data.blocks.map(block => {
                             return {
                                 ...ViewBlockType(),
-                                ...block
+                                ...block,
                             }
                         })
                     }

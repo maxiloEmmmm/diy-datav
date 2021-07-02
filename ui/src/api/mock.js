@@ -32,7 +32,8 @@ export default function() {
             antVConfig.type = 'line'
             antVConfig.scale.x.field = 'year'
             antVConfig.scale.y.field = 'value'
-            block.config.type = JSON.stringify(antVConfig)
+            block.config.type = antVConfig
+            block.config = JSON.stringify(block.config)
             return {code: 'ok', msg: '', data: view}
         }),
         [apiType.Data]: mockReg('data/[^/]+$', 'get', function(request) {

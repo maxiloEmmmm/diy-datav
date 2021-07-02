@@ -11,8 +11,10 @@ export default {
             }
         },
         config: {
-            type: String,
-            default: ""
+            type: Object,
+            default() {
+                return AntVConfig()
+            }
         }
     },
     render() {
@@ -48,7 +50,7 @@ export default {
     methods: {
         parse() {
             try {
-                this.cfg = AntVConfigParse(JSON.parse(this.config))
+                this.cfg = AntVConfigParse(this.config)
             }catch(e) {
                 console.log('AntV config parse failed in antv-config', e, this.config)
             }
@@ -117,9 +119,7 @@ export default {
             })
         },
         renderAfter() {
-            const e = document.createEvent('Event')
-            e.initEvent('resize', true, true)
-            window.dispatchEvent(e)
+            this.mixinDispatchWindowResize()
         }
     }
 }

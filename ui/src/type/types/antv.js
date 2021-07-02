@@ -1,6 +1,6 @@
 import util from 'pkg/util'
 
-const AntVGeometryType = ['interval']
+const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
 
 const AntVConfigFilter = {
     type(t) {
