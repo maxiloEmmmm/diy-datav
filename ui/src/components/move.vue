@@ -145,6 +145,12 @@ export default {
             this.status.box.old.width = this.$refs.move.clientWidth
             this.status.box.old.height = this.$refs.move.clientHeight
 
+            const resizeCtrl = util.debounce(() => {
+                const e = document.createEvent('Event')
+                e.initEvent('resize', true, true)
+                window.dispatchEvent(e)
+            }, 200)
+
             e.preventDefault()
             e.stopPropagation()
             this.status.barMouse.down = true
@@ -159,6 +165,7 @@ export default {
                 this.status.box.width = `${(width / document.body.clientWidth).toFixed(3) * 100}`
                 this.status.box.height = `${(height / document.body.clientHeight).toFixed(3) * 100}`
                 this.status.barMouse.move = true
+                resizeCtrl()
             }
 
             let upCb = () => {

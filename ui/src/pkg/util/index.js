@@ -13,8 +13,11 @@ function debounce(cb, timeout) {
         if(handler == null) {
             handler = setTimeout(() => {
                 handler = null
+                cb(...arguments)
             }, timeout)
-            cb(...arguments)
+        }else {
+            clearTimeout(handler)
+            handler = null
         }
     }
 }
