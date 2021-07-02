@@ -6,6 +6,7 @@ import configComponent from '@/components/types/config.js'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined } from '@ant-design/icons-vue';
+import * as type from "../../api/type";
 export default {
     components: {
         typeConfigComponent
@@ -14,18 +15,23 @@ export default {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
             return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>
-                <view-block type={block.type} config={block.config}></view-block>
+                <view-block type={block.type} config={block.config} />
             </block-wrap>
         })
-        let bg = <div id='diy-data-view_bg' style={this._bg_style}></div>
+        let bg = <div id='diy-data-view_bg' style={this._bg_style} />
         let util = <div id='diy-data-view_util'>
             <a-button onClick={this.newBlock}>添加块</a-button>
             current drag id: { this.dragBlockID }, focus: {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </div>
 
         let cm = configComponent[this.currentConfigBlockType]
-        let configBar = <a-drawer width="40%" visible={this.configShow} onClose={this.onConfigBarClose}>
-            <type-config-component></type-config-component>
+
+        let configView = this.configShow ? <div id='config-view'>
+            <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
+        </div> : null
+
+        let configBar = <a-drawer width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
+            <type-config-component />
             <a-divider />
             {!!cm ? <cm config={this.currentConfigBlockConfig} onChange={this.onConfigChange}/> : null}
         </a-drawer>
@@ -38,6 +44,7 @@ export default {
             {util}
             {blocks}
 
+            {configView}
             {configBar}
         </div>
     },
@@ -47,11 +54,6 @@ export default {
         }
     },
     created() {
-        this.$api[this.$apiType.ViewStore]({id: 1})
-            .then(response => {
-                console.log(response.data.body)
-            })
-
         this.mixinInitFocus()
 
         this.mixinAddHelp(HelpModule.ViewBlock, [
@@ -72,6 +74,8 @@ export default {
                 },
             }
         ])
+
+        this.fetch()
     },
     computed: {
         _bg_style() {
@@ -91,6 +95,23 @@ export default {
         })
     },
     methods: {
+        fetch() {
+            this.$api[this.$apiType.ViewInfo]("1")
+                .then(response => {
+                    this.view = {
+                        ...ViewType(),
+                        ...response.data.data,
+                        blocks: response.data.data.blocks.map(block => {
+                            return {
+                                ...ViewBlockType(),
+                                ...block
+                            }
+                        })
+                    }
+
+                    this.$store.dispatch('view/fetchData')
+                })
+        },
         newBlock() {
             this.view.newBlockAndStore()
         },
@@ -128,6 +149,10 @@ export default {
 
     .diy-data-view_block {
         position: absolute; z-index: 3;
+    }
+
+    #config-view {
+        position: absolute; z-index: 4; width:50vw; height: 60vh; top: 10vh; left: 5vw
     }
 }
 </style>

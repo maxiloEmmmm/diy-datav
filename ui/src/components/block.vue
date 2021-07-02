@@ -1,15 +1,10 @@
 <script lang="tsx">
-import antvType from './types/antv.vue'
+import components from './types/component.js'
 import util from 'pkg/util'
 export default {
-    components: {
-        antvType,
-    },
     name: 'view-block',
     render() {
-        let Component = {
-            antv: antvType
-        }[this.type]
+        let Component = components[this.type]
 
         return !Component
             ? <div>unknown block type: {this.type}</div>
@@ -69,7 +64,7 @@ export default {
         mergeConfig(config) {
             let common = config.common
             this.cfg.common.input = this.normalInput(common.input)
-            this.cfg.type = common.type || ""
+            this.cfg.type = config.type || ""
         },
         normalInput(inputs) {
             if(!Array.isArray(inputs)) {
@@ -79,11 +74,11 @@ export default {
             return inputs.filter(input => !!input.id)
         },
         fetch() {
-            this.cfg.common.input.forEach((index, input) => {
+            this.cfg.common.input.forEach((input, index) => {
                 this.$store.commit('view/loadData', {
                     id: input.id,
                     //TODO: wait edit
-                    refresh: 1000,
+                    refresh: 5,
                     cb: (data) => {
                         this.data[index] = data
                     }

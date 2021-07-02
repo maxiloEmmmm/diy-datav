@@ -36,6 +36,13 @@ const AntVConfigFilter = {
     },
     catEnum(t) {
         return util.isArray(t) ? t : AntVConfigDefault.catEnum()
+    },
+    dataIndex(t) {
+        let index = parseInt(t)
+        if(index < 0) {
+            return AntVConfigDefault.dataIndex()
+        }
+        return index
     }
 }
 
@@ -69,6 +76,9 @@ const AntVConfigDefault = {
     },
     catEnum() {
         return []
+    },
+    dataIndex() {
+        return 0
     }
 }
 
@@ -108,6 +118,8 @@ export const AntVConfigParse = function(config) {
         })
     }
 
+    cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
+
     return cfg
 }
 
@@ -138,6 +150,7 @@ export const AntVConfig = function() {
                 }
             }
         },
-        cats: []
+        cats: [],
+        dataIndex: 0,
     }
 }

@@ -92,6 +92,7 @@ const typeEQ = function (o, o2) {
 
 const isObject = o => getType(o) === 'Object'
 const isArray = o => getType(o) === 'Array'
+const isString = o => getType(o) === 'String'
 const get = function (obj, path, d = null) {
     let value = has(obj, path, true)
     return value === undefined ? d : value
@@ -120,6 +121,9 @@ const util = {
     has,
     set,
     get,
+    isString,
+    isArray,
+    isObject
 }
 
 export default {

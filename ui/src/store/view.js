@@ -2,7 +2,7 @@ import util from 'pkg/util'
 import {api, type as apiType} from '@/api'
 
 const clockStop = -1
-const clockStart = 1
+const clockStart = 0
 
 const state = {
     dragBlockId: "",
@@ -122,19 +122,20 @@ const actions = {
     },
     fetchData({state, commit, getters}) {
         if (fetchHandler == null) {
+            commit('activeClock')
             fetchHandler = setInterval(() => {
-                commit('addClock')
                 if(getters.fetchAble) {
                     for(let id in state.dataSet) {
                         const ds = state.dataSet[id]
-                        if(ds.refresh % state.clock === 0 && fetchEngine !== null) {
+                        if(state.clock % ds.refresh === 0 && fetchEngine !== null) {
                             fetchEngine(id)
-                                .then(data => {
-                                    ds.cb(data)
+                                .then(response => {
+                                    ds.cb(response.data.data)
                                 })
                         }
                     }
                 }
+                commit('addClock')
             }, 1000)
         }
     }
