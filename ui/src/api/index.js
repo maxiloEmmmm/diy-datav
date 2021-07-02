@@ -8,6 +8,9 @@ export const type = apiType
 http.defaults.baseURL = import.meta.env.VITE_API
 
 export const api = {
+    [apiType.ViewInfo](id) {
+        return http.get(`view/${id}`)
+    },
     [apiType.ViewStore](view) {
         return http.put('view', view)
     },
