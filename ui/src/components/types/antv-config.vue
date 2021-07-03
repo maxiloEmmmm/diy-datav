@@ -20,14 +20,41 @@ export default {
                     {label: 'edge', value: 'edge', desc: '用于绘制流程图、树、弧长连接图、和弦图、桑基图等'},
                     {label: 'heatmap', value: 'heatmap', desc: '用于绘制热力图'},
                     {label: 'schema', value: 'schema', desc: '用于绘制 k 线图，箱型图'}
+                ],
+                coordinateOptions: [
+                    {label: '笛卡尔坐标系', value: 'cartesian'},
+                    {label: '极坐标系', value: 'polar'},
+                    {label: '螺旋坐标系，基于阿基米德螺旋线', value: 'helix'},
+                    {label: '特殊的极坐标系，半径长度固定，仅仅将数据映射到角度', value: 'theta'},
                 ]
-            }
+            },
+            optionActiveKey: 'type',
         }
     },
     render() {
-        return <div>
-            <a-radio-group options={this.store.typeOptions} value={this.cfg.type.type} onChange={this.onTypeChange}/>
-            <a-alert message={this.typeHelp}></a-alert>
+        return <div class="antv-config">
+            <a-tabs vModel={[this.optionActiveKey, 'activeKey']} tab-position="left" size="small">
+                <a-tab-pane key="type" tab="类型">
+                    <a-radio-group options={this.store.typeOptions} vModel={[this.cfg.type.type, 'value']} onChange={this.onChange}/>
+                    <a-alert message={this.typeHelp}/>
+                </a-tab-pane>
+                <a-tab-pane key="coordinate.type" tab="坐标系">
+                    <a-divider orientation="left">类型</a-divider>
+                    <a-radio-group options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
+                    <a-divider orientation="left">翻转</a-divider>
+                    <a-switch vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
+                </a-tab-pane>
+                <a-tab-pane key="cats" tab="分类">
+                    <a-tabs tab-position="top" size="small">
+                        <a-tab-pane key="size" tab="大小">
+                        </a-tab-pane>
+                        <a-tab-pane key="shape" tab="形状">
+                        </a-tab-pane>
+                        <a-tab-pane key="color" tab="颜色">
+                        </a-tab-pane>
+                    </a-tabs>
+                </a-tab-pane>
+            </a-tabs>
         </div>
     },
     computed: {
@@ -49,10 +76,16 @@ export default {
                 console.log('AntV config parse failed in antv-config', e, this.config)
             }
         },
-        onTypeChange(val) {
-            this.cfg.type.type = val.target.value
-            this.onChange()
-        },
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.antv-config {
+    &::v-deep .ant-tabs-tab {
+        padding: 0; margin: 0; padding-right: 1rem; margin-bottom: 1rem
+    }
+}
+
+
+</style>

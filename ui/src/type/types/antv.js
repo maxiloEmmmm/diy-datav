@@ -89,11 +89,11 @@ export const AntVConfigParse = function(config) {
     cfg.color = AntVConfigFilter.color(config?.color)
 
     if (util.has(config, 'coordinate.type')) {
-        cfg.coordinate.type = AntVConfigFilter.coordinateType(config.color)
+        cfg.coordinate.type = AntVConfigFilter.coordinateType(config.coordinate.type)
     }
 
     if (util.has(config, 'coordinate.transpose')) {
-        cfg.coordinate.transpose = AntVConfigFilter.coordinateTranspose(config.color)
+        cfg.coordinate.transpose = AntVConfigFilter.coordinateTranspose(config.coordinate.transpose)
     }
 
     ['x', 'y'].forEach(s => {

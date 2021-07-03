@@ -74,10 +74,10 @@ export default {
                 })
 
                 // coordinate
-                chart.coordinate(this.cfg.coordinate.type)
+                const coordinate = chart.coordinate(this.cfg.coordinate.type)
 
                 if(this.cfg.coordinate.transpose) {
-                    chart.getCoordinate().transpose()
+                    coordinate.transpose()
                 }
 
                 //    scale
