@@ -13,7 +13,7 @@ function debounce(cb, timeout) {
         if(handler == null) {
             handler = setTimeout(() => {
                 handler = null
-                cb(...arguments)
+                cb.call(this, ...arguments)
             }, timeout)
         }else {
             clearTimeout(handler)
@@ -28,7 +28,7 @@ function throttle(cb, timeout) {
         if(handler == null) {
             handler = setTimeout(() => {
                 handler = null
-                cb(...arguments)
+                cb.call(this, ...arguments)
             }, timeout)
         }
     }

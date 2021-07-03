@@ -7,6 +7,7 @@ export default {
     components: {
         move
     },
+    emits: ['mousedown'],
     render(){
         let context = this.$slots.default()
         let moveAttrs = {
@@ -53,8 +54,9 @@ export default {
         this.mixinInitFocus()
     },
     methods: {
-        onMouseDown() {
+        onMouseDown(e) {
             this.mixinDoFocus()
+            this.$emit('mousedown', e)
         },
         onHelpComponentClick(e, help) {
             e.stopPropagation()

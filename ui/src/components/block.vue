@@ -64,7 +64,7 @@ export default {
         mergeConfig(config) {
             let common = config.common
             this.cfg.common.input = this.normalInput(common.input)
-            this.cfg.type = config.type || ""
+            this.cfg.type = config.type || {}
         },
         normalInput(inputs) {
             if(!Array.isArray(inputs)) {

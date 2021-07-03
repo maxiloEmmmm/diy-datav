@@ -14,7 +14,7 @@ export default {
     render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
-            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey}>
+            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey} onMousedown={e => this.onBlockMouseDown(blockKey)}>
                 <view-block type={block.type} config={block.config} />
             </block-wrap>
         })
@@ -32,9 +32,9 @@ export default {
         // </div> : null
 
         let configBar = <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
-            <type-config-component />
+            <type-config-component/>
             <a-divider />
-            {!!cm ? <cm config={this.currentConfigBlockConfig} onChange={this.onConfigChange}/> : null}
+            {!!cm ? <cm config={this.currentConfigBlockConfig}/> : null}
         </a-drawer>
 
         return <div id='diy-datav-view'
@@ -63,14 +63,7 @@ export default {
                     if(!payload.blockKey) {
                         return
                     }
-
-                    const block = this.view.blocks.filter(block => block.getKey() === payload.blockKey)[0]
-                    if (!!block) {
-                        this.mixinSetConfigKey(payload.blockKey)
-                        // TODO: how to get config edit action to edit block config
-                        this.mixinSetConfigTypeAndConfig(block.type, block.config)
-                        this.mixinConfigShow()
-                    }
+                    this.blockConfigReplace(payload.blockKey)
                 },
             }
         ])
@@ -93,6 +86,10 @@ export default {
             currentConfigBlockConfig: state => state.block.config,
             currentConfigBlockKey: state => state.block.key
         })
+    },
+    watch: {
+        currentConfigBlockType: 'onTypeChange',
+        currentConfigBlockConfig: 'onConfigChange'
     },
     methods: {
         fetch() {
@@ -123,12 +120,32 @@ export default {
         },
         onConfigBarClose() {
             this.mixinConfigHidden()
-            this.mixinSetConfigTypeAndConfig()
+            this.mixinClearConfig()
         },
-        onConfigChange(data) {
+        onTypeChange(typ) {
             const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]
             if (!!block) {
-                block.config = data
+                block.type = typ
+            }
+        },
+        onConfigChange(cfg) {
+            const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]
+            if (!!block) {
+                block.config = cfg
+            }
+        },
+        onBlockMouseDown(blockKey) {
+            if(this.configShow) {
+                this.blockConfigReplace(blockKey)
+            }
+        },
+        blockConfigReplace(blockKey) {
+            const block = this.view.blocks.filter(block => block.getKey() === blockKey)[0]
+            if (!!block) {
+                this.mixinSetConfigKey(blockKey)
+                // TODO: how to get config edit action to edit block config
+                this.mixinSetConfigTypeAndConfig(block.type, block.config)
+                this.mixinConfigShow()
             }
         }
     }

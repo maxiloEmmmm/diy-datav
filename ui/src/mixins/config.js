@@ -11,6 +11,10 @@ export default {
             this.$store.commit('config/SetBlockConfig', config)
             this.$store.commit('config/AddHistory')
         },
+        mixinSetConfigConfig(config = "") {
+            this.$store.commit('config/SetBlockConfig', config)
+            this.$store.commit('config/AddHistory')
+        },
         mixinSetConfigKey(key = "") {
             this.$store.commit("config/SetBlockKey", key)
         },

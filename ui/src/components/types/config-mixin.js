@@ -1,5 +1,6 @@
+import util from 'pkg/util'
+
 export default {
-    emits: ['change'],
     props: {
         config: {
             type: String,
@@ -21,12 +22,12 @@ export default {
         transformConfig() {
             console.log('impl `transformConfig` function')
         },
-        onChange() {
+        onChange: util.debounce(function(){
             try {
-                this.$emit('config', JSON.stringify(this.cfg))
+                this.mixinSetConfigConfig(JSON.stringify(this.cfg))
             }catch(e) {
                 console.log('config change json parse err', e, this.cfg)
             }
-        }
+        }, 100)
     }
 }

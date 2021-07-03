@@ -34,6 +34,8 @@ declare module '@vue/runtime-core' {
         mixinSetConfigKey(key: string),
         // 设置配置的类型和配置
         mixinSetConfigTypeAndConfig(typ: string, config: string),
+        // 设置配置的配置
+        mixinSetConfigConfig(config: string),
         // 清空配置
         mixinClearConfig(),
         // 清空配置历史

@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { BarChartOutlined, ReadOutlined } from '@ant-design/icons-vue';
 import * as componentType from '@/components/types/type.js'
-import {AntVConfig} from 'type'
+import {AntVConfig, ViewBlockType} from 'type'
 import {mapState} from "vuex";
 import SelectItem from "../select-item.vue";
 
@@ -22,13 +22,22 @@ export default {
     },
     methods: {
         onAntVTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.AntV, JSON.stringify(AntVConfig()))
+            this.mixinSetConfigTypeAndConfig(componentType.AntV, JSON.stringify({
+                ...ViewBlockType().config,
+                type: AntVConfig()
+            }))
         },
         onStaticTextTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.StaticText, JSON.stringify(AntVConfig()))
+            this.mixinSetConfigTypeAndConfig(componentType.StaticText, JSON.stringify({
+                ...ViewBlockType().config,
+                type: AntVConfig()
+            }))
         },
         onDynamicTextTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.DynamicText, JSON.stringify(AntVConfig()))
+            this.mixinSetConfigTypeAndConfig(componentType.DynamicText, JSON.stringify({
+                ...ViewBlockType().config,
+                type: AntVConfig()
+            }))
         }
     }
 }

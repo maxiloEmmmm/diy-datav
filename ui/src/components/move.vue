@@ -87,6 +87,7 @@ export default {
     },
     watch: {
         enable(val) {
+            // TODO: bug: everyone can disable/active it for move
             (val ? this.mixinActiveHelp : this.mixinDisableHelp)(HelpModule.ViewBlock, "move")
         }
     },

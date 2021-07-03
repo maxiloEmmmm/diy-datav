@@ -30,18 +30,21 @@ export default {
         data: {
             deep: true,
             handler(val) {
-                if(this.chart && util.isArray(val)) {
-                    this.chart.data(val[this.cfg.dataIndex])
+                if(this.chart) {
+                    this.chart.data(this.getData())
                     this.chart.render()
                     this.renderAfter()
                 }
             }
         },
-        config() {
-            if(this.chart) {
-                this.chart.destroy()
+        config: {
+            deep: true,
+            handler() {
+                if(this.chart) {
+                    this.chart.destroy()
+                }
+                this.render()
             }
-            this.render()
         }
     },
     mounted() {
@@ -54,6 +57,13 @@ export default {
             }catch(e) {
                 console.log('AntV config parse failed in antv-config', e, this.config)
             }
+        },
+        getData() {
+            let data = []
+            if(util.isArray(this.data)) {
+                data = this.data[this.cfg.dataIndex]
+            }
+            return data === undefined ? [] : data
         },
         render() {
             this.parse()
@@ -111,7 +121,7 @@ export default {
                     geometry.color(this.cfg.color)
                 }
 
-                chart.data(this.data)
+                chart.data(this.getData())
 
                 // TODO: facet view support
                 chart.render()

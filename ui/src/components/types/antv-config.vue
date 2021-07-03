@@ -1,11 +1,14 @@
 <script lang="tsx">
-import {AntVConfig, AntVConfigParse} from 'type/types/index.js'
+import {AntVConfig, AntVConfigParse, ViewBlockType} from 'type/index.js'
 import configMixin from './config-mixin'
 export default {
     mixins: [configMixin],
     data() {
         return {
-            cfg: AntVConfig(),
+            cfg: {
+                ...ViewBlockType().config,
+                type: AntVConfig()
+            },
             store: {
                 typeOptions: [
                     {label: 'interval', value: 'interval', desc: '用于绘制柱状图、直方图、南丁格尔玫瑰图、饼图、条形环图（玉缺图）、漏斗图等'},
@@ -23,16 +26,15 @@ export default {
     },
     render() {
         return <div>
-            <a-radio-group options={this.store.typeOptions} value={this.cfg.type} onChange={this.onTypeChange}/>
+            <a-radio-group options={this.store.typeOptions} value={this.cfg.type.type} onChange={this.onTypeChange}/>
             <a-alert message={this.typeHelp}></a-alert>
         </div>
     },
     computed: {
         typeHelp() {
             let type = this.store.typeOptions.find(type => {
-               return type.value === this.cfg.type
+               return type.value === this.cfg.type.type
             })
-            console.log(type)
 
             return !!type ? type.desc : ''
         },
@@ -40,13 +42,16 @@ export default {
     methods: {
         transformConfig() {
             try {
-                this.cfg = AntVConfigParse(JSON.parse(this.config))
+                const blockCfg = JSON.parse(this.config)
+                blockCfg.type = AntVConfigParse(blockCfg.type)
+                this.cfg = blockCfg
             }catch(e) {
                 console.log('AntV config parse failed in antv-config', e, this.config)
             }
         },
         onTypeChange(val) {
-            this.cfg.type = val.target.value
+            this.cfg.type.type = val.target.value
+            this.onChange()
         },
     }
 }
