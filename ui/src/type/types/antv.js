@@ -31,11 +31,35 @@ const AntVConfigFilter = {
     scaleFormatSuffix(t) {
         return !!t ? t : AntVConfigDefault.scaleFormatSuffix()
     },
-    catField(t) {
-        return !!t ? t : AntVConfigDefault.catField()
+    catColor(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.catColor()
+        }
+        return {
+            single: AntVConfigDefault.catSingle(),
+            enum: AntVConfigDefault.catEnum(),
+            default: AntVConfigDefault.catColorDefault(),
+        }
     },
-    catEnum(t) {
-        return util.isArray(t) ? t : AntVConfigDefault.catEnum()
+    catSize(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.catSize()
+        }
+        return {
+            single: AntVConfigDefault.catSingle(),
+            enum: AntVConfigDefault.catEnum(),
+            default: AntVConfigDefault.catSizeDefault(),
+        }
+    },
+    catShape(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.catShape()
+        }
+        return {
+            single: AntVConfigDefault.catSingle(),
+            enum: AntVConfigDefault.catEnum(),
+            default: AntVConfigDefault.catShapeDefault(),
+        }
     },
     dataIndex(t) {
         let index = parseInt(t)
@@ -71,8 +95,32 @@ const AntVConfigDefault = {
     scaleFormatSuffix() {
         return ''
     },
-    catField() {
-        return ''
+    catColor() {
+        return {
+            single: true, enum: [], default: AntVConfigDefault.catColorDefault()
+        }
+    },
+    catColorDefault() {
+        return 'blue'
+    },
+    catSize() {
+        return {
+            single: true, enum: [], default: AntVConfigDefault.catSizeDefault()
+        }
+    },
+    catSizeDefault() {
+        return 1
+    },
+    catShape() {
+        return {
+            single: true, enum: [], default: AntVConfigDefault.catShapeDefault()
+        }
+    },
+    catShapeDefault() {
+        return 'circle'
+    },
+    catSingle() {
+        return true
     },
     catEnum() {
         return []
@@ -111,11 +159,10 @@ export const AntVConfigParse = function(config) {
         }
     })
 
-    if (util.isArray(config?.cats)) {
-        config.cats.forEach((cat, catIndex) => {
-            cfg.cats[catIndex].field = AntVConfigFilter.catField(cat.field)
-            cfg.scale[catIndex].enum = AntVConfigFilter.catEnum(cat.enum)
-        })
+    if (util.isObject(config?.cat)) {
+        config.cat.color = AntVConfigFilter.catColor(config.cat.color)
+        config.cat.size = AntVConfigFilter.catSize(config.cat.size)
+        config.cat.shape = AntVConfigFilter.catShape(config.cat.shape)
     }
 
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
@@ -150,7 +197,11 @@ export const AntVConfig = function() {
                 }
             }
         },
-        cats: [],
+        cat: {
+            color: {default: 'blue', enum: [], single: true},
+            size: {default: 1, enum: [], single: true},
+            shape: {default: 'circle', enum: [], single: true},
+        },
         dataIndex: 0,
     }
 }

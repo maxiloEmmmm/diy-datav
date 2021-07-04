@@ -47,6 +47,18 @@ export default {
                 <a-tab-pane key="cats" tab="分类">
                     <a-tabs tab-position="top" size="small">
                         <a-tab-pane key="size" tab="大小">
+                            <ysz-list-item>
+                                <template slot="left">是否统一</template>
+                                <a-switch vModel={[this.cfg.type.cat.color.single, 'checked']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template slot="left">颜色</template>
+                                <ysz-list-item>
+                                    <template slot="left">默认</template>
+                                    <!-- TODO: 多选址 颜色、形状及大小控件 -->
+                                    <a-switch vModel={[this.cfg.type.cat.color.default, 'checked']}/>
+                                </ysz-list-item>
+                            </ysz-list-item>
                         </a-tab-pane>
                         <a-tab-pane key="shape" tab="形状">
                         </a-tab-pane>

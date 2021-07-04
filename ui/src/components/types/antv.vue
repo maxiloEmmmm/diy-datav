@@ -98,28 +98,32 @@ export default {
                 // TODO: y maybe not define
                 // TODO: more type
                 const geometry = chart[this.cfg.type]()
-                    .position(`${this.cfg.scale.x.field}*${this.cfg.scale.y.field}`)
+                    .position({
+                        fields: [this.cfg.scale.x.field, this.cfg.scale.y.field]
+                    })
 
                 let hasColorCat = false
-                this.cfg.cats.forEach(cat => {
-                    switch (cat.type) {
-                        case 'size':
-                            // string, array
-                            geometry.size(cat.field, cat.enum)
-                            break
-                        case 'shape':
-                            geometry.shape(cat.field, cat.enum)
-                            break
-                        case 'color':
-                            hasColorCat = true
-                            geometry.color(cat.field, cat.enum)
-                            break
-                    }
-                })
+                // TODO: 暂时只支持单字段
+                this.cfg.cat.color.single
+                    ? geometry.size(this.cfg.cat.default)
+                    : geometry.size({
+                        fields: [this.cfg.scale.x.field],
+                        values: this.cfg.cat.color.enum
+                    })
 
-                if(!hasColorCat && this.cfg.color) {
-                    geometry.color(this.cfg.color)
-                }
+                this.cfg.cat.size.single
+                    ? geometry.size(this.cfg.cat.default)
+                    : geometry.size({
+                        fields: [this.cfg.scale.x.field],
+                        values: this.cfg.cat.size.enum
+                    })
+
+                this.cfg.cat.shape.single
+                    ? geometry.size(this.cfg.cat.default)
+                    : geometry.size({
+                        fields: [this.cfg.scale.x.field],
+                        values: this.cfg.cat.shape.enum
+                    })
 
                 chart.data(this.getData())
 

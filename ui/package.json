@@ -11,6 +11,7 @@
     "@vitejs/plugin-vue-jsx": "^1.1.4",
     "ant-design-vue": "^2.1.6",
     "axios": "^0.21.1",
+    "maxilo-vue-ysz-ui": "0.0.15-beta8",
     "mockjs": "^1.1.0",
     "sass": "^1.33.0",
     "vue": "^3.0.5",
