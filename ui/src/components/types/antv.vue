@@ -40,10 +40,13 @@ export default {
         config: {
             deep: true,
             handler() {
-                if(this.chart) {
-                    this.chart.destroy()
-                }
-                this.render()
+                // config maybe change after chart init than in dom
+                this.$nextTick(() => {
+                    if(this.chart) {
+                        this.chart.destroy()
+                    }
+                    this.render()
+                })
             }
         }
     },
@@ -102,25 +105,24 @@ export default {
                         fields: [this.cfg.scale.x.field, this.cfg.scale.y.field]
                     })
 
-                let hasColorCat = false
                 // TODO: 暂时只支持单字段
                 this.cfg.cat.color.single
-                    ? geometry.size(this.cfg.cat.default)
-                    : geometry.size({
+                    ? geometry.color(this.cfg.cat.color.default)
+                    : geometry.color({
                         fields: [this.cfg.scale.x.field],
                         values: this.cfg.cat.color.enum
                     })
 
                 this.cfg.cat.size.single
-                    ? geometry.size(this.cfg.cat.default)
+                    ? geometry.size(this.cfg.cat.size.default)
                     : geometry.size({
                         fields: [this.cfg.scale.x.field],
                         values: this.cfg.cat.size.enum
                     })
 
                 this.cfg.cat.shape.single
-                    ? geometry.size(this.cfg.cat.default)
-                    : geometry.size({
+                    ? geometry.shape(this.cfg.cat.shape.default)
+                    : geometry.shape({
                         fields: [this.cfg.scale.x.field],
                         values: this.cfg.cat.shape.enum
                     })

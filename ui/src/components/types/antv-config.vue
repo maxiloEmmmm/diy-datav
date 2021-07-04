@@ -26,7 +26,67 @@ export default {
                     {label: '极坐标系', value: 'polar'},
                     {label: '螺旋坐标系，基于阿基米德螺旋线', value: 'helix'},
                     {label: '特殊的极坐标系，半径长度固定，仅仅将数据映射到角度', value: 'theta'},
-                ]
+                ],
+                shapeOptions: {
+                    interval: [
+                        {label: 'rect', value: 'rect'},
+                        {label: 'hollow-rect', value: 'hollow-rect'},
+                        {label: 'line', value: 'line'},
+                        {label: 'tick', value: 'tick'},
+                        {label: 'funnel', value: 'funnel'},
+                        {label: 'pyramid', value: 'pyramid'},
+                    ],
+                    point: [
+                        {label: 'circle', value: 'circle'},
+                        {label: 'square', value: 'square'},
+                        {label: 'bowtie', value: 'bowtie'},
+                        {label: 'diamond', value: 'diamond'},
+                        {label: 'hexagon', value: 'hexagon'},
+                        {label: 'triangle', value: 'triangle'},
+                        {label: 'triangle-down', value: 'triangle-down'},
+                        {label: 'hollow-circle', value: 'hollow-circle'},
+                        {label: 'hollow-square', value: 'hollow-square'},
+                        {label: 'hollow-bowtie', value: 'hollow-bowtie'},
+                        {label: 'hollow-diamond', value: 'hollow-diamond'},
+                        {label: 'hollow-hexagon', value: 'hollow-hexagon'},
+                        {label: 'hollow-triangle', value: 'hollow-triangle'},
+                        {label: 'hollow-triangle-down', value: 'hollow-triangle-down'},
+                        {label: 'cross', value: 'cross'},
+                        {label: 'tick', value: 'tick'},
+                        {label: 'plus', value: 'plus'},
+                        {label: 'hyphen', value: 'hyphen'},
+                        {label: 'line', value: 'line'},
+                    ],
+                    line: [
+                        {label: 'line', value: 'line'},
+                        {label: 'dot', value: 'dot'},
+                        {label: 'dash', value: 'dash'},
+                        {label: 'smooth', value: 'smooth'},
+                        {label: 'hv', value: 'hv'},
+                        {label: 'vh', value: 'vh'},
+                        {label: 'hvh', value: 'hvh'},
+                        {label: 'vhv', value: 'vhv'},
+                    ],
+                    area: [
+                        {label: 'area', value: 'area'},
+                        {label: 'smooth', value: 'smooth'},
+                        {label: 'line', value: 'line'},
+                        {label: 'smooth-line', value: 'smooth-line'},
+                    ],
+                    polygon: [
+                        {label: 'polygon', value: 'polygon'}
+                    ],
+                    schema: [
+                        {label: 'box', value: 'box'},
+                        {label: 'candle', value: 'candle'}
+                    ],
+                    edge: [
+                        {label: 'line', value: 'line'},
+                        {label: 'vhv', value: 'vhv'},
+                        {label: 'smooth', value: 'smooth'},
+                        {label: 'arc', value: 'arc'},
+                    ]
+                }
             },
             optionActiveKey: 'type',
         }
@@ -47,22 +107,58 @@ export default {
                 <a-tab-pane key="cats" tab="分类">
                     <a-tabs tab-position="top" size="small">
                         <a-tab-pane key="size" tab="大小">
+                            <!-- TODO: replace ysz-ui and fix slot use in jsx-next -->
                             <ysz-list-item>
-                                <template slot="left">是否统一</template>
+                                <template v-slot:left>是否统一</template>
                                 <a-switch vModel={[this.cfg.type.cat.color.single, 'checked']}/>
                             </ysz-list-item>
                             <ysz-list-item>
-                                <template slot="left">颜色</template>
+                                <template v-slot:left>默认</template>
+                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.color.default, 'value']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template v-slot:left>更多</template>
                                 <ysz-list-item>
-                                    <template slot="left">默认</template>
-                                    <!-- TODO: 多选址 颜色、形状及大小控件 -->
-                                    <a-switch vModel={[this.cfg.type.cat.color.default, 'checked']}/>
+                                    <template v-slot:left>最小值</template>
+                                    <a-input vModel={[this.cfg.type.cat.color.enum[0], 'value']}/>
+                                </ysz-list-item>
+                                <ysz-list-item>
+                                    <template v-slot:left>最大值</template>
+                                    <a-input vModel={[this.cfg.type.cat.color.enum[1], 'value']}/>
                                 </ysz-list-item>
                             </ysz-list-item>
                         </a-tab-pane>
                         <a-tab-pane key="shape" tab="形状">
+                            <ysz-list-item>
+                                <template v-slot:left>是否统一</template>
+                                <a-switch vModel={[this.cfg.type.cat.shape.single, 'checked']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template v-slot:left>默认</template>
+                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.default, 'value']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template v-slot:left>更多</template>
+                                <a-select mode="multiple" options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.enum, 'value']}/>
+                            </ysz-list-item>
                         </a-tab-pane>
                         <a-tab-pane key="color" tab="颜色">
+                            <ysz-list-item>
+                                <template v-slot:left>是否统一</template>
+                                <a-switch vModel={[this.cfg.type.cat.shape.single, 'checked']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template v-slot:left>默认</template>
+                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.default, 'value']}/>
+                            </ysz-list-item>
+                            <ysz-list-item>
+                                <template v-slot:left>更多</template>
+                                <more onAdd={payload => {
+                                    this.cfg.type.cat.shape.enum[payload.count] = ''
+                                }} component={index => {
+                                    return <a-select mode="multiple" options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.enum[index], 'value']}/>
+                                }} />
+                            </ysz-list-item>
                         </a-tab-pane>
                     </a-tabs>
                 </a-tab-pane>
@@ -77,6 +173,10 @@ export default {
 
             return !!type ? type.desc : ''
         },
+        shapeOptions() {
+            const options = this.store.shapeOptions[this.cfg.type.type]
+            return !options ? [] : options
+        }
     },
     methods: {
         transformConfig() {
