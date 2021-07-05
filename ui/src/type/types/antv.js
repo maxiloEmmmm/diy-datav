@@ -2,7 +2,7 @@ import util from 'pkg/util'
 
 const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
 
-const AntVConfigFilter = {
+export const AntVConfigFilter = {
     type(t) {
         if(AntVGeometryType.includes(t)) {
             return t
@@ -92,10 +92,10 @@ const AntVConfigFilter = {
     },
     catShapeEnum(typ, t) {
         if(util.isArray(t)) {
-            return t.filter(o => util.string(o) && !!o)
+            return t.filter(o => util.isString(o) && !!o)
         }
 
-        return AntVConfigDefault.catShapeEnum(typ)
+        return AntVConfigDefault.catShapeEnum()
     },
     dataIndex(t) {
         let index = parseInt(t)
@@ -106,7 +106,7 @@ const AntVConfigFilter = {
     }
 }
 
-const AntVConfigDefault = {
+export const AntVConfigDefault = {
     type() {
         return AntVGeometryType[0]
     },
@@ -150,29 +150,29 @@ const AntVConfigDefault = {
         return 5
     },
     catShapeDefault(typ) {
-        return AntVConfigDefault.catShapeEnum(typ)[0]
-    },
-    catShapeEnum(typ) {
         switch (typ) {
             case 'interval':
-                return ['rect']
+                return 'rect'
             case 'point':
-                return ['circle']
+                return 'circle'
             case 'path':
             case 'line':
-                return ['line']
+                return 'line'
             case 'area':
-                return ['area']
+                return 'area'
             case 'heatmap':
             case 'polygon':
-                return ['polygon']
+                return 'polygon'
             case 'schema':
-                return ['schema']
+                return 'schema'
             case 'edge':
-                return ['line']
+                return 'line'
             default:
-                throw `bug: AntVConfigDefault.catShapeEnum unknown type: ${typ}`
+                throw `bug: AntVConfigDefault.catShapeDefault unknown type: ${typ}`
         }
+    },
+    catShapeEnum() {
+        return []
     },
     catColorEnum() {
         return ['#1890ff', '#5AD8A6']
@@ -236,34 +236,34 @@ export const AntVConfigParse = function(config) {
 export const AntVConfig = function() {
     return {
         // TODO: 支持多类型
-        type: '',
+        type: AntVConfigDefault.type(),
         coordinate: {
-            type: '',
-            transpose: false
+            type: AntVConfigDefault.coordinateType(),
+            transpose: AntVConfigDefault.coordinateTranspose()
         },
         scale: {
             x: {
-                field: "",
-                alias: "",
+                field: AntVConfigDefault.scaleField(),
+                alias: AntVConfigDefault.scaleAlias(),
                 format: {
-                    prefix: '',
-                    suffix: ''
+                    prefix: AntVConfigDefault.scaleFormatPrefix(),
+                    suffix: AntVConfigDefault.scaleFormatSuffix()
                 }
             },
             y: {
-                field: "",
-                alias: "",
+                field: AntVConfigDefault.scaleField(),
+                alias: AntVConfigDefault.scaleAlias(),
                 format: {
-                    prefix: '',
-                    suffix: ''
+                    prefix: AntVConfigDefault.scaleFormatPrefix(),
+                    suffix: AntVConfigDefault.scaleFormatSuffix()
                 }
             }
         },
         cat: {
-            color: {default: '#1890ff', enum: [], single: true},
-            size: {default: 1, enum: [], single: true},
-            shape: {default: 'circle', enum: [], single: true},
+            color: {default: AntVConfigDefault.catColorDefault(), enum: AntVConfigDefault.catColorEnum(), single: AntVConfigDefault.catColorSingle()},
+            size: {default: AntVConfigDefault.catSizeDefault(), enum: AntVConfigDefault.catSizeDefault(), single: AntVConfigDefault.catSizeSingle()},
+            shape: {default: AntVConfigDefault.catShapeDefault(AntVConfigDefault.type()), enum: AntVConfigDefault.catShapeEnum(), single: AntVConfigDefault.catShapeSingle()},
         },
-        dataIndex: 0,
+        dataIndex: AntVConfigDefault.dataIndex(),
     }
 }

@@ -1,5 +1,5 @@
 <script lang="tsx">
-import {AntVConfig, AntVConfigParse, ViewBlockType} from 'type/index.js'
+import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType} from 'type/index.js'
 import configMixin from './config-mixin'
 export default {
     mixins: [configMixin],
@@ -107,58 +107,75 @@ export default {
                 <a-tab-pane key="cats" tab="分类">
                     <a-tabs tab-position="top" size="small">
                         <a-tab-pane key="size" tab="大小">
-                            <!-- TODO: replace ysz-ui and fix slot use in jsx-next -->
-                            <ysz-list-item>
-                                <template v-slot:left>是否统一</template>
-                                <a-switch vModel={[this.cfg.type.cat.color.single, 'checked']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '是否统一'
+                            }}>
+                                <a-switch vModel={[this.cfg.type.cat.size.single, 'checked']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>默认</template>
-                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.color.default, 'value']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '默认'
+                            }}>
+                                <a-input vModel={[this.cfg.type.cat.size.default, 'value']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>更多</template>
-                                <ysz-list-item>
-                                    <template v-slot:left>最小值</template>
-                                    <a-input vModel={[this.cfg.type.cat.color.enum[0], 'value']}/>
-                                </ysz-list-item>
-                                <ysz-list-item>
-                                    <template v-slot:left>最大值</template>
-                                    <a-input vModel={[this.cfg.type.cat.color.enum[1], 'value']}/>
-                                </ysz-list-item>
-                            </ysz-list-item>
+                            {!this.cfg.type.cat.size.single
+                                ? [
+                                    <a-divider orientation="left">更多</a-divider>,
+                                    <ysz-list-item v-slots={{
+                                        left: () => '最小值'
+                                    }}>
+                                        <a-input vModel={[this.cfg.type.cat.size.enum[0], 'value']} onChange={this.onChange}/>
+                                    </ysz-list-item>,
+                                    <ysz-list-item v-slots={{
+                                        left: () => '最大值'
+                                    }}>
+                                        <a-input vModel={[this.cfg.type.cat.size.enum[1], 'value']} onChange={this.onChange}/>
+                                    </ysz-list-item>
+                                ] : null}
                         </a-tab-pane>
                         <a-tab-pane key="shape" tab="形状">
-                            <ysz-list-item>
-                                <template v-slot:left>是否统一</template>
-                                <a-switch vModel={[this.cfg.type.cat.shape.single, 'checked']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '是否统一'
+                            }}>
+                                <a-switch vModel={[this.cfg.type.cat.shape.single, 'checked']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>默认</template>
-                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.default, 'value']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '默认'
+                            }}>
+                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.default, 'value']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>更多</template>
-                                <a-select mode="multiple" options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.enum, 'value']}/>
-                            </ysz-list-item>
+                            {!this.cfg.type.cat.shape.single
+                                ? <ysz-list-item v-slots={{
+                                    left: () => '更多'
+                                }}>
+                                    <a-select style="width: 80%" mode="multiple" options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.enum, 'value']} onChange={this.onChange}/>
+                                </ysz-list-item>
+                                : null}
                         </a-tab-pane>
                         <a-tab-pane key="color" tab="颜色">
-                            <ysz-list-item>
-                                <template v-slot:left>是否统一</template>
-                                <a-switch vModel={[this.cfg.type.cat.shape.single, 'checked']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '是否统一'
+                            }}>
+                                <a-switch vModel={[this.cfg.type.cat.color.single, 'checked']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>默认</template>
-                                <a-select options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.default, 'value']}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '默认'
+                            }}>
+                                <color-pick vModel={[this.cfg.type.cat.color.default, 'value']} onChange={this.onChange}/>
                             </ysz-list-item>
-                            <ysz-list-item>
-                                <template v-slot:left>更多</template>
-                                <more onAdd={payload => {
-                                    this.cfg.type.cat.shape.enum[payload.count] = ''
-                                }} component={index => {
-                                    return <a-select mode="multiple" options={this.shapeOptions} vModel={[this.cfg.type.cat.shape.enum[index], 'value']}/>
-                                }} />
-                            </ysz-list-item>
+                            {!this.cfg.type.cat.color.single
+                                ? <ysz-list-item v-slots={{
+                                    left: () => '更多'
+                                }}>
+                                    <more initCount={this.cfg.type.cat.color.enum.length} onAdd={payload => {
+                                        this.cfg.type.cat.color.enum[payload.count] = AntVConfigDefault.catColorDefault()
+                                        payload.done()
+                                    }} onRemove={payload => {
+                                        this.cfg.type.cat.color.enum = this.cfg.type.cat.color.enum.filter((v, i) => i !== payload.index)
+                                        payload.done()
+                                    }} component={index => {
+                                        return <color-pick vModel={[this.cfg.type.cat.color.enum[index], 'value']} onChange={this.onChange}/>
+                                    }} />
+                                </ysz-list-item> : null}
                         </a-tab-pane>
                     </a-tabs>
                 </a-tab-pane>
@@ -175,7 +192,7 @@ export default {
         },
         shapeOptions() {
             const options = this.store.shapeOptions[this.cfg.type.type]
-            return !options ? [] : options
+            return (!options ? [] : options).filter(v => v !== this.cfg.type.cat.shape.default)
         }
     },
     methods: {

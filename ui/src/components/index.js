@@ -5,6 +5,7 @@ import block from './block.vue'
 import selectItem from './select-item.vue'
 import listItem from './list-item.vue'
 import more from './more.vue'
+import colorPick from './color-pick.vue'
 export default {
     install(app) {
         app.use(antd)
@@ -13,5 +14,6 @@ export default {
         app.component(block.name, block)
         app.component(selectItem.name, selectItem)
         app.component(more.name, more)
+        app.component(colorPick.name, colorPick)
     }
 }

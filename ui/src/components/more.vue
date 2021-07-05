@@ -4,7 +4,9 @@ export default {
     render(){
         let cs = []
         for(let i = 0; i < this.count; i++) {
-            cs.push(this.component(i))
+            cs.push(<ysz-list-item start={true} v-slots={{
+                left: () => i + 1
+            }}><a-space>{this.component(i)}<a-button onClick={e => this.onRemove(i)}>移除</a-button></a-space></ysz-list-item>)
         }
         return <div>
             <a-divider orientation="right"><a-button onClick={this.onNew}>新增</a-button></a-divider>
@@ -19,6 +21,10 @@ export default {
                 return <div/>
             }
         },
+        initCount: {
+            type: Number,
+            default: 0
+        },
         value: {
             type: Array,
             default() {
@@ -26,16 +32,24 @@ export default {
             }
         }
     },
-    emits: ['change'],
+    emits: ['add', 'remove'],
     data() {
-        return {count: 0}
+        return {count: this.initCount}
     },
     methods: {
         onNew() {
-            this.$emit('change', {
+            this.$emit('add', {
                 count: this.count,
                 done: () => {
                     this.count++
+                }
+            })
+        },
+        onRemove(index) {
+            this.$emit('remove', {
+                index,
+                done: () => {
+                    this.count--
                 }
             })
         }
