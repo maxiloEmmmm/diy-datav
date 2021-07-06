@@ -1,6 +1,7 @@
 <script lang="tsx">
 import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType} from 'type/index.js'
 import configMixin from './config-mixin'
+import easyExample from './antv-config-easy-example'
 export default {
     mixins: [configMixin],
     data() {
@@ -89,21 +90,35 @@ export default {
                 }
             },
             optionActiveKey: 'type',
+            easyModel: false
         }
     },
     render() {
         return <div class="antv-config">
+            <ysz-list-item v-slots={{
+                left: () => '简单模式'
+            }}>
+                <a-switch vModel={[this.easyModel, 'checked']} />
+            </ysz-list-item>
             <a-tabs vModel={[this.optionActiveKey, 'activeKey']} tab-position="left" size="small">
-                <a-tab-pane key="type" tab="类型">
-                    <a-radio-group options={this.store.typeOptions} vModel={[this.cfg.type.type, 'value']} onChange={this.onChange}/>
-                    <a-alert message={this.typeHelp}/>
-                </a-tab-pane>
-                <a-tab-pane key="coordinate.type" tab="坐标系">
-                    <a-divider orientation="left">类型</a-divider>
-                    <a-radio-group options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
-                    <a-divider orientation="left">翻转</a-divider>
-                    <a-switch vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
-                </a-tab-pane>
+                {this.easyModel
+                    ? <a-tab-pane key="type" tab="种类">
+                        <a-row style="height: 120px" gutter={[16,16]}>
+                            {easyExample.map(Component => <a-col span={6}><Component/></a-col>)}
+                        </a-row>
+                    </a-tab-pane>
+                    : [
+                        <a-tab-pane key="type" tab="类型">
+                            <a-radio-group options={this.store.typeOptions} vModel={[this.cfg.type.type, 'value']} onChange={this.onChange}/>
+                            <a-alert message={this.typeHelp}/>
+                        </a-tab-pane>,
+                        <a-tab-pane key="coordinate.type" tab="坐标系">
+                            <a-divider orientation="left">类型</a-divider>
+                            <a-radio-group options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
+                            <a-divider orientation="left">翻转</a-divider>
+                            <a-switch vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
+                        </a-tab-pane>
+                    ]}
                 <a-tab-pane key="cats" tab="分类">
                     <a-tabs tab-position="top" size="small">
                         <a-tab-pane key="size" tab="大小">

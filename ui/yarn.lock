@@ -466,6 +466,11 @@
     "@babel/helper-validator-identifier" "^7.14.0"
     to-fast-properties "^2.0.0"
 
+"@ckpack/vue-color@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.nlark.com/@ckpack/vue-color/download/@ckpack/vue-color-0.0.3.tgz#0774f2d2878e5a5833987f2547a9b2cb52c0e855"
+  integrity sha1-B3Ty0oeOWlgzmH8lR6myy1LA6FU=
+
 "@ctrl/tinycolor@^3.3.1":
   version "3.4.0"
   resolved "https://registry.npm.taobao.org/@ctrl/tinycolor/download/@ctrl/tinycolor-3.4.0.tgz?cache=0&sync_timestamp=1612895880147&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40ctrl%2Ftinycolor%2Fdownload%2F%40ctrl%2Ftinycolor-3.4.0.tgz#c3c5ae543c897caa9c2a68630bed355be5f9990f"

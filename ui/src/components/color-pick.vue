@@ -1,5 +1,6 @@
 <script lang="tsx">
-import {Sketch} from 'vue-color'
+// TODO: vue-color wait use official
+import {Sketch} from '@ckpack/vue-color'
 export default {
     name: "color-pick",
     components: {cp: Sketch},
