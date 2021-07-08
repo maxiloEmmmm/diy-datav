@@ -137,15 +137,27 @@ const set = function (obj, path, d) {
 
 const merge = function(dst, src) {
     dst = deepClone(dst)
-    // TODO: support array
+    if(!typeEQ(dst, src)) {
+        return dst
+    }
+
+    if(util.isArray(dst)) {
+        return src
+    }
+
+    if(!util.isObject(dst)) {
+        return dst
+    }
+
     Object.keys(src).forEach(k => {
         let val = src[k]
         let dstVal = get(dst, k)
         if(!has(dst, k) || !typeEQ(val, dstVal)) {
             dst[k] = val
         }else {
-            //TODO: support array
-            if(isObject(dstVal)) {
+            if(isArray(val)) {
+                dst[k] = val
+            }else if(isObject(dstVal)) {
                 dst[k] = merge(dstVal, val)
             }else {
                 dst[k] = val

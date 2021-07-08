@@ -3,13 +3,6 @@ import util from 'pkg/util'
 export const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
 export const AntVAdjustType = ['stack', 'jitter', 'dodge', 'symmetric']
 export const AntVConfigFilter = {
-    type(t) {
-        if(AntVGeometryType.includes(t)) {
-            return t
-        }
-
-        return AntVConfigDefault.type()
-    },
     coordinateType(t) {
         return !!t ? t : AntVConfigDefault.coordinateType()
     },
@@ -28,74 +21,89 @@ export const AntVConfigFilter = {
     scaleFormatSuffix(t) {
         return !!t ? t : AntVConfigDefault.scaleFormatSuffix()
     },
-    catColorSingle(t) {
-        return util.isBoolean(t) ? t : AntVConfigDefault.catColorSingle()
+    layerCatColorSingle(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.layerCatColorSingle()
     },
-    catColorDefault(t) {
-        return !!t ? t : AntVConfigDefault.catColorDefault()
+    layerCatColorDefault(t) {
+        return !!t ? t : AntVConfigDefault.layerCatColorDefault()
     },
-    catColor(t) {
+    layerCatField() {
+        return !!t ? t : AntVConfigDefault.layerCatField()
+    },
+    layerCatColor(t) {
         if(!util.isObject(t)) {
-            return AntVConfigDefault.catColor()
+            return AntVConfigDefault.layerCatColor()
         }
         return {
-            single: AntVConfigFilter.catColorSingle(t.single),
-            enum: AntVConfigFilter.catColorEnum(t.enum),
-            default: AntVConfigFilter.catColorDefault(t.default),
+            field: AntVConfigFilter.layerCatField(t.field),
+            single: AntVConfigFilter.layerCatColorSingle(t.single),
+            enum: AntVConfigFilter.layerCatColorEnum(t.enum),
+            default: AntVConfigFilter.layerCatColorDefault(t.default),
         }
     },
-    catColorEnum(t) {
+    layerCatColorEnum(t) {
         if(util.isArray(t)) {
-            return t.filter(o => util.isString(o) && !!o)
+            return t.filter(AntVConfigFilter.layerCatColorEnumItem)
         }
 
-        return AntVConfigDefault.catColorEnum()
+        return AntVConfigDefault.layerCatColorEnum()
     },
-    catSize(t) {
+    layerCatColorEnumItem(t) {
+        return util.isString(t) && !!t ? t : AntVConfigDefault.layerCatColorDefault()
+    },
+    layerCatSize(t) {
         if(!util.isObject(t)) {
-            return AntVConfigDefault.catSize()
+            return AntVConfigDefault.layerCatSize()
         }
         return {
-            single: AntVConfigFilter.catSizeSingle(t.single),
-            enum: AntVConfigFilter.catSizeEnum(t.enum),
-            default: AntVConfigFilter.catSizeDefault(t.default),
+            field: AntVConfigFilter.layerCatField(t.field),
+            single: AntVConfigFilter.layerCatSizeSingle(t.single),
+            enum: AntVConfigFilter.layerCatSizeEnum(t.enum),
+            default: AntVConfigFilter.layerCatSizeDefault(t.default),
         }
     },
-    catSizeDefault(t) {
-        return util.isNumber(t) ? t : AntVConfigDefault.catSizeDefault()
+    layerCatSizeDefault(t) {
+        return util.isNumber(t) ? t : AntVConfigDefault.layerCatSizeDefault()
     },
-    catSizeSingle(t) {
-        return util.isBoolean(t) ? t : AntVConfigDefault.catSizeSingle()
+    layerCatSizeSingle(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.layerCatSizeSingle()
     },
-    catSizeEnum(t) {
+    layerCatSizeEnum(t) {
         if(util.isArray(t)) {
-            return t.filter(o => util.isNumber(o) && o !== 0)
+            return t.filter(AntVConfigFilter.layerCatSizeEnumItem)
         }
 
-        return AntVConfigDefault.catSizeEnum()
+        return AntVConfigDefault.layerCatSizeEnum()
     },
-    catShape(typ, t) {
+    layerCatSizeEnumItem(t) {
+        return util.isNumber(t) && t !== 0 ? t : AntVConfigDefault.layerCatSizeDefault()
+    },
+    layerCatShape(typ, t) {
         if(!util.isObject(t)) {
-            return AntVConfigDefault.catShape()
+            return AntVConfigDefault.layerCatShape(typ)
         }
         return {
-            single: AntVConfigFilter.catShapeSingle(t.single),
-            enum: AntVConfigFilter.catShapeEnum(typ, t.enum),
-            default: AntVConfigFilter.catShapeDefault(typ, t.default),
+            field: AntVConfigFilter.layerCatField(t.field),
+            single: AntVConfigFilter.layerCatShapeSingle(t.single),
+            enum: AntVConfigFilter.layerCatShapeEnum(typ, t.enum),
+            default: AntVConfigFilter.layerCatShapeDefault(typ, t.default),
         }
     },
-    catShapeDefault(typ, t) {
-        return util.isString(t) && !!t ? t : AntVConfigDefault.catShapeDefault(typ)
+    layerCatShapeDefault(typ, t) {
+        return util.isString(t) && !!t ? t : AntVConfigDefault.layerCatShapeDefault(typ)
     },
-    catShapeSingle(t) {
-        return util.isBoolean(t) ? t : AntVConfigDefault.catShapeSingle()
+    layerCatShapeSingle(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.layerCatShapeSingle()
     },
-    catShapeEnum(typ, t) {
+    layerCatShapeEnum(typ, t) {
         if(util.isArray(t)) {
-            return t.filter(o => util.isString(o) && !!o)
+            return t.filter(o => AntVConfigFilter.layerCatShapeEnumItem(typ, o))
         }
 
-        return AntVConfigDefault.catShapeEnum()
+        return AntVConfigDefault.layerCatShapeEnum()
+    },
+    layerCatShapeEnumItem(typ, t) {
+        return util.isString(t) && !!t ? t : AntVConfigDefault.layerCatShapeDefault(typ)
     },
     dataIndex(t) {
         let index = parseInt(t)
@@ -104,18 +112,47 @@ export const AntVConfigFilter = {
         }
         return index
     },
-    adjustType(t) {
-        return AntVAdjustType.includes(t) ? t : AntVConfigDefault.adjustType()
+    layerAdjustType(t) {
+        return AntVAdjustType.includes(t) ? t : AntVConfigDefault.layerAdjustType()
     },
-    adjustEnable(t) {
-        return util.isBoolean(t) ? t : AntVConfigDefault.adjustEnable()
-    }
+    layerAdjustEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.layerAdjustEnable()
+    },
+    layerType(t) {
+        if(AntVGeometryType.includes(t)) {
+            return t
+        }
+
+        return AntVConfigDefault.layerType()
+    },
+    layer(layer) {
+        let lt = AntVConfigDefault.layer()
+        if (!util.isObject(layer)) {
+            return lt
+        }
+
+        lt.type = AntVConfigFilter.layerType(layer.type)
+
+        if (util.isObject(layer.cat)) {
+            lt.cat.color = AntVConfigFilter.layerCatColor(layer.cat.color)
+            lt.cat.size = AntVConfigFilter.layerCatSize(layer.cat.size)
+            lt.cat.shape = AntVConfigFilter.layerCatShape(lt.type, layer.cat.shape)
+        }else {
+            lt.cat = AntVConfigDefault.layerCat(layer.type)
+        }
+
+        if (util.isObject(layer?.adjust)) {
+            lt.adjust.type = AntVConfigFilter.layerAdjustType(layer.adjust.type)
+            lt.adjust.enable = AntVConfigFilter.layerAdjustEnable(layer.adjust.enable)
+        }else {
+            lt.adjust = AntVConfigDefault.layerAdjust()
+        }
+
+        return lt
+    },
 }
 
 export const AntVConfigDefault = {
-    type() {
-        return AntVGeometryType[0]
-    },
     coordinateType() {
         return 'cartesian'
     },
@@ -134,28 +171,31 @@ export const AntVConfigDefault = {
     scaleFormatSuffix() {
         return ''
     },
-    catColor() {
+    layerCatColor() {
         return {
-            single: AntVConfigDefault.catColorSingle(), enum: AntVConfigDefault.catColorEnum(), default: AntVConfigDefault.catColorDefault()
+            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatColorSingle(), enum: AntVConfigDefault.layerCatColorEnum(), default: AntVConfigDefault.layerCatColorDefault()
         }
     },
-    catSize() {
+    layerCatSize() {
         return {
-            single: AntVConfigDefault.catSizeDefault(), enum: AntVConfigDefault.catSizeEnum(), default: AntVConfigDefault.catSizeDefault()
+            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatSizeSingle(), enum: AntVConfigDefault.layerCatSizeEnum(), default: AntVConfigDefault.layerCatSizeDefault()
         }
     },
-    catShape() {
+    layerCatShape(typ) {
         return {
-            single: AntVConfigDefault.catShapeSingle(), enum: AntVConfigDefault.catShapeEnum(), default: AntVConfigDefault.catShapeDefault()
+            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatShapeSingle(), enum: AntVConfigDefault.layerCatShapeEnum(), default: AntVConfigDefault.layerCatShapeDefault(typ)
         }
     },
-    catColorDefault() {
+    layerCatField() {
+        return ""
+    },
+    layerCatColorDefault() {
         return '#1890ff'
     },
-    catSizeDefault() {
+    layerCatSizeDefault() {
         return 5
     },
-    catShapeDefault(typ) {
+    layerCatShapeDefault(typ) {
         switch (typ) {
             case 'interval':
                 return 'rect'
@@ -174,42 +214,66 @@ export const AntVConfigDefault = {
             case 'edge':
                 return 'line'
             default:
-                throw `bug: AntVConfigDefault.catShapeDefault unknown type: ${typ}`
+                throw `bug: AntVConfigDefault.layerCatShapeDefault unknown type: ${typ}`
         }
     },
-    catShapeEnum() {
+    layerCatShapeEnum() {
         return []
     },
-    catColorEnum() {
-        return ['#1890ff', '#5AD8A6']
+    layerCatColorEnum() {
+        return []
     },
-    catSizeEnum() {
+    layerCatSizeEnum() {
         return [1, 10]
     },
-    catColorSingle() {
+    layerCatColorSingle() {
         return true
     },
-    catSizeSingle() {
+    layerCatSizeSingle() {
         return true
     },
-    catShapeSingle() {
+    layerCatShapeSingle() {
         return true
     },
     dataIndex() {
         return 0
     },
-    adjustEnable() {
+    layerAdjustEnable() {
         return false
     },
-    adjustType() {
+    layerAdjustType() {
         return 'stack'
-    }
+    },
+    layerCat(typ) {
+        return {
+            color: AntVConfigDefault.layerCatColor(),
+            size: AntVConfigDefault.layerCatSize(),
+            shape: AntVConfigDefault.layerCatShape(typ)
+        }
+    },
+    layerType() {
+        return AntVGeometryType[0]
+    },
+    layerAdjust() {
+        return {
+            enable: AntVConfigDefault.layerAdjustEnable(),
+            type: AntVConfigDefault.layerAdjustType()
+        }
+    },
+    layer() {
+        return {
+            type: AntVConfigDefault.layerType(),
+            adjust: AntVConfigDefault.layerAdjust(),
+            cat: AntVConfigDefault.layerCat(AntVConfigDefault.layerType())
+        }
+    },
+    layers() {
+        return []
+    },
 }
 
 export const AntVConfigParse = function(config) {
     let cfg = AntVConfig()
-
-    cfg.type = AntVConfigFilter.type(config?.type)
 
     if (util.has(config, 'coordinate.type')) {
         cfg.coordinate.type = AntVConfigFilter.coordinateType(config.coordinate.type)
@@ -234,15 +298,8 @@ export const AntVConfigParse = function(config) {
         }
     })
 
-    if (util.isObject(config?.cat)) {
-        cfg.cat.color = AntVConfigFilter.catColor(config.cat.color)
-        cfg.cat.size = AntVConfigFilter.catSize(config.cat.size)
-        cfg.cat.shape = AntVConfigFilter.catShape(cfg.type, config.cat.shape)
-    }
-
-    if (util.isObject(config?.adjust)) {
-        cfg.adjust.type = AntVConfigFilter.adjustType(config.adjust.type)
-        cfg.adjust.enable = AntVConfigFilter.adjustEnable(config.adjust.enable)
+    if (util.isArray(config?.layers)) {
+        config.layers.forEach(layer => cfg.layers.push(AntVConfigFilter.layer(layer)))
     }
 
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
@@ -253,7 +310,6 @@ export const AntVConfigParse = function(config) {
 export const AntVConfig = function() {
     return {
         // TODO: 支持多类型
-        type: AntVConfigDefault.type(),
         coordinate: {
             type: AntVConfigDefault.coordinateType(),
             transpose: AntVConfigDefault.coordinateTranspose()
@@ -284,15 +340,7 @@ export const AntVConfig = function() {
                 }
             }
         },
-        cat: {
-            color: {default: AntVConfigDefault.catColorDefault(), enum: AntVConfigDefault.catColorEnum(), single: AntVConfigDefault.catColorSingle()},
-            size: {default: AntVConfigDefault.catSizeDefault(), enum: AntVConfigDefault.catSizeDefault(), single: AntVConfigDefault.catSizeSingle()},
-            shape: {default: AntVConfigDefault.catShapeDefault(AntVConfigDefault.type()), enum: AntVConfigDefault.catShapeEnum(), single: AntVConfigDefault.catShapeSingle()},
-        },
-        adjust: {
-            type: AntVConfigDefault.adjustType(),
-            enable: AntVConfigDefault.adjustEnable()
-        },
+        layers: AntVConfigDefault.layers(),
         dataIndex: AntVConfigDefault.dataIndex(),
     }
 }

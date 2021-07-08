@@ -22,7 +22,11 @@ export default {
     methods: {
         onPatch() {
             this.$emit('patch', {
-                type: 'area',
+                layers: [
+                    {
+                        type: 'area',
+                    }
+                ]
             })
         }
     }

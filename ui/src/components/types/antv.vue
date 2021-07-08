@@ -68,6 +68,13 @@ export default {
             }
             return data === undefined ? [] : data
         },
+        coordinateType() {
+            if (this.cfg.coordinate.type === 'polar' && this.cfg.coordinate.transpose) {
+                return 'theta'
+            }
+
+            return this.cfg.coordinate.type
+        },
         render() {
             this.parse()
             this.$nextTick(() => {
@@ -77,7 +84,7 @@ export default {
                 })
 
                 // coordinate
-                const coordinate = chart.coordinate(this.cfg.coordinate.type)
+                const coordinate = chart.coordinate(this.coordinateType())
 
                 if(this.cfg.coordinate.transpose) {
                     coordinate.transpose()
@@ -94,42 +101,49 @@ export default {
                         formatter: value => `${this.cfg.scale.y.format.prefix}${value}${this.cfg.scale.y.format.suffix}`
                     }
                 })
-
                 // TODO: axis
 
+                let fields = [this.cfg.scale.x.field, this.cfg.scale.y.field]
+                // 根据维度支持动态字段
+                fields = {
+                    polar: 2,
+                    theta: 1,
+                    rect: 2,
+                    cartesian: 2,
+                    helix: 2
+                }[this.coordinateType()] === 1 ? [fields[0]] : fields
 
-                // TODO: y maybe not define
-                // TODO: more type
-                const geometry = chart[this.cfg.type]()
-                    .position({
-                        fields: [this.cfg.scale.x.field, this.cfg.scale.y.field]
-                    })
+                this.cfg.layers.forEach(layer => {
+                    const geometry = chart[layer.type]()
+                        .position({
+                            fields,
+                        })
 
-                if(this.cfg.adjust.enable) {
-                    geometry.adjust(this.cfg.adjust.type)
-                }
+                    if(layer.adjust.enable) {
+                        geometry.adjust(layer.adjust.type)
+                    }
 
-                // TODO: 暂时只支持单字段
-                this.cfg.cat.color.single
-                    ? geometry.color(this.cfg.cat.color.default)
-                    : geometry.color({
-                        fields: [this.cfg.scale.x.field],
-                        values: this.cfg.cat.color.enum
-                    })
+                    layer.cat.color.single
+                        ? geometry.color(layer.cat.color.default)
+                        : geometry.color({
+                            fields: [layer.cat.color.field],
+                            values: layer.cat.color.enum
+                        })
 
-                this.cfg.cat.size.single
-                    ? geometry.size(this.cfg.cat.size.default)
-                    : geometry.size({
-                        fields: [this.cfg.scale.x.field],
-                        values: this.cfg.cat.size.enum
-                    })
+                    layer.cat.size.single
+                        ? geometry.size(layer.cat.size.default)
+                        : geometry.size({
+                            fields: [layer.cat.size.field],
+                            values: layer.cat.size.enum
+                        })
 
-                this.cfg.cat.shape.single
-                    ? geometry.shape(this.cfg.cat.shape.default)
-                    : geometry.shape({
-                        fields: [this.cfg.scale.x.field],
-                        values: this.cfg.cat.shape.enum
-                    })
+                    layer.cat.shape.single
+                        ? geometry.shape(layer.cat.shape.default)
+                        : geometry.shape({
+                            fields: [layer.cat.shape.field],
+                            values: layer.cat.shape.enum
+                        })
+                })
 
                 chart.data(this.getData())
 

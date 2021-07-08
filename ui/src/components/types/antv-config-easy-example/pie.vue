@@ -25,14 +25,24 @@ export default {
     methods: {
         onPatch() {
             this.$emit('patch', {
-                type: 'interval',
                 coordinate: {
                     type: 'theta'
                 },
-                adjust: {
-                    enable: true,
-                    type: 'stack'
-                }
+                layers: [
+                    {
+                        type: 'interval',
+                        adjust: {
+                            enable: true,
+                            type: 'stack'
+                        },
+                        cat: {
+                            color: {
+                                single: false,
+                                enum: ['#063d8a', '#1770d6', '#47abfc', '#38c060']
+                            }
+                        }
+                    }
+                ]
             })
         }
     }

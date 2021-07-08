@@ -29,7 +29,7 @@ export default function() {
             ]
 
             let antVConfig = AntVConfig()
-            antVConfig.type = 'line'
+            antVConfig.layers = [{type: 'line'}]
             antVConfig.scale.x.field = 'year'
             antVConfig.scale.y.field = 'value'
             block.config.type = antVConfig
