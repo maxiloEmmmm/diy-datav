@@ -1,7 +1,7 @@
 import util from 'pkg/util'
 
-const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
-
+export const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
+export const AntVAdjustType = ['stack', 'jitter', 'dodge', 'symmetric']
 export const AntVConfigFilter = {
     type(t) {
         if(AntVGeometryType.includes(t)) {
@@ -103,6 +103,12 @@ export const AntVConfigFilter = {
             return AntVConfigDefault.dataIndex()
         }
         return index
+    },
+    adjustType(t) {
+        return AntVAdjustType.includes(t) ? t : AntVConfigDefault.adjustType()
+    },
+    adjustEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.adjustEnable()
     }
 }
 
@@ -191,6 +197,12 @@ export const AntVConfigDefault = {
     },
     dataIndex() {
         return 0
+    },
+    adjustEnable() {
+        return false
+    },
+    adjustType() {
+        return 'stack'
     }
 }
 
@@ -207,7 +219,7 @@ export const AntVConfigParse = function(config) {
         cfg.coordinate.transpose = AntVConfigFilter.coordinateTranspose(config.coordinate.transpose)
     }
 
-    ['x', 'y'].forEach(s => {
+    ['x', 'y', 'z'].forEach(s => {
         if (util.has(config, `scale.${s}.field`)) {
             cfg.scale[s].field = AntVConfigFilter.scaleField(config.scale[s].field)
         }
@@ -226,6 +238,11 @@ export const AntVConfigParse = function(config) {
         cfg.cat.color = AntVConfigFilter.catColor(config.cat.color)
         cfg.cat.size = AntVConfigFilter.catSize(config.cat.size)
         cfg.cat.shape = AntVConfigFilter.catShape(cfg.type, config.cat.shape)
+    }
+
+    if (util.isObject(config?.adjust)) {
+        cfg.adjust.type = AntVConfigFilter.adjustType(config.adjust.type)
+        cfg.adjust.enable = AntVConfigFilter.adjustEnable(config.adjust.enable)
     }
 
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
@@ -257,12 +274,24 @@ export const AntVConfig = function() {
                     prefix: AntVConfigDefault.scaleFormatPrefix(),
                     suffix: AntVConfigDefault.scaleFormatSuffix()
                 }
+            },
+            z: {
+                field: AntVConfigDefault.scaleField(),
+                alias: AntVConfigDefault.scaleAlias(),
+                format: {
+                    prefix: AntVConfigDefault.scaleFormatPrefix(),
+                    suffix: AntVConfigDefault.scaleFormatSuffix()
+                }
             }
         },
         cat: {
             color: {default: AntVConfigDefault.catColorDefault(), enum: AntVConfigDefault.catColorEnum(), single: AntVConfigDefault.catColorSingle()},
             size: {default: AntVConfigDefault.catSizeDefault(), enum: AntVConfigDefault.catSizeDefault(), single: AntVConfigDefault.catSizeSingle()},
             shape: {default: AntVConfigDefault.catShapeDefault(AntVConfigDefault.type()), enum: AntVConfigDefault.catShapeEnum(), single: AntVConfigDefault.catShapeSingle()},
+        },
+        adjust: {
+            type: AntVConfigDefault.adjustType(),
+            enable: AntVConfigDefault.adjustEnable()
         },
         dataIndex: AntVConfigDefault.dataIndex(),
     }

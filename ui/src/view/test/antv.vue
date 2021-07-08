@@ -2,23 +2,28 @@
 import {Chart} from '@antv/g2'
 
 const data = [
-    { year: '1991', value: 3 },
-    { year: '1992', value: 4 },
-    { year: '1993', value: 3.5 },
-    { year: '1994', value: 5 },
-    { year: '1995', value: 4.9 },
-    { year: '1996', value: 6 },
-    { year: '1997', value: 7 },
-    { year: '1998', value: 9 },
-    { year: '1999', value: 13 },
+    { year: '1991', value: 8, v2: 1, v3: 2, v4: 1 },
+    { year: '1991', value: 3, v2: 1, v3: 2, v4: 1 },
+    { year: '1992', value: 4, v2: 12, v3: 7, v4: 1.2 },
+    { year: '1993', value: 3.5, v2: 14, v3: 7, v4: 0 },
+    { year: '1994', value: 5, v2: 13, v3: 2, v4: 1 },
+    { year: '1995', value: 4.9, v2: 16, v3: 7, v4: 1 },
+    { year: '1996', value: 6, v2: 17, v3: 7, v4: 1 },
+    { year: '1997', value: 7, v2: 8, v3: 17, v4: 12 },
+    { year: '1998', value: 9, v2: 19, v3: 1, v4: 5 },
+    { year: '1999', value: 13, v2: 20, v3: 7, v4: 15 },
 ]
 
 export default {
     render(){
-        return <div ref="chart"></div>
+        return <div ref="chart" style="height:100vh;width:100vw; padding:2rem"></div>
+    },
+    data() {
+        return {
+            a: {b: 1}
+        }
     },
     mounted() {
-
         // shape 图形的形状
         // label 直接映射在图形上的文字
         // scale.*?.range 输出域、值域，表示在绘图范围内可用于绘制的范围
@@ -32,23 +37,12 @@ export default {
             })
 
             chart.data(data);
-            chart.scale({
-                year: {
-                    nice: true
-                },
-                value: {
-                    min: 0,
-                    nice: true,
-                },
-            });
+            chart.axis('v3', false)
+            chart.axis('v4', false)
+            chart.axis('v2', false)
 
-            chart.tooltip({
-                showCrosshairs: true, // 展示 Tooltip 辅助线
-                shared: true,
-            });
-
-            chart.line().position('year*value').label('value').shape('smooth');
-            chart.point().position('year*value');
+            chart.interval().adjust('stack').position('year*value');
+            chart.area().adjust('stack').position('year*value');
 
             chart.render()
         })

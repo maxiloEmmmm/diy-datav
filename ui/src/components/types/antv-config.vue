@@ -1,7 +1,8 @@
 <script lang="tsx">
-import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType} from 'type/index.js'
+import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType, AntVAdjustType} from 'type/index.js'
 import configMixin from './config-mixin'
 import easyExample from './antv-config-easy-example'
+import util from 'pkg/util'
 export default {
     mixins: [configMixin],
     data() {
@@ -11,6 +12,7 @@ export default {
                 type: AntVConfig()
             },
             store: {
+                adjustOptions: AntVAdjustType.map(typ => ({label: typ, value: typ})),
                 typeOptions: [
                     {label: 'interval', value: 'interval', desc: '用于绘制柱状图、直方图、南丁格尔玫瑰图、饼图、条形环图（玉缺图）、漏斗图等'},
                     {label: 'point', value: 'point', desc: '用于绘制点图、折线图中的点等'},
@@ -104,7 +106,7 @@ export default {
                 {this.easyModel
                     ? <a-tab-pane key="type" tab="种类">
                         <a-row style="height: 120px" gutter={[16,16]}>
-                            {easyExample.map(Component => <a-col span={6}><Component/></a-col>)}
+                            {easyExample.map(Component => <a-col span={6}><Component onPatch={this.onMergeConfig}/></a-col>)}
                         </a-row>
                     </a-tab-pane>
                     : [
@@ -112,11 +114,17 @@ export default {
                             <a-radio-group options={this.store.typeOptions} vModel={[this.cfg.type.type, 'value']} onChange={this.onChange}/>
                             <a-alert message={this.typeHelp}/>
                         </a-tab-pane>,
-                        <a-tab-pane key="coordinate.type" tab="坐标系">
+                        <a-tab-pane key="coordinate" tab="坐标系">
                             <a-divider orientation="left">类型</a-divider>
                             <a-radio-group options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
                             <a-divider orientation="left">翻转</a-divider>
                             <a-switch vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
+                        </a-tab-pane>,
+                        <a-tab-pane key="adjust" tab="层叠">
+                            <a-divider orientation="left">开启</a-divider>
+                            <a-switch vModel={[this.cfg.type.adjust.enable, 'checked']} onChange={this.onChange}/>
+                            <a-divider orientation="left">类型</a-divider>
+                            <a-select options={this.store.adjustOptions} vModel={[this.cfg.type.adjust.type, 'value']} onChange={this.onChange}/>
                         </a-tab-pane>
                     ]}
                 <a-tab-pane key="cats" tab="分类">
@@ -220,6 +228,10 @@ export default {
                 console.log('AntV config parse failed in antv-config', e, this.config)
             }
         },
+        onMergeConfig(payload) {
+            this.cfg.type = AntVConfigParse(util.merge(this.cfg.type, payload))
+            this.onChange()
+        }
     }
 }
 </script>

@@ -3,7 +3,7 @@ import {Chart} from '@antv/g2'
 import data from './data.js'
 export default {
     render() {
-        return <div style="width:100%; height: 100%" ref="chart"/>
+        return <div style="width:100%; height: 100%" ref="chart" onClick={this.onPatch}/>
     },
     mounted() {
         this.$nextTick(() => {
@@ -17,6 +17,14 @@ export default {
             chart.area().position('x*y')
             chart.data(data).render()
         })
+    },
+    emits: ['patch'],
+    methods: {
+        onPatch() {
+            this.$emit('patch', {
+                type: 'area',
+            })
+        }
     }
 }
 </script>

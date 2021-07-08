@@ -105,6 +105,10 @@ export default {
                         fields: [this.cfg.scale.x.field, this.cfg.scale.y.field]
                     })
 
+                if(this.cfg.adjust.enable) {
+                    geometry.adjust(this.cfg.adjust.type)
+                }
+
                 // TODO: 暂时只支持单字段
                 this.cfg.cat.color.single
                     ? geometry.color(this.cfg.cat.color.default)

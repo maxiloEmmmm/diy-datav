@@ -34,6 +34,23 @@ function throttle(cb, timeout) {
     }
 }
 
+function deepClone(obj) {
+    let o = obj
+    if (util.isObject(obj)) {
+        o = {}
+        Object.keys(obj).forEach(k => {
+            o[k] = deepClone(obj[k])
+        })
+    }else if(util.isArray(obj)) {
+        o = []
+        obj.forEach(val => {
+            o.push(deepClone(val))
+        })
+    }
+
+    return o
+}
+
 const has = function (
     obj,
     path,
@@ -118,6 +135,26 @@ const set = function (obj, path, d) {
     })
 }
 
+const merge = function(dst, src) {
+    dst = deepClone(dst)
+    // TODO: support array
+    Object.keys(src).forEach(k => {
+        let val = src[k]
+        let dstVal = get(dst, k)
+        if(!has(dst, k) || !typeEQ(val, dstVal)) {
+            dst[k] = val
+        }else {
+            //TODO: support array
+            if(isObject(dstVal)) {
+                dst[k] = merge(dstVal, val)
+            }else {
+                dst[k] = val
+            }
+        }
+    })
+
+    return dst
+}
 
 const util = {
     uuid,
@@ -130,7 +167,9 @@ const util = {
     isArray,
     isObject,
     isBoolean,
-    isNumber
+    isNumber,
+    deepClone,
+    merge
 }
 
 export default {
