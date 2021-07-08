@@ -22,6 +22,9 @@ export default {
     methods: {
         onPatch() {
             this.$emit('patch', {
+                coordinate: {
+                    type: 'cartesian'
+                },
                 layers: [
                     {
                         type: 'area',

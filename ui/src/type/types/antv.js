@@ -27,7 +27,7 @@ export const AntVConfigFilter = {
     layerCatColorDefault(t) {
         return !!t ? t : AntVConfigDefault.layerCatColorDefault()
     },
-    layerCatField() {
+    layerCatField(t) {
         return !!t ? t : AntVConfigDefault.layerCatField()
     },
     layerCatColor(t) {

@@ -6,10 +6,10 @@ export default {
         for(let i = 0; i < this.count; i++) {
             cs.push(<ysz-list-item start={true} v-slots={{
                 left: () => i + 1
-            }}><a-space>{this.component(i)}<a-button onClick={e => this.onRemove(i)}>移除</a-button></a-space></ysz-list-item>)
+            }}><a-space>{this.component(i)}<a-button size="small" onClick={e => this.onRemove(i)}>移除</a-button></a-space></ysz-list-item>)
         }
         return <div>
-            <a-divider orientation="right"><a-button onClick={this.onNew}>新增</a-button></a-divider>
+            <a-divider orientation="right"><a-button size="small" onClick={this.onNew}>新增</a-button></a-divider>
             {cs}
             {this.$slots.default}
         </div>

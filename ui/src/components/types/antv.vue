@@ -114,6 +114,7 @@ export default {
                 }[this.coordinateType()] === 1 ? [fields[0]] : fields
 
                 this.cfg.layers.forEach(layer => {
+                    console.log(`render layer: type: ${layer.type}, fields: ${fields}`)
                     const geometry = chart[layer.type]()
                         .position({
                             fields,
