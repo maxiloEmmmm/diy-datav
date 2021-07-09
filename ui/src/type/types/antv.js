@@ -3,6 +3,7 @@ import util from 'pkg/util'
 export const AntVScaleFields = ['x', 'y', 'z']
 export const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
 export const AntVAdjustType = ['stack', 'jitter', 'dodge', 'symmetric']
+export const AntVFacetType = ['rect', 'mirror', 'list', 'matrix', 'circle', 'tree']
 export const AntVScaleTypeType = [
     {label: '分类度量', value: 'cat'},
     {label: '时间分类度量', value: 'timeCat'},
@@ -14,7 +15,7 @@ export const AntVScaleTypeType = [
     {label: '等分度量，根据数据的分布自动计算分段', value: 'quantile'},
     {label: '常量度量', value: 'identity'},
 ]
-export const AntVCoordinateAxis = coordinate => {
+export const AntVCoordinateAxis = (coordinate, transpose) => {
     coordinate = AntVConfigFilter.coordinateType(coordinate)
     let base = [AntVScaleFields[0]]
     if ({
@@ -24,12 +25,24 @@ export const AntVCoordinateAxis = coordinate => {
         cartesian: 2,
         helix: 2
     }[coordinate] > 1) {
-        base.push(AntVScaleFields[1])
+        if(coordinate !== 'polar' || !transpose) {
+            base.push(AntVScaleFields[1])
+        }
     }
 
     return base
 }
 export const AntVConfigFilter = {
+    coordinate(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.coordinate()
+        }
+
+        return {
+            type: AntVConfigFilter.coordinateType(t.type),
+            transpose: AntVConfigFilter.coordinateTranspose(t.transpose)
+        }
+    },
     coordinateType(t) {
         return !!t ? t : AntVConfigDefault.coordinateType()
     },
@@ -189,9 +202,63 @@ export const AntVConfigFilter = {
 
         return lt
     },
+    layers(t) {
+        if (!util.isArray(t)) {
+            return AntVConfigDefault.layers()
+        }
+        return t.map(AntVConfigFilter.layer)
+    },
+    facet(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.facet()
+        }
+
+        return {
+            enable: AntVConfigFilter.facetEnable(t.enable),
+            field: AntVConfigFilter.facetField(t.field),
+            type: AntVConfigFilter.facetType(t.type)
+        }
+    },
+    facetEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.facetEnable()
+    },
+    facetField(t) {
+        return !!t ? t : AntVConfigDefault.facetField()
+    },
+    facetType(t) {
+        return AntVFacetType.includes(t) ? t : AntVConfigDefault.facetType()
+    },
+    scale(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.scale()
+        }
+
+        let s = {}
+        AntVScaleFields.forEach(scale => {
+            s[scale] = AntVConfigFilter.scaleItem(t[scale])
+        })
+        return s
+    },
+    scaleItem(t) {
+        let cfg = AntVConfigDefault.scaleItem()
+        if(util.isObject(t)) {
+            cfg.type = AntVConfigFilter.scaleType(t.type)
+            cfg.field = AntVConfigFilter.scaleField(t.field)
+            cfg.alias = AntVConfigFilter.scaleAlias(t.alias)
+            cfg.format.prefix = AntVConfigFilter.scaleFormatPrefix(t.format.prefix)
+            cfg.format.suffix = AntVConfigFilter.scaleFormatSuffix(t.format.suffix)
+        }
+        return cfg
+    },
 }
 
 export const AntVConfigDefault = {
+    coordinate() {
+        return {
+            type: AntVConfigDefault.coordinateType(),
+            transpose: AntVConfigDefault.coordinateTranspose()
+        }
+    },
     coordinateType() {
         return 'cartesian'
     },
@@ -317,50 +384,53 @@ export const AntVConfigDefault = {
     layers() {
         return []
     },
+    facet() {
+        return {
+            enable: AntVConfigDefault.facetEnable(),
+            field: AntVConfigDefault.facetField(),
+            type: AntVConfigDefault.facetType()
+        }
+    },
+    facetEnable() {
+        return false
+    },
+    facetField() {
+        return ''
+    },
+    facetType() {
+        return AntVFacetType[0]
+    },
+    scale() {
+        let s = {}
+        AntVScaleFields.forEach(scale => {
+            s[scale] = AntVConfigDefault.scaleItem()
+        })
+        return s
+    },
+    scaleItem() {
+        return {
+            field: AntVConfigDefault.scaleField(),
+            alias: AntVConfigDefault.scaleAlias(),
+            format: {
+                prefix: AntVConfigDefault.scaleFormatPrefix(),
+                suffix: AntVConfigDefault.scaleFormatSuffix()
+            },
+            type: AntVConfigDefault.scaleType()
+        }
+    }
 }
 
 export const AntVConfigParse = function(config) {
     let cfg = AntVConfig()
 
-    if (util.has(config, 'coordinate.type')) {
-        cfg.coordinate.type = AntVConfigFilter.coordinateType(config.coordinate.type)
-    }
+    cfg.coordinate = AntVConfigFilter.coordinate(config?.coordinate)
 
-    if (util.has(config, 'coordinate.transpose')) {
-        cfg.coordinate.transpose = AntVConfigFilter.coordinateTranspose(config.coordinate.transpose)
-    }
+    cfg.scale = AntVConfigFilter.scale(config?.scale)
 
-    AntVScaleFields.forEach(s => {
-        cfg.scale[s] = {
-            type: AntVConfigDefault.scaleType(),
-            field: AntVConfigDefault.scaleField(),
-            alias: AntVConfigDefault.scaleAlias(),
-            format: {
-                prefix: AntVConfigDefault.scaleFormatPrefix(),
-                suffix: AntVConfigDefault.scaleFormatSuffix(),
-            }
-        }
 
-        if (util.has(config, `scale.${s}.type`)) {
-            cfg.scale[s].type = AntVConfigFilter.scaleType(config.scale[s].type)
-        }
-        if (util.has(config, `scale.${s}.field`)) {
-            cfg.scale[s].field = AntVConfigFilter.scaleField(config.scale[s].field)
-        }
-        if (util.has(config, `scale.${s}.alias`)) {
-            cfg.scale[s].alias = AntVConfigFilter.scaleAlias(config.scale[s].alias)
-        }
-        if (util.has(config, `scale.${s}.format.prefix`)) {
-            cfg.scale[s].format.prefix = AntVConfigFilter.scaleFormatPrefix(config.scale[s].format.prefix)
-        }
-        if (util.has(config, `scale.${s}.format.suffix`)) {
-            cfg.scale[s].format.suffix = AntVConfigFilter.scaleFormatSuffix(config.scale[s].format.suffix)
-        }
-    })
 
-    if (util.isArray(config?.layers)) {
-        config.layers.forEach(layer => cfg.layers.push(AntVConfigFilter.layer(layer)))
-    }
+    cfg.layers = AntVConfigFilter.layers(config?.layers)
+    cfg.facet = AntVConfigFilter.facet(config?.facet)
 
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
 
@@ -369,41 +439,10 @@ export const AntVConfigParse = function(config) {
 
 export const AntVConfig = function() {
     return {
-        // TODO: 支持多类型
-        coordinate: {
-            type: AntVConfigDefault.coordinateType(),
-            transpose: AntVConfigDefault.coordinateTranspose()
-        },
-        scale: {
-            [AntVScaleFields[0]]: {
-                field: AntVConfigDefault.scaleField(),
-                alias: AntVConfigDefault.scaleAlias(),
-                format: {
-                    prefix: AntVConfigDefault.scaleFormatPrefix(),
-                    suffix: AntVConfigDefault.scaleFormatSuffix()
-                },
-                type: AntVConfigDefault.scaleType()
-            },
-            [AntVScaleFields[1]]: {
-                field: AntVConfigDefault.scaleField(),
-                alias: AntVConfigDefault.scaleAlias(),
-                format: {
-                    prefix: AntVConfigDefault.scaleFormatPrefix(),
-                    suffix: AntVConfigDefault.scaleFormatSuffix()
-                },
-                type: AntVConfigDefault.scaleType()
-            },
-            [AntVScaleFields[2]]: {
-                field: AntVConfigDefault.scaleField(),
-                alias: AntVConfigDefault.scaleAlias(),
-                format: {
-                    prefix: AntVConfigDefault.scaleFormatPrefix(),
-                    suffix: AntVConfigDefault.scaleFormatSuffix()
-                },
-                type: AntVConfigDefault.scaleType()
-            }
-        },
+        coordinate: AntVConfigDefault.coordinate(),
+        scale: AntVConfigDefault.scale(),
         layers: AntVConfigDefault.layers(),
+        facet: AntVConfigDefault.facet(),
         dataIndex: AntVConfigDefault.dataIndex(),
     }
 }

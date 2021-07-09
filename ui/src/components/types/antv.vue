@@ -68,13 +68,6 @@ export default {
             }
             return data === undefined ? [] : data
         },
-        coordinateType() {
-            if (this.cfg.coordinate.type === 'polar' && this.cfg.coordinate.transpose) {
-                return 'theta'
-            }
-
-            return this.cfg.coordinate.type
-        },
         render() {
             this.parse()
             this.$nextTick(() => {
@@ -84,7 +77,7 @@ export default {
                 })
 
                 // coordinate
-                const coordinate = chart.coordinate(this.coordinateType())
+                const coordinate = chart.coordinate(this.cfg.coordinate.type)
 
                 if(this.cfg.coordinate.transpose) {
                     coordinate.transpose()
@@ -93,58 +86,72 @@ export default {
                 ['x', 'y', 'z'].forEach(scale => {
                     chart.scale(this.cfg.scale[scale].field, {
                         alias: this.cfg.scale[scale].alias,
-                        formatter: value => `${this.cfg.scale[scale].format.prefix}${value}${this.cfg.scale[scale].format.suffix}`
+                        formatter: value => `${this.cfg.scale[scale].format.prefix}${value}${this.cfg.scale[scale].format.suffix}`,
+                        nice: true,
                     })
 
-                    //
                     if(this.cfg.scale[scale].alias !== "") {
                         chart.axis(this.cfg.scale[scale].field, {title: {}})
                     }
                 })
                 // TODO: axis
 
-                let fields = [this.cfg.scale.x.field, this.cfg.scale.y.field]
-                // 根据维度支持动态字段
-                fields = AntVCoordinateAxis(this.coordinateType()).length === 1 ? [fields[0]] : fields
-
-                this.cfg.layers.forEach(layer => {
-                    console.log(`render layer: type: ${layer.type}, fields: ${fields}`)
-                    const geometry = chart[layer.type]()
-                        .position({
-                            fields,
-                        })
-
-                    if(layer.adjust.enable) {
-                        geometry.adjust(layer.adjust.type)
+                let fields = []
+                Object.keys(this.cfg.scale).forEach(scale => {
+                    if (AntVCoordinateAxis(this.cfg.coordinate.type, this.cfg.coordinate.transpose).includes(scale)) {
+                        fields.push(this.cfg.scale[scale].field)
                     }
-
-                    layer.cat.color.single
-                        ? geometry.color(layer.cat.color.default)
-                        : geometry.color({
-                            fields: [layer.cat.color.field],
-                            values: layer.cat.color.enum
-                        })
-
-                    layer.cat.size.single
-                        ? geometry.size(layer.cat.size.default)
-                        : geometry.size({
-                            fields: [layer.cat.size.field],
-                            values: layer.cat.size.enum
-                        })
-
-                    layer.cat.shape.single
-                        ? geometry.shape(layer.cat.shape.default)
-                        : geometry.shape({
-                            fields: [layer.cat.shape.field],
-                            values: layer.cat.shape.enum
-                        })
                 })
+
+                // if facet support
+                if(this.cfg.facet.enable) {
+                    chart.facet(this.cfg.facet.type, {
+                        fields: [this.cfg.facet.field],
+                        eachView: (view) => {
+                            this.viewSet(view, fields)
+                        }
+                    })
+                }else {
+                    this.viewSet(chart, fields)
+                }
 
                 chart.data(this.getData())
 
-                // TODO: facet view support
                 chart.render()
                 this.renderAfter()
+            })
+        },
+        viewSet(view, fields) {
+            this.cfg.layers.forEach(layer => {
+                const geometry = view[layer.type]()
+                    .position({
+                        fields,
+                    })
+
+                if(layer.adjust.enable) {
+                    geometry.adjust(layer.adjust.type)
+                }
+
+                layer.cat.color.single
+                    ? geometry.color(layer.cat.color.default)
+                    : geometry.color({
+                        fields: [layer.cat.color.field],
+                        values: layer.cat.color.enum
+                    })
+
+                layer.cat.size.single
+                    ? geometry.size(layer.cat.size.default)
+                    : geometry.size({
+                        fields: [layer.cat.size.field],
+                        values: layer.cat.size.enum
+                    })
+
+                layer.cat.shape.single
+                    ? geometry.shape(layer.cat.shape.default)
+                    : geometry.shape({
+                        fields: [layer.cat.shape.field],
+                        values: layer.cat.shape.enum
+                    })
             })
         },
         renderAfter() {
