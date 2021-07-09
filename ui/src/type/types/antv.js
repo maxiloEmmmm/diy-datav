@@ -1,13 +1,52 @@
 import util from 'pkg/util'
 
+export const AntVScaleFields = ['x', 'y', 'z']
 export const AntVGeometryType = ['interval', 'point', 'line', 'area', 'path', 'polygon', 'edge', 'heatmap', 'schema']
 export const AntVAdjustType = ['stack', 'jitter', 'dodge', 'symmetric']
+export const AntVScaleTypeType = [
+    {label: '分类度量', value: 'cat'},
+    {label: '时间分类度量', value: 'timeCat'},
+    {label: '线性度量', value: 'linear'},
+    {label: '连续的时间度量', value: 'time'},
+    {label: 'log 度量', value: 'log'},
+    {label: 'pow 度量', value: 'pow'},
+    {label: '分段度量，用户可以指定不均匀的分段', value: 'quantize'},
+    {label: '等分度量，根据数据的分布自动计算分段', value: 'quantile'},
+    {label: '常量度量', value: 'identity'},
+]
+export const AntVCoordinateAxis = coordinate => {
+    coordinate = AntVConfigFilter.coordinateType(coordinate)
+    let base = [AntVScaleFields[0]]
+    if ({
+        polar: 2,
+        theta: 1,
+        rect: 2,
+        cartesian: 2,
+        helix: 2
+    }[coordinate] > 1) {
+        base.push(AntVScaleFields[1])
+    }
+
+    return base
+}
 export const AntVConfigFilter = {
     coordinateType(t) {
         return !!t ? t : AntVConfigDefault.coordinateType()
     },
     coordinateTranspose(t) {
         return !!t ? t : AntVConfigDefault.coordinateTranspose()
+    },
+    scaleType(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.scaleType()
+        }
+
+        return {
+            type: AntVConfigFilter.scaleTypeType(t.type)
+        }
+    },
+    scaleTypeType(t) {
+        return !!AntVScaleTypeType.filter(typ => typ.value === t) ? t : AntVConfigDefault.scaleTypeType()
     },
     scaleField(t) {
         return !!t ? t : AntVConfigDefault.scaleField()
@@ -159,6 +198,14 @@ export const AntVConfigDefault = {
     coordinateTranspose() {
         return false
     },
+    scaleType() {
+        return {
+            type: AntVConfigDefault.scaleTypeType()
+        }
+    },
+    scaleTypeType() {
+        return ''
+    },
     scaleField() {
         return ''
     },
@@ -283,7 +330,20 @@ export const AntVConfigParse = function(config) {
         cfg.coordinate.transpose = AntVConfigFilter.coordinateTranspose(config.coordinate.transpose)
     }
 
-    ['x', 'y', 'z'].forEach(s => {
+    AntVScaleFields.forEach(s => {
+        cfg.scale[s] = {
+            type: AntVConfigDefault.scaleType(),
+            field: AntVConfigDefault.scaleField(),
+            alias: AntVConfigDefault.scaleAlias(),
+            format: {
+                prefix: AntVConfigDefault.scaleFormatPrefix(),
+                suffix: AntVConfigDefault.scaleFormatSuffix(),
+            }
+        }
+
+        if (util.has(config, `scale.${s}.type`)) {
+            cfg.scale[s].type = AntVConfigFilter.scaleType(config.scale[s].type)
+        }
         if (util.has(config, `scale.${s}.field`)) {
             cfg.scale[s].field = AntVConfigFilter.scaleField(config.scale[s].field)
         }
@@ -315,29 +375,32 @@ export const AntVConfig = function() {
             transpose: AntVConfigDefault.coordinateTranspose()
         },
         scale: {
-            x: {
+            [AntVScaleFields[0]]: {
                 field: AntVConfigDefault.scaleField(),
                 alias: AntVConfigDefault.scaleAlias(),
                 format: {
                     prefix: AntVConfigDefault.scaleFormatPrefix(),
                     suffix: AntVConfigDefault.scaleFormatSuffix()
-                }
+                },
+                type: AntVConfigDefault.scaleType()
             },
-            y: {
+            [AntVScaleFields[1]]: {
                 field: AntVConfigDefault.scaleField(),
                 alias: AntVConfigDefault.scaleAlias(),
                 format: {
                     prefix: AntVConfigDefault.scaleFormatPrefix(),
                     suffix: AntVConfigDefault.scaleFormatSuffix()
-                }
+                },
+                type: AntVConfigDefault.scaleType()
             },
-            z: {
+            [AntVScaleFields[2]]: {
                 field: AntVConfigDefault.scaleField(),
                 alias: AntVConfigDefault.scaleAlias(),
                 format: {
                     prefix: AntVConfigDefault.scaleFormatPrefix(),
                     suffix: AntVConfigDefault.scaleFormatSuffix()
-                }
+                },
+                type: AntVConfigDefault.scaleType()
             }
         },
         layers: AntVConfigDefault.layers(),

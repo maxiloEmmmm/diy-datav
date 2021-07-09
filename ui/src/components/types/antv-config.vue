@@ -1,5 +1,5 @@
 <script lang="tsx">
-import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType, AntVAdjustType} from 'type/index.js'
+import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType, AntVAdjustType, AntVCoordinateAxis, AntVScaleTypeType} from 'type/index.js'
 import configMixin from './config-mixin'
 import easyExample from './antv-config-easy-example'
 import util from 'pkg/util'
@@ -13,6 +13,10 @@ export default {
             },
             store: {
                 adjustOptions: AntVAdjustType.map(typ => ({label: typ, value: typ})),
+                scaleTypeTypeOptions: [
+                    {label: '自动判断', value: AntVConfigDefault.scaleTypeType()},
+                    ...AntVScaleTypeType,
+                ],
                 typeOptions: [
                     {label: 'interval', value: 'interval', desc: '用于绘制柱状图、直方图、南丁格尔玫瑰图、饼图、条形环图（玉缺图）、漏斗图等'},
                     {label: 'point', value: 'point', desc: '用于绘制点图、折线图中的点等'},
@@ -117,6 +121,37 @@ export default {
                             <a-switch size="small" vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
                         </a-tab-pane>,
                     ]}
+                <a-tab-pane key="scale" tab="度量">
+                    <a-tabs tab-position="top" size="small">
+                        {this.coordinateAxis.map(axis => <a-tab-pane key={axis} tab={axis}>
+                            <ysz-list-item v-slots={{
+                                left: () => '数据字段'
+                            }}>
+                                <a-input size="small" vModel={[this.cfg.type.scale[axis].field, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                            <ysz-list-item v-slots={{
+                                left: () => '自定义类型'
+                            }}>
+                                <a-select style="width:200px" options={this.store.scaleTypeTypeOptions} size="small" vModel={[this.cfg.type.scale[axis].type.type, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                            <ysz-list-item v-slots={{
+                                left: () => '标题'
+                            }}>
+                                <a-input size="small" vModel={[this.cfg.type.scale[axis].alias, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                            <ysz-list-item v-slots={{
+                                left: () => '前缀'
+                            }}>
+                                <a-input size="small" vModel={[this.cfg.type.scale[axis].format.prefix, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                            <ysz-list-item v-slots={{
+                                left: () => '后缀'
+                            }}>
+                                <a-input size="small" vModel={[this.cfg.type.scale[axis].format.suffix, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                        </a-tab-pane>)}
+                    </a-tabs>
+                </a-tab-pane>
                 <a-tab-pane key="layers" tab="层">
                     <more initCount={this.cfg.type.layers.length} onAdd={payload => {
                         this.cfg.type.layers[payload.count] = AntVConfigDefault.layer()
@@ -155,6 +190,11 @@ export default {
                                             ? [
                                                 <a-divider orientation="left">更多</a-divider>,
                                                 <ysz-list-item v-slots={{
+                                                    left: () => '分类字段'
+                                                }}>
+                                                    <a-input size="small" vModel={[this.cfg.type.layers[index].cat.size.field, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>,
+                                                <ysz-list-item v-slots={{
                                                     left: () => '最小值'
                                                 }}>
                                                     <a-input size="small" vModel={[this.cfg.type.layers[index].cat.size.enum[0], 'value']} onChange={this.onChange}/>
@@ -178,11 +218,19 @@ export default {
                                             <a-select size="small" options={this.getShapeOptions(this.cfg.type.layers[index].type, '')} vModel={[this.cfg.type.layers[index].cat.shape.default, 'value']} onChange={this.onChange}/>
                                         </ysz-list-item>
                                         {!this.cfg.type.layers[index].cat.shape.single
-                                            ? <ysz-list-item v-slots={{
-                                                left: () => '更多'
-                                            }}>
-                                                <a-select size="small" style="width: 80%" mode="multiple" options={this.getShapeOptions(this.cfg.type.layers[index].type, this.cfg.type.layers[index].cat.shape.default)} vModel={[this.cfg.type.layers[index].cat.shape.enum, 'value']} onChange={this.onChange}/>
-                                            </ysz-list-item>
+                                            ? [
+                                                <a-divider orientation="left">更多</a-divider>,
+                                                <ysz-list-item v-slots={{
+                                                    left: () => '分类字段'
+                                                }}>
+                                                    <a-input size="small" vModel={[this.cfg.type.layers[index].cat.shape.field, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>,
+                                                <ysz-list-item v-slots={{
+                                                    left: () => '额外'
+                                                }}>
+                                                    <a-select size="small" style="width: 80%" mode="multiple" options={this.getShapeOptions(this.cfg.type.layers[index].type, this.cfg.type.layers[index].cat.shape.default)} vModel={[this.cfg.type.layers[index].cat.shape.enum, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>
+                                            ]
                                             : null}
                                     </a-tab-pane>
                                     <a-tab-pane key="color" tab="颜色">
@@ -197,21 +245,29 @@ export default {
                                             <color-pick vModel={[this.cfg.type.layers[index].cat.color.default, 'value']} onChange={this.onChange}/>
                                         </ysz-list-item>
                                         {!this.cfg.type.layers[index].cat.color.single
-                                            ? <ysz-list-item v-slots={{
-                                                left: () => '更多'
-                                            }}>
-                                                <more initCount={this.cfg.type.layers[index].cat.color.enum.length} onAdd={payload => {
-                                                    this.cfg.type.layers[index].cat.color.enum[payload.count] = AntVConfigDefault.layerCatColorDefault()
-                                                    this.onChange()
-                                                    payload.done()
-                                                }} onRemove={payload => {
-                                                    this.cfg.type.layers[index].cat.color.enum = this.cfg.type.layers[index].cat.color.enum.filter((v, i) => i !== payload.index)
-                                                    this.onChange()
-                                                    payload.done()
-                                                }} component={index => {
-                                                    return <color-pick vModel={[this.cfg.type.layers[index].cat.color.enum[index], 'value']} onChange={this.onChange}/>
-                                                }} />
-                                            </ysz-list-item> : null}
+                                            ? [
+                                                <a-divider orientation="left">更多</a-divider>,
+                                                <ysz-list-item v-slots={{
+                                                    left: () => '分类字段'
+                                                }}>
+                                                    <a-input size="small" vModel={[this.cfg.type.layers[index].cat.color.field, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>,
+                                                <ysz-list-item v-slots={{
+                                                    left: () => '额外'
+                                                }}>
+                                                    <more initCount={this.cfg.type.layers[index].cat.color.enum.length} onAdd={payload => {
+                                                        this.cfg.type.layers[index].cat.color.enum[payload.count] = AntVConfigDefault.layerCatColorDefault()
+                                                        this.onChange()
+                                                        payload.done()
+                                                    }} onRemove={payload => {
+                                                        this.cfg.type.layers[index].cat.color.enum = this.cfg.type.layers[index].cat.color.enum.filter((v, i) => i !== payload.index)
+                                                        this.onChange()
+                                                        payload.done()
+                                                    }} component={index => {
+                                                        return <color-pick vModel={[this.cfg.type.layers[index].cat.color.enum[index], 'value']} onChange={this.onChange}/>
+                                                    }} />
+                                                </ysz-list-item>
+                                            ] : null}
                                     </a-tab-pane>
                                 </a-tabs>
                             </a-tab-pane>
@@ -222,16 +278,8 @@ export default {
         </div>
     },
     computed: {
-        typeHelp() {
-            let type = this.store.typeOptions.find(type => {
-               return type.value === this.cfg.type.type
-            })
-
-            return !!type ? type.desc : ''
-        },
-        shapeOptions() {
-            const options = this.store.shapeOptions[this.cfg.type.type]
-            return (!options ? [] : options).filter(v => v !== this.cfg.type.cat.shape.default)
+        coordinateAxis() {
+            return AntVCoordinateAxis(this.cfg.type.coordinate.type)
         }
     },
     methods: {

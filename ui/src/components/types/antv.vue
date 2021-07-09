@@ -1,6 +1,6 @@
 <script lang="tsx">
 import { Chart } from '@antv/g2'
-import {AntVConfig, AntVConfigParse} from 'type/types/index.js'
+import {AntVConfig, AntVConfigParse, AntVCoordinateAxis} from 'type/types/index.js'
 import util from 'pkg/util'
 export default {
     props: {
@@ -90,28 +90,22 @@ export default {
                     coordinate.transpose()
                 }
 
-                //    scale
-                chart.scale({
-                    [this.cfg.scale.x.field]: {
-                        alias: this.cfg.scale.x.alias,
-                        formatter: value => `${this.cfg.scale.x.format.prefix}${value}${this.cfg.scale.x.format.suffix}`
-                    },
-                    [this.cfg.scale.y.field]: {
-                        alias: this.cfg.scale.y.alias,
-                        formatter: value => `${this.cfg.scale.y.format.prefix}${value}${this.cfg.scale.y.format.suffix}`
+                ['x', 'y', 'z'].forEach(scale => {
+                    chart.scale(this.cfg.scale[scale].field, {
+                        alias: this.cfg.scale[scale].alias,
+                        formatter: value => `${this.cfg.scale[scale].format.prefix}${value}${this.cfg.scale[scale].format.suffix}`
+                    })
+
+                    //
+                    if(this.cfg.scale[scale].alias !== "") {
+                        chart.axis(this.cfg.scale[scale].field, {title: {}})
                     }
                 })
                 // TODO: axis
 
                 let fields = [this.cfg.scale.x.field, this.cfg.scale.y.field]
                 // 根据维度支持动态字段
-                fields = {
-                    polar: 2,
-                    theta: 1,
-                    rect: 2,
-                    cartesian: 2,
-                    helix: 2
-                }[this.coordinateType()] === 1 ? [fields[0]] : fields
+                fields = AntVCoordinateAxis(this.coordinateType()).length === 1 ? [fields[0]] : fields
 
                 this.cfg.layers.forEach(layer => {
                     console.log(`render layer: type: ${layer.type}, fields: ${fields}`)
