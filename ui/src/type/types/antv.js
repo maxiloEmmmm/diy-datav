@@ -15,6 +15,9 @@ export const AntVScaleTypeType = [
     {label: '等分度量，根据数据的分布自动计算分段', value: 'quantile'},
     {label: '常量度量', value: 'identity'},
 ]
+export const AntVIsPolarCoordinate = (t) => {
+    return ['polar', 'theta'].includes(t)
+}
 export const AntVCoordinateAxis = (coordinate, transpose) => {
     coordinate = AntVConfigFilter.coordinateType(coordinate)
     let base = [AntVScaleFields[0]]
@@ -40,8 +43,25 @@ export const AntVConfigFilter = {
 
         return {
             type: AntVConfigFilter.coordinateType(t.type),
+            cfg: AntVConfigFilter.coordinateCfg(t.cfg),
             transpose: AntVConfigFilter.coordinateTranspose(t.transpose)
         }
+    },
+    coordinateCfg(t) {
+        if(!util.isObject(t)) {
+            return AntVConfigDefault.coordinateCfg()
+        }
+
+        return {
+            radius: AntVConfigFilter.coordinateCfgRadius(t.radius),
+            innerRadius: AntVConfigFilter.coordinateCfgInnerRadius(t.innerRadius)
+        }
+    },
+    coordinateCfgRadius(t) {
+        return util.isNumber(t) ? t : AntVConfigDefault.coordinateCfgRadius()
+    },
+    coordinateCfgInnerRadius(t) {
+        return util.isNumber(t) ? t : AntVConfigDefault.coordinateCfgInnerRadius()
     },
     coordinateType(t) {
         return !!t ? t : AntVConfigDefault.coordinateType()
@@ -256,8 +276,21 @@ export const AntVConfigDefault = {
     coordinate() {
         return {
             type: AntVConfigDefault.coordinateType(),
+            cfg: AntVConfigDefault.coordinateCfg(),
             transpose: AntVConfigDefault.coordinateTranspose()
         }
+    },
+    coordinateCfg(){
+        return {
+            radius: AntVConfigDefault.coordinateCfgRadius(),
+            innerRadius: AntVConfigDefault.coordinateCfgInnerRadius()
+        }
+    },
+    coordinateCfgRadius() {
+        return null
+    },
+    coordinateCfgInnerRadius() {
+        return null
     },
     coordinateType() {
         return 'cartesian'
@@ -424,14 +457,9 @@ export const AntVConfigParse = function(config) {
     let cfg = AntVConfig()
 
     cfg.coordinate = AntVConfigFilter.coordinate(config?.coordinate)
-
     cfg.scale = AntVConfigFilter.scale(config?.scale)
-
-
-
     cfg.layers = AntVConfigFilter.layers(config?.layers)
     cfg.facet = AntVConfigFilter.facet(config?.facet)
-
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
 
     return cfg

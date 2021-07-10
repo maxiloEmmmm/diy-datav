@@ -26,7 +26,10 @@ export default {
         onPatch() {
             this.$emit('patch', {
                 coordinate: {
-                    type: 'theta'
+                    type: 'theta',
+                    cfg: {
+                        radius: 0.75
+                    }
                 },
                 layers: [
                     {

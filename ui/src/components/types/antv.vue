@@ -77,7 +77,10 @@ export default {
                 })
 
                 // coordinate
-                const coordinate = chart.coordinate(this.cfg.coordinate.type)
+                const coordinate = chart.coordinate(this.cfg.coordinate.type, {
+                    radius: this.cfg.coordinate.cfg.radius,
+                    innerRadius: this.cfg.coordinate.cfg.innerRadius,
+                })
 
                 if(this.cfg.coordinate.transpose) {
                     coordinate.transpose()

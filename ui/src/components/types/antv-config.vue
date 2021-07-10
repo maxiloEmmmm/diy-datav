@@ -1,5 +1,9 @@
 <script lang="tsx">
-import {AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType, AntVAdjustType, AntVCoordinateAxis, AntVScaleTypeType, AntVFacetType} from 'type/index.js'
+import {
+    AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType,
+    AntVAdjustType, AntVCoordinateAxis, AntVScaleTypeType, AntVFacetType,
+    AntVIsPolarCoordinate
+} from 'type/index.js'
 import configMixin from './config-mixin'
 import easyExample from './antv-config-easy-example'
 import util from 'pkg/util'
@@ -116,10 +120,31 @@ export default {
                     </a-tab-pane>
                     : [
                         <a-tab-pane key="coordinate" tab="坐标系">
-                            <a-divider orientation="left">类型</a-divider>
-                            <a-radio-group size="small" options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
-                            <a-divider orientation="left">翻转</a-divider>
-                            <a-switch size="small" vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
+                            <ysz-list-item v-slots={{
+                                left: () => '类型'
+                            }}>
+                                <a-radio-group size="small" options={this.store.coordinateOptions} vModel={[this.cfg.type.coordinate.type, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item>
+                            {this.isPolarCoordinate
+                                ? [
+                                    <ysz-list-item v-slots={{
+                                        left: () => '内径'
+                                    }}>
+                                        <a-input-number size="small" vModel={[this.cfg.type.coordinate.cfg.innerRadius, 'value']} onChange={this.onChange}/>
+                                    </ysz-list-item>,
+                                    <ysz-list-item v-slots={{
+                                        left: () => '外径'
+                                    }}>
+                                        <a-input-number size="small" vModel={[this.cfg.type.coordinate.cfg.radius, 'value']} onChange={this.onChange}/>
+                                    </ysz-list-item>
+                                ]
+                                : null
+                            }
+                            <ysz-list-item v-slots={{
+                                left: () => '翻转'
+                            }}>
+                                <a-switch size="small" vModel={[this.cfg.type.coordinate.transpose, 'checked']} onChange={this.onChange}/>
+                            </ysz-list-item>
                         </a-tab-pane>,
                     ]}
                 <a-tab-pane key="scale" tab="度量">
@@ -298,6 +323,9 @@ export default {
     computed: {
         coordinateAxis() {
             return AntVCoordinateAxis(this.cfg.type.coordinate.type, this.cfg.type.coordinate.transpose)
+        },
+        isPolarCoordinate() {
+            return AntVIsPolarCoordinate(this.cfg.type.coordinate.type)
         }
     },
     methods: {
