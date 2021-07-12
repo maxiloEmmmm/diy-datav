@@ -40,6 +40,7 @@ export default {
                         },
                         cat: {
                             color: {
+                                enable: true,
                                 single: false,
                                 enum: ['#063d8a', '#1770d6', '#47abfc', '#38c060']
                             }

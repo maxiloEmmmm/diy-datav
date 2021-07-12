@@ -6,7 +6,7 @@ export default {
     components: {cp: Sketch},
     render(){
         return <a-popover v-slots={{
-            content: () => <cp value={this.color} onInput={this.onInput}/>
+            content: () => <cp modelValue={this.color} onUpdate:modelValue={this.onInput}/>
         }} title="颜色选择" trigger="click" visible={this.visible} onVisibleChange={e => this.visible = e}>
             <a-button size="small" type="primary">
                 {this.color ? <div style={{backgroundColor: this.color, borderRadius: "4px", width: "1rem", height: "1rem"}}/> : "选择"}
@@ -23,6 +23,7 @@ export default {
     emits: ["update:value", "change"],
     methods: {
         onInput(x){
+            console.log('?')
             this.color = x.hex
             this.$emit("update:value", this.color)
             this.$emit("change", this.color)

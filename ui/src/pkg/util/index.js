@@ -10,26 +10,28 @@ function uuid() {
 function debounce(cb, timeout) {
     let handler = null
     return function() {
-        if(handler == null) {
-            handler = setTimeout(() => {
-                handler = null
-                cb.call(this, ...arguments)
-            }, timeout)
-        }else {
+        if(handler) {
             clearTimeout(handler)
             handler = null
         }
+
+        handler = setTimeout(() => {
+            handler = null
+            cb.call(this, ...arguments)
+        }, timeout)
     }
 }
 
 function throttle(cb, timeout) {
+    let can = true
     let handler = null
     return function() {
-        if(handler == null) {
+        if(can) {
+            can = false
             handler = setTimeout(() => {
-                handler = null
-                cb.call(this, ...arguments)
+                can = true
             }, timeout)
+            cb.call(this, ...arguments)
         }
     }
 }

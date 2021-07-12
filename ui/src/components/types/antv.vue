@@ -135,26 +135,32 @@ export default {
                     geometry.adjust(layer.adjust.type)
                 }
 
-                layer.cat.color.single
-                    ? geometry.color(layer.cat.color.default)
-                    : geometry.color({
-                        fields: [layer.cat.color.field],
-                        values: layer.cat.color.enum
-                    })
+                if(layer.cat.color.enable) {
+                    layer.cat.color.single
+                        ? geometry.color(layer.cat.color.default)
+                        : geometry.color({
+                            fields: [layer.cat.color.field],
+                            values: layer.cat.color.enum
+                        })
+                }
 
-                layer.cat.size.single
-                    ? geometry.size(layer.cat.size.default)
-                    : geometry.size({
-                        fields: [layer.cat.size.field],
-                        values: layer.cat.size.enum
-                    })
+                if(layer.cat.size.enable) {
+                    layer.cat.size.single
+                        ? geometry.size(layer.cat.size.default)
+                        : geometry.size({
+                            fields: [layer.cat.size.field],
+                            values: layer.cat.size.enum
+                        })
+                }
 
-                layer.cat.shape.single
-                    ? geometry.shape(layer.cat.shape.default)
-                    : geometry.shape({
-                        fields: [layer.cat.shape.field],
-                        values: layer.cat.shape.enum
-                    })
+                if(layer.cat.shape.enable) {
+                    layer.cat.shape.single
+                        ? geometry.shape(layer.cat.shape.default)
+                        : geometry.shape({
+                            fields: [layer.cat.shape.field],
+                            values: layer.cat.shape.enum
+                        })
+                }
             })
         },
         renderAfter() {

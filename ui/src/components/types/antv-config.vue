@@ -220,96 +220,120 @@ export default {
                                 <a-tabs tab-position="left" size="small">
                                     <a-tab-pane key="size" tab="大小">
                                         <ysz-list-item v-slots={{
-                                            left: () => '是否统一'
+                                            left: () => '启用'
                                         }}>
-                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.single, 'checked']} onChange={this.onChange}/>
+                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.enable, 'checked']} onChange={this.onChange}/>
                                         </ysz-list-item>
-                                        <ysz-list-item v-slots={{
-                                            left: () => '默认'
-                                        }}>
-                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.default, 'value']} onChange={this.onChange}/>
-                                        </ysz-list-item>
-                                        {!this.cfg.type.layers[layerIndex].cat.size.single
+                                        {this.cfg.type.layers[layerIndex].cat.size.enable
                                             ? [
-                                                <a-divider orientation="left">更多</a-divider>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '分类字段'
+                                                    left: () => '是否统一'
                                                 }}>
-                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.field, 'value']} onChange={this.onChange}/>
+                                                    <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.single, 'checked']} onChange={this.onChange}/>
                                                 </ysz-list-item>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '最小值'
+                                                    left: () => '默认'
                                                 }}>
-                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.enum[0], 'value']} onChange={this.onChange}/>
+                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.default, 'value']} onChange={this.onChange}/>
                                                 </ysz-list-item>,
-                                                <ysz-list-item v-slots={{
-                                                    left: () => '最大值'
-                                                }}>
-                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.enum[1], 'value']} onChange={this.onChange}/>
-                                                </ysz-list-item>
+                                                ...(!this.cfg.type.layers[layerIndex].cat.size.single
+                                                    ? [
+                                                        <a-divider orientation="left">更多</a-divider>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '分类字段'
+                                                        }}>
+                                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.field, 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '最小值'
+                                                        }}>
+                                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.enum[0], 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '最大值'
+                                                        }}>
+                                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.size.enum[1], 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>
+                                                    ] : [])
                                             ] : null}
                                     </a-tab-pane>
                                     <a-tab-pane key="shape" tab="形状">
                                         <ysz-list-item v-slots={{
-                                            left: () => '是否统一'
+                                            left: () => '启用'
                                         }}>
-                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.shape.single, 'checked']} onChange={this.onChange}/>
+                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.shape.enable, 'checked']} onChange={this.onChange}/>
                                         </ysz-list-item>
-                                        <ysz-list-item v-slots={{
-                                            left: () => '默认'
-                                        }}>
-                                            <a-select size="small" options={this.getShapeOptions(this.cfg.type.layers[layerIndex].type, '')} vModel={[this.cfg.type.layers[layerIndex].cat.shape.default, 'value']} onChange={this.onChange}/>
-                                        </ysz-list-item>
-                                        {!this.cfg.type.layers[layerIndex].cat.shape.single
+                                        {this.cfg.type.layers[layerIndex].cat.shape.enable
                                             ? [
-                                                <a-divider orientation="left">更多</a-divider>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '分类字段'
+                                                    left: () => '是否统一'
                                                 }}>
-                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.shape.field, 'value']} onChange={this.onChange}/>
+                                                    <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.shape.single, 'checked']} onChange={this.onChange}/>
                                                 </ysz-list-item>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '额外'
+                                                    left: () => '默认'
                                                 }}>
-                                                    <a-select size="small" style="width: 80%" mode="multiple" options={this.getShapeOptions(this.cfg.type.layers[layerIndex].type, this.cfg.type.layers[layerIndex].cat.shape.default)} vModel={[this.cfg.type.layers[layerIndex].cat.shape.enum, 'value']} onChange={this.onChange}/>
-                                                </ysz-list-item>
-                                            ]
-                                            : null}
+                                                    <a-select size="small" options={this.getShapeOptions(this.cfg.type.layers[layerIndex].type, '')} vModel={[this.cfg.type.layers[layerIndex].cat.shape.default, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>,
+                                                ...(!this.cfg.type.layers[layerIndex].cat.shape.single
+                                                    ? [
+                                                        <a-divider orientation="left">更多</a-divider>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '分类字段'
+                                                        }}>
+                                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.shape.field, 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '额外'
+                                                        }}>
+                                                            <a-select size="small" style="width: 80%" mode="multiple" options={this.getShapeOptions(this.cfg.type.layers[layerIndex].type, this.cfg.type.layers[layerIndex].cat.shape.default)} vModel={[this.cfg.type.layers[layerIndex].cat.shape.enum, 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>
+                                                    ]
+                                                    : [])
+                                            ] : null}
                                     </a-tab-pane>
                                     <a-tab-pane key="color" tab="颜色">
                                         <ysz-list-item v-slots={{
-                                            left: () => '是否统一'
+                                            left: () => '启用'
                                         }}>
-                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.color.single, 'checked']} onChange={this.onChange}/>
+                                            <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.color.enable, 'checked']} onChange={this.onChange}/>
                                         </ysz-list-item>
-                                        <ysz-list-item v-slots={{
-                                            left: () => '默认'
-                                        }}>
-                                            <color-pick vModel={[this.cfg.type.layers[layerIndex].cat.color.default, 'value']} onChange={this.onChange}/>
-                                        </ysz-list-item>
-                                        {!this.cfg.type.layers[layerIndex].cat.color.single
+                                        {this.cfg.type.layers[layerIndex].cat.color.enable
                                             ? [
-                                                <a-divider orientation="left">更多</a-divider>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '分类字段'
+                                                    left: () => '是否统一'
                                                 }}>
-                                                    <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.color.field, 'value']} onChange={this.onChange}/>
+                                                    <a-switch size="small" vModel={[this.cfg.type.layers[layerIndex].cat.color.single, 'checked']} onChange={this.onChange}/>
                                                 </ysz-list-item>,
                                                 <ysz-list-item v-slots={{
-                                                    left: () => '额外'
+                                                    left: () => '默认'
                                                 }}>
-                                                    <more initCount={this.cfg.type.layers[layerIndex].cat.color.enum.length} onAdd={payload => {
-                                                        this.cfg.type.layers[layerIndex].cat.color.enum[payload.count] = AntVConfigDefault.layerCatColorDefault()
-                                                        this.onChange()
-                                                        payload.done()
-                                                    }} onRemove={payload => {
-                                                        this.cfg.type.layers[layerIndex].cat.color.enum = this.cfg.type.layers[layerIndex].cat.color.enum.filter((v, i) => i !== payload.index)
-                                                        this.onChange()
-                                                        payload.done()
-                                                    }} component={index => {
-                                                        return <color-pick vModel={[this.cfg.type.layers[layerIndex].cat.color.enum[index], 'value']} onChange={this.onChange}/>
-                                                    }} />
-                                                </ysz-list-item>
+                                                    <color-pick vModel={[this.cfg.type.layers[layerIndex].cat.color.default, 'value']} onChange={this.onChange}/>
+                                                </ysz-list-item>,
+                                                ...(!this.cfg.type.layers[layerIndex].cat.color.single
+                                                    ? [
+                                                        <a-divider orientation="left">更多</a-divider>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '分类字段'
+                                                        }}>
+                                                            <a-input size="small" vModel={[this.cfg.type.layers[layerIndex].cat.color.field, 'value']} onChange={this.onChange}/>
+                                                        </ysz-list-item>,
+                                                        <ysz-list-item v-slots={{
+                                                            left: () => '额外'
+                                                        }}>
+                                                            <more initCount={this.cfg.type.layers[layerIndex].cat.color.enum.length} onAdd={payload => {
+                                                                this.cfg.type.layers[layerIndex].cat.color.enum[payload.count] = AntVConfigDefault.layerCatColorDefault()
+                                                                this.onChange()
+                                                                payload.done()
+                                                            }} onRemove={payload => {
+                                                                this.cfg.type.layers[layerIndex].cat.color.enum = this.cfg.type.layers[layerIndex].cat.color.enum.filter((v, i) => i !== payload.index)
+                                                                this.onChange()
+                                                                payload.done()
+                                                            }} component={index => {
+                                                                return <color-pick vModel={[this.cfg.type.layers[layerIndex].cat.color.enum[index], 'value']} onChange={this.onChange}/>
+                                                            }} />
+                                                        </ysz-list-item>
+                                                    ] : [])
                                             ] : null}
                                     </a-tab-pane>
                                 </a-tabs>

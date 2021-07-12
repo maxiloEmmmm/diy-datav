@@ -99,15 +99,16 @@ export const AntVConfigFilter = {
     layerCatColorDefault(t) {
         return !!t ? t : AntVConfigDefault.layerCatColorDefault()
     },
-    layerCatField(t) {
-        return !!t ? t : AntVConfigDefault.layerCatField()
+    layerCatItemField(t) {
+        return !!t ? t : AntVConfigDefault.layerCatItemField()
     },
     layerCatColor(t) {
         if(!util.isObject(t)) {
             return AntVConfigDefault.layerCatColor()
         }
         return {
-            field: AntVConfigFilter.layerCatField(t.field),
+            enable: AntVConfigFilter.layerCatItemEnable(t.enable),
+            field: AntVConfigFilter.layerCatItemField(t.field),
             single: AntVConfigFilter.layerCatColorSingle(t.single),
             enum: AntVConfigFilter.layerCatColorEnum(t.enum),
             default: AntVConfigFilter.layerCatColorDefault(t.default),
@@ -128,7 +129,8 @@ export const AntVConfigFilter = {
             return AntVConfigDefault.layerCatSize()
         }
         return {
-            field: AntVConfigFilter.layerCatField(t.field),
+            enable: AntVConfigFilter.layerCatItemEnable(t.enable),
+            field: AntVConfigFilter.layerCatItemField(t.field),
             single: AntVConfigFilter.layerCatSizeSingle(t.single),
             enum: AntVConfigFilter.layerCatSizeEnum(t.enum),
             default: AntVConfigFilter.layerCatSizeDefault(t.default),
@@ -155,11 +157,15 @@ export const AntVConfigFilter = {
             return AntVConfigDefault.layerCatShape(typ)
         }
         return {
-            field: AntVConfigFilter.layerCatField(t.field),
+            enable: AntVConfigFilter.layerCatItemEnable(t.enable),
+            field: AntVConfigFilter.layerCatItemField(t.field),
             single: AntVConfigFilter.layerCatShapeSingle(t.single),
             enum: AntVConfigFilter.layerCatShapeEnum(typ, t.enum),
             default: AntVConfigFilter.layerCatShapeDefault(typ, t.default),
         }
+    },
+    layerCatItemEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.layerCatItemEnable()
     },
     layerCatShapeDefault(typ, t) {
         return util.isString(t) && !!t ? t : AntVConfigDefault.layerCatShapeDefault(typ)
@@ -320,21 +326,24 @@ export const AntVConfigDefault = {
     },
     layerCatColor() {
         return {
-            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatColorSingle(), enum: AntVConfigDefault.layerCatColorEnum(), default: AntVConfigDefault.layerCatColorDefault()
+            enable: AntVConfigDefault.layerCatItemEnable(), field: AntVConfigDefault.layerCatItemField(), single: AntVConfigDefault.layerCatColorSingle(), enum: AntVConfigDefault.layerCatColorEnum(), default: AntVConfigDefault.layerCatColorDefault()
         }
     },
     layerCatSize() {
         return {
-            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatSizeSingle(), enum: AntVConfigDefault.layerCatSizeEnum(), default: AntVConfigDefault.layerCatSizeDefault()
+            enable: AntVConfigDefault.layerCatItemEnable(), field: AntVConfigDefault.layerCatItemField(), single: AntVConfigDefault.layerCatSizeSingle(), enum: AntVConfigDefault.layerCatSizeEnum(), default: AntVConfigDefault.layerCatSizeDefault()
         }
     },
     layerCatShape(typ) {
         return {
-            field: AntVConfigDefault.layerCatField(), single: AntVConfigDefault.layerCatShapeSingle(), enum: AntVConfigDefault.layerCatShapeEnum(), default: AntVConfigDefault.layerCatShapeDefault(typ)
+            enable: AntVConfigDefault.layerCatItemEnable(), field: AntVConfigDefault.layerCatItemField(), single: AntVConfigDefault.layerCatShapeSingle(), enum: AntVConfigDefault.layerCatShapeEnum(), default: AntVConfigDefault.layerCatShapeDefault(typ)
         }
     },
-    layerCatField() {
+    layerCatItemField() {
         return ""
+    },
+    layerCatItemEnable() {
+        return false
     },
     layerCatColorDefault() {
         return '#1890ff'
