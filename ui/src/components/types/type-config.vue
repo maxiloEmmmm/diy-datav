@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { BarChartOutlined, ReadOutlined } from '@ant-design/icons-vue';
 import * as componentType from '@/components/types/type.js'
-import {AntVConfig, ViewBlockType} from 'type'
+import {AntVConfig, ViewBlockType, StaticText} from 'type'
 import {mapState} from "vuex";
 import SelectItem from "../select-item.vue";
 
@@ -30,7 +30,7 @@ export default {
         onStaticTextTypeClick() {
             this.mixinSetConfigTypeAndConfig(componentType.StaticText, JSON.stringify({
                 ...ViewBlockType().config,
-                type: AntVConfig()
+                type: StaticText()
             }))
         },
         onDynamicTextTypeClick() {
