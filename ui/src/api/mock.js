@@ -1,7 +1,7 @@
 import * as type from './type'
 import mockUtil from 'mockjs'
 import http from 'pkg/http'
-import { ViewType, ViewBlockType, AntVConfig } from 'type'
+import { ViewType, ViewBlockType, AntVConfig, StaticTextConfig } from 'type'
 import util from 'pkg/util'
 import * as componentType from '@/components/types/type.js'
 import * as apiType from "./type";
@@ -21,9 +21,17 @@ export default function() {
         [type.ViewInfo]: mockReg('view/[^/]+$', 'get', function(request) {
             let view = ViewType()
             let block = ViewBlockType()
-            view.blocks = [block]
+            let block2 = ViewBlockType()
+            view.blocks = [block, block2]
 
             block.type = componentType.AntV
+            block2.type = componentType.StaticText
+
+            let staticTextConfig = StaticTextConfig()
+            staticTextConfig.text = "test"
+            block2.config.type = staticTextConfig
+            block2.config = JSON.stringify(block2.config)
+
             block.config.common.input = [
                 {id: 1}
             ]

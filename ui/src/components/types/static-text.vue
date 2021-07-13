@@ -1,20 +1,28 @@
-<script lang="tsx">
-import {StaticText, StaticTextParse} from 'type'
+<script lang="jsx">
+import {StaticTextConfig, StaticTextConfigParse} from 'type'
 export default {
     props: {
         config: {
             type: Object,
             default() {
-                return StaticText()
+                return StaticTextConfig()
             }
         }
     },
     render() {
-        return <span>{this.cfg.text}</span>
+        let c = {
+            'st': true,
+            'st-center-v': this.cfg.center.v,
+            'st-center-h': this.cfg.center.h,
+            'st-bold': this.cfg.bold,
+            'st-italic': this.cfg.italic
+        }
+
+        return <div class={c}>{this.cfg.text}</div>
     },
     data() {
         return {
-            cfg: StaticText()
+            cfg: StaticTextConfig()
         }
     },
     watch: {
@@ -29,7 +37,7 @@ export default {
     methods: {
         parse() {
             try {
-                this.cfg = StaticTextParse(this.config)
+                this.cfg = StaticTextConfigParse(this.config)
             }catch(e) {
                 console.log('static text config parse failed', e, this.config)
             }
@@ -37,3 +45,14 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+    .st {
+        width: 100%; height: 100%; display: flex; flex-direction: column;
+
+        &.st-center-v {justify-content: center}
+        &.st-center-h {align-items: center}
+        &.st-bold {font-weight: 800}
+        &.st-italic {font-style: italic}
+    }
+</style>
