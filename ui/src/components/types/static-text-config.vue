@@ -1,6 +1,22 @@
 <script lang="tsx">
 import configMixin from './config-mixin'
-import {ViewBlockType, StaticTextConfig, StaticTextConfigParse} from 'type'
+import {
+    ViewBlockType, StaticTextConfig, StaticTextConfigParse,
+    StaticTextHorizontalAlignOptions, StaticTextVerticalAlignOptions
+} from 'type'
+
+function SizeRange(end, step) {
+    let rs = []
+    for(let i = 1; i <= end; i += step) {
+        rs.push(parseFloat(i.toFixed(2)))
+
+        if (i != end && i + step > end) {
+            rs.push(parseFloat(end.toFixed(2)))
+        }
+    }
+    return rs
+}
+
 export default {
     mixins: [configMixin],
     data() {
@@ -9,6 +25,11 @@ export default {
                 ...ViewBlockType().config,
                 type: StaticTextConfig()
             },
+            store: {
+                size: SizeRange(5, 0.04).map(val => ({label: val, value: val})),
+                horizontalAlignOptions: StaticTextHorizontalAlignOptions,
+                verticalAlignOptions: StaticTextVerticalAlignOptions
+            }
         }
     },
     render() {
@@ -19,14 +40,14 @@ export default {
                 <a-input size="small" vModel={[this.cfg.type.text, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
             <ysz-list-item v-slots={{
-                left: () => '水平居中'
+                left: () => '水平排列'
             }}>
-                <a-switch size="small" vModel={[this.cfg.type.center.h, 'checked']} onChange={this.onChange}/>
+                <a-radio-group options={this.store.horizontalAlignOptions} size="small" vModel={[this.cfg.type.align.h, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
             <ysz-list-item v-slots={{
-                left: () => '垂直居中'
+                left: () => '垂直排列'
             }}>
-                <a-switch size="small" vModel={[this.cfg.type.center.v, 'checked']} onChange={this.onChange}/>
+                <a-radio-group options={this.store.verticalAlignOptions} size="small" vModel={[this.cfg.type.align.v, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
             <ysz-list-item v-slots={{
                 left: () => '加粗'
@@ -37,6 +58,31 @@ export default {
                 left: () => '倾斜'
             }}>
                 <a-switch size="small" vModel={[this.cfg.type.italic, 'checked']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '下划线'
+            }}>
+                <a-switch size="small" vModel={[this.cfg.type.underline, 'checked']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '上标'
+            }}>
+                <a-input size="small" vModel={[this.cfg.type.sup, 'value']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '下标'
+            }}>
+                <a-input size="small" vModel={[this.cfg.type.sub, 'value']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '颜色'
+            }}>
+                <color-pick size="small" vModel={[this.cfg.type.color, 'value']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '大小'
+            }}>
+                <a-select style="width:200px" options={this.store.size} size="small" vModel={[this.cfg.type.size, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
         </div>
     },

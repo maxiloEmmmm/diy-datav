@@ -30,7 +30,6 @@ export default {
         >
             {help}
             <div class="content">{context}</div>
-            {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </move>
     },
     data() {

@@ -12,13 +12,35 @@ export default {
     render() {
         let c = {
             'st': true,
-            'st-center-v': this.cfg.center.v,
-            'st-center-h': this.cfg.center.h,
             'st-bold': this.cfg.bold,
-            'st-italic': this.cfg.italic
+            'st-italic': this.cfg.italic,
+            'st-underline': this.cfg.underline
+        }
+        let s = {}
+
+        let sup, sub = null
+        if(this.cfg.sup) {
+            sup = <sup>{this.cfg.sup}</sup>
         }
 
-        return <div class={c}>{this.cfg.text}</div>
+        if(this.cfg.sub) {
+            sub = <sub>{this.cfg.sub}</sub>
+        }
+
+        s.alignItems = this.cfg.align.v
+        s.justifyContent = this.cfg.align.h
+        s.color = this.cfg.color
+        s.fontSize = `${this.cfg.size}rem`
+
+        let items = []
+        const itemLength = this.cfg.text.length
+        for (let i = 0; i < itemLength; i++) {
+            items.push(<span>{this.cfg.text[i]}{i === itemLength - 1 ? [sup, sub] : []}</span>)
+        }
+
+        return <div class={c} style={s}>
+            {items}
+        </div>
     },
     data() {
         return {
@@ -48,11 +70,10 @@ export default {
 
 <style lang="scss" scoped>
     .st {
-        width: 100%; height: 100%; display: flex; flex-direction: column;
+        width: 100%; height: 100%; display: flex; flex-direction: row;
 
-        &.st-center-v {justify-content: center}
-        &.st-center-h {align-items: center}
         &.st-bold {font-weight: 800}
         &.st-italic {font-style: italic}
+        &.st-underline {text-decoration: underline;}
     }
 </style>
