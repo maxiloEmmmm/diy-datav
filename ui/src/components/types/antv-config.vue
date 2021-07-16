@@ -4,7 +4,7 @@ import {
     AntVAdjustType, AntVCoordinateAxis, AntVScaleTypeType, AntVFacetType,
     AntVIsPolarCoordinate
 } from 'type/index.js'
-import configMixin from './config-mixin'
+import configMixin from '../config-mixin'
 import easyExample from './antv-config-easy-example'
 import util from 'pkg/util'
 export default {
@@ -393,6 +393,4 @@ export default {
         padding-left: 0
     }
 }
-
-
 </style>

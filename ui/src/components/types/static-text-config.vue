@@ -1,5 +1,5 @@
 <script lang="tsx">
-import configMixin from './config-mixin'
+import configMixin from '../config-mixin'
 import {
     ViewBlockType, StaticTextConfig, StaticTextConfigParse,
     StaticTextHorizontalAlignOptions, StaticTextVerticalAlignOptions
