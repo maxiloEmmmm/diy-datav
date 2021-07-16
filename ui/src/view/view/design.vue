@@ -2,17 +2,9 @@
 import { ViewType, ViewBlockType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
-import configComponent from '@/components/types/config.js'
-import typeConfigComponent from '@/components/types/type-config.vue'
 import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined } from '@ant-design/icons-vue';
-import * as type from "../../api/type";
-import * as dataType from '@/components/input/type.js'
-import * as dataComponent from '@/components/input/component.js'
 export default {
-    components: {
-        typeConfigComponent
-    },
     render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
@@ -26,32 +18,13 @@ export default {
             current drag id: { this.dragBlockID }, focus: {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </div>
 
-        let cm = configComponent[this.currentConfigBlockType]
-
         // TODO: 考虑要不要加个预览在配置旁边
         // let configView = this.configShow ? <div id='config-view'>
         //     <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
         // </div> : null
 
         let configBar = <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
-            <a-tabs size="small">
-                <a-tab-pane key="type" tab="类型">
-                    <type-config-component/>
-                    <a-divider />
-                    {!!cm ? <cm config={this.currentConfigBlockConfig}/> : null}
-                </a-tab-pane>
-                <a-tab-pane key="common" tab="通用">
-                    <a-tabs class='common-config' size="small" tab-position="left">
-                        <a-tab-pane key="type" tab="数据">
-                            <more component={index => {
-                                const cm = dataComponent[]
-                                return <color-pick vModel={[this.cfg.type.layers[layerIndex].cat.color.enum[index], 'value']} onChange={this.onChange}/>
-                            }}/>
-                        </a-tab-pane>
-                    </a-tabs>
-                </a-tab-pane>
-            </a-tabs>
-
+            <config-bar></config-bar>
         </a-drawer>
 
         return <div id='diy-datav-view'
@@ -187,17 +160,6 @@ export default {
 
     #config-view {
         position: absolute; z-index: 4; width:50vw; height: 60vh; top: 10vh; left: 5vw
-    }
-}
-</style>
-
-<style lang="scss" scoped>
-.common-config {
-    &:deep .ant-tabs-tab {
-        padding: 0; margin: 0; padding-right: 1rem; margin-bottom: 1rem
-    }
-    &:deep .ant-tabs-left-content ant-tabs-content {
-        padding-left: 0
     }
 }
 </style>

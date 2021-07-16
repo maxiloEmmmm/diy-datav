@@ -4,6 +4,7 @@ import http from 'pkg/http'
 import { ViewType, ViewBlockType, AntVConfig, StaticTextConfig } from 'type'
 import util from 'pkg/util'
 import * as componentType from '@/components/types/type.js'
+import * as inputType from '@/components/input/type.js'
 import * as apiType from "./type";
 
 function mock() {
@@ -33,7 +34,7 @@ export default function() {
             block2.config = JSON.stringify(block2.config)
 
             block.config.common.input = [
-                {id: 1}
+                {id: 1, type: inputType.Http, config: '{}'}
             ]
 
             let antVConfig = AntVConfig()

@@ -7,6 +7,7 @@ import listItem from './list-item.vue'
 import listItemTop from './list-item-top.vue'
 import more from './more.vue'
 import colorPick from './color-pick.vue'
+import configBar from './config-bar.vue'
 export default {
     install(app) {
         app.use(antd)
@@ -17,5 +18,6 @@ export default {
         app.component(selectItem.name, selectItem)
         app.component(more.name, more)
         app.component(colorPick.name, colorPick)
+        app.component(configBar.name, configBar)
     }
 }

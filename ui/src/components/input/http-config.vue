@@ -18,7 +18,7 @@ export default {
     methods: {
         transformConfig() {
             try {
-                this.cfg = JSON.parse(this.config)
+                this.cfg = httpInputConfigParse(JSON.parse(this.config))
             }catch(e) {
                 console.log('http config parse failed in http-config', e, this.config)
             }
