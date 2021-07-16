@@ -7,7 +7,9 @@ import {
 import configMixin from '../config-mixin'
 import easyExample from './antv-config-easy-example'
 import util from 'pkg/util'
+import inputChoose from './input-choose'
 export default {
+    components: {inputChoose},
     mixins: [configMixin],
     data() {
         return {
@@ -340,6 +342,9 @@ export default {
                             </a-tab-pane>
                         </a-tabs>
                     }} />
+                </a-tab-pane>
+                <a-tab-pane key="data" tab="数据">
+                    <inputChoose inputs={this.cfg.common.input} />
                 </a-tab-pane>
             </a-tabs>
         </div>

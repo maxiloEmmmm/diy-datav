@@ -8,7 +8,7 @@ export default {
             <ysz-list-item v-slots={{
                 left: () => '地址'
             }}>
-                <a-input size="small" vModel={[this.cfg.url, 'value']} onChange={this.onChange}/>
+                <a-input size="small" vModel={[this.cfg.host, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
             <ysz-list-item v-slots={{
                 left: () => '端口'
