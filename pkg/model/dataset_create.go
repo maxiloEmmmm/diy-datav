@@ -26,6 +26,12 @@ func (dsc *DataSetCreate) SetType(s string) *DataSetCreate {
 	return dsc
 }
 
+// SetTitle sets the "title" field.
+func (dsc *DataSetCreate) SetTitle(s string) *DataSetCreate {
+	dsc.mutation.SetTitle(s)
+	return dsc
+}
+
 // SetConfig sets the "config" field.
 func (dsc *DataSetCreate) SetConfig(s string) *DataSetCreate {
 	dsc.mutation.SetConfig(s)
@@ -110,6 +116,9 @@ func (dsc *DataSetCreate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf("model: validator failed for field \"type\": %w", err)}
 		}
 	}
+	if _, ok := dsc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New("model: missing required field \"title\"")}
+	}
 	if _, ok := dsc.mutation.Config(); !ok {
 		return &ValidationError{Name: "config", err: errors.New("model: missing required field \"config\"")}
 	}
@@ -147,6 +156,14 @@ func (dsc *DataSetCreate) createSpec() (*DataSet, *sqlgraph.CreateSpec) {
 			Column: dataset.FieldType,
 		})
 		_node.Type = value
+	}
+	if value, ok := dsc.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: dataset.FieldTitle,
+		})
+		_node.Title = value
 	}
 	if value, ok := dsc.mutation.Config(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

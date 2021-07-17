@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
 	// FieldConfig holds the string denoting the config field in the database.
 	FieldConfig = "config"
 	// EdgeBlock holds the string denoting the block edge name in mutations.
@@ -28,6 +30,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldType,
+	FieldTitle,
 	FieldConfig,
 }
 

@@ -33,6 +33,12 @@ func (dsu *DataSetUpdate) SetType(s string) *DataSetUpdate {
 	return dsu
 }
 
+// SetTitle sets the "title" field.
+func (dsu *DataSetUpdate) SetTitle(s string) *DataSetUpdate {
+	dsu.mutation.SetTitle(s)
+	return dsu
+}
+
 // SetConfig sets the "config" field.
 func (dsu *DataSetUpdate) SetConfig(s string) *DataSetUpdate {
 	dsu.mutation.SetConfig(s)
@@ -161,6 +167,13 @@ func (dsu *DataSetUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: dataset.FieldType,
 		})
 	}
+	if value, ok := dsu.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: dataset.FieldTitle,
+		})
+	}
 	if value, ok := dsu.mutation.Config(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -225,6 +238,12 @@ type DataSetUpdateOne struct {
 // SetType sets the "type" field.
 func (dsuo *DataSetUpdateOne) SetType(s string) *DataSetUpdateOne {
 	dsuo.mutation.SetType(s)
+	return dsuo
+}
+
+// SetTitle sets the "title" field.
+func (dsuo *DataSetUpdateOne) SetTitle(s string) *DataSetUpdateOne {
+	dsuo.mutation.SetTitle(s)
 	return dsuo
 }
 
@@ -378,6 +397,13 @@ func (dsuo *DataSetUpdateOne) sqlSave(ctx context.Context) (_node *DataSet, err 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: dataset.FieldType,
+		})
+	}
+	if value, ok := dsuo.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: dataset.FieldTitle,
 		})
 	}
 	if value, ok := dsuo.mutation.Config(); ok {

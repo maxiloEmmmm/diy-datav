@@ -1,27 +1,30 @@
 <script lang="tsx">
 export default {
     render() {
-        return <a-checkbox options={this.options} value={this.value} onChange={this.onChange}/>
+        return <a-radio-group options={this.options} value={this.value} onChange={this.onChange}/>
     },
     computed: {
         options() {
-            return (this.inputs || []).map(input => ({label: input.title, value: input.id}))
+            return [
+                {value: -1, label: '无数据'},
+                ...(this.inputs || []).map((input, index) => ({label: input.title ? input.title : index + 1, value: index}))
+            ]
         }
     },
-    emits: ['update:value'],
+    emits: ['change'],
     props: {
         inputs: {
             type: Array,
             default: () => []
         },
         value: {
-            type: Array,
-            default: () => []
+            type: Number,
+            default: -1
         }
     },
     methods: {
-        onChange(vals) {
-            console.log(vals)
+        onChange(e) {
+            this.$emit('change', e.target.value)
         }
     }
 }

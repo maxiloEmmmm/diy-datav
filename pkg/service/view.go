@@ -28,9 +28,9 @@ func NewViewService(context context.Context) ViewServiceI7e {
 	return &ViewService{Context: context}
 }
 
-func (v *ViewService)Upload(typ string, reader io.Reader, ext string) (*types.UploadResource, error) {
+func (v *ViewService) Upload(typ string, reader io.Reader, ext string) (*types.UploadResource, error) {
 	var (
-		err error
+		err  error
 		path string
 	)
 
@@ -72,17 +72,17 @@ func (v *ViewService)Upload(typ string, reader io.Reader, ext string) (*types.Up
 	}, nil
 }
 
-func(v *ViewService)Store(view *types.View) (*types.View, error) {
+func (v *ViewService) Store(view *types.View) (*types.View, error) {
 	return view, app.WithTx(v.Context, func(tx *model.Tx) error {
 		var (
-			err error
+			err       error
 			viewModel *model.View
 		)
 
 		if view.Id != 0 {
 			viewModel, err = tx.View.UpdateOneID(view.Id).
 				SetConfig(view.Config).SetDesc(view.Desc).SetBgID(view.BgAssetsID).Save(v.Context)
-		}else {
+		} else {
 			viewModel, err = tx.View.Create().
 				SetConfig(view.Config).SetDesc(view.Desc).SetBgID(view.BgAssetsID).Save(v.Context)
 		}
@@ -125,7 +125,7 @@ func(v *ViewService)Store(view *types.View) (*types.View, error) {
 			}
 
 			for _, dsc := range vbci.Common.Input {
-				dsInstance, err := tx.DataSet.Create().SetType(dsc.Type).SetConfig(dsc.Config).SetBlock(blockInstance).Save(v.Context)
+				dsInstance, err := tx.DataSet.Create().SetTitle(dsc.Title).SetType(dsc.Type).SetConfig(dsc.Config).SetBlock(blockInstance).Save(v.Context)
 				if err != nil {
 					return err
 				}
@@ -147,7 +147,7 @@ func(v *ViewService)Store(view *types.View) (*types.View, error) {
 	})
 }
 
-func (v *ViewService)WebDownloadBG(id int, rw http.ResponseWriter, req *http.Request) error {
+func (v *ViewService) WebDownloadBG(id int, rw http.ResponseWriter, req *http.Request) error {
 	view, err := app.Db.View.Get(v.Context, id)
 	if err != nil {
 		return err

@@ -34,7 +34,7 @@ export default function() {
             block2.config = JSON.stringify(block2.config)
 
             block.config.common.input = [
-                {id: 1, type: inputType.Http, config: '{}'}
+                {id: 1, type: inputType.Http, config: '{}', title : ''}
             ]
 
             let antVConfig = AntVConfig()

@@ -18,6 +18,8 @@ type DataSet struct {
 	ID int `json:"id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
 	// Config holds the value of the "config" field.
 	Config string `json:"config,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -56,7 +58,7 @@ func (*DataSet) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case dataset.FieldID:
 			values[i] = new(sql.NullInt64)
-		case dataset.FieldType, dataset.FieldConfig:
+		case dataset.FieldType, dataset.FieldTitle, dataset.FieldConfig:
 			values[i] = new(sql.NullString)
 		case dataset.ForeignKeys[0]: // view_block_dataset
 			values[i] = new(sql.NullInt64)
@@ -86,6 +88,12 @@ func (ds *DataSet) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
 				ds.Type = value.String
+			}
+		case dataset.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				ds.Title = value.String
 			}
 		case dataset.FieldConfig:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -135,6 +143,8 @@ func (ds *DataSet) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", ds.ID))
 	builder.WriteString(", type=")
 	builder.WriteString(ds.Type)
+	builder.WriteString(", title=")
+	builder.WriteString(ds.Title)
 	builder.WriteString(", config=")
 	builder.WriteString(ds.Config)
 	builder.WriteByte(')')

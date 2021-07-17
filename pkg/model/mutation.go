@@ -527,6 +527,7 @@ type DataSetMutation struct {
 	typ           string
 	id            *int
 	_type         *string
+	title         *string
 	_config       *string
 	clearedFields map[string]struct{}
 	block         *int
@@ -651,6 +652,42 @@ func (m *DataSetMutation) ResetType() {
 	m._type = nil
 }
 
+// SetTitle sets the "title" field.
+func (m *DataSetMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *DataSetMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the DataSet entity.
+// If the DataSet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DataSetMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *DataSetMutation) ResetTitle() {
+	m.title = nil
+}
+
 // SetConfig sets the "config" field.
 func (m *DataSetMutation) SetConfig(s string) {
 	m._config = &s
@@ -740,9 +777,12 @@ func (m *DataSetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DataSetMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m._type != nil {
 		fields = append(fields, dataset.FieldType)
+	}
+	if m.title != nil {
+		fields = append(fields, dataset.FieldTitle)
 	}
 	if m._config != nil {
 		fields = append(fields, dataset.FieldConfig)
@@ -757,6 +797,8 @@ func (m *DataSetMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case dataset.FieldType:
 		return m.GetType()
+	case dataset.FieldTitle:
+		return m.Title()
 	case dataset.FieldConfig:
 		return m.Config()
 	}
@@ -770,6 +812,8 @@ func (m *DataSetMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case dataset.FieldType:
 		return m.OldType(ctx)
+	case dataset.FieldTitle:
+		return m.OldTitle(ctx)
 	case dataset.FieldConfig:
 		return m.OldConfig(ctx)
 	}
@@ -787,6 +831,13 @@ func (m *DataSetMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
+		return nil
+	case dataset.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
 		return nil
 	case dataset.FieldConfig:
 		v, ok := value.(string)
@@ -846,6 +897,9 @@ func (m *DataSetMutation) ResetField(name string) error {
 	switch name {
 	case dataset.FieldType:
 		m.ResetType()
+		return nil
+	case dataset.FieldTitle:
+		m.ResetTitle()
 		return nil
 	case dataset.FieldConfig:
 		m.ResetConfig()

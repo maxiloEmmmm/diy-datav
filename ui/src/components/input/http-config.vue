@@ -1,6 +1,6 @@
 <script lang="jsx">
 import {httpInputConfigParse, httpInputConfig} from "type";
-import configMixin from '../config-mixin'
+import configMixin from './config-mixin'
 export default {
     mixins: [configMixin],
     render() {

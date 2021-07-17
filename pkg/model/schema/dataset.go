@@ -15,6 +15,7 @@ type DataSet struct {
 func (DataSet) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("type").MaxLen(255),
+		field.Text("title"),
 		field.Text("config"),
 	}
 }

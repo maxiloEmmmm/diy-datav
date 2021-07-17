@@ -33,8 +33,16 @@ export default {
         }
     },
     emits: ['add', 'remove'],
+    watch: {
+        initCount: {
+            immediate: true,
+            handler() {
+                this.count = this.initCount
+            }
+        }
+    },
     data() {
-        return {count: this.initCount}
+        return {count: 0}
     },
     methods: {
         onNew() {

@@ -1,45 +1,46 @@
 package types
 
 type View struct {
-	Id int
-	Desc string
-	Config string
+	Id         int
+	Desc       string
+	Config     string
 	BgAssetsID int
-	Blocks []*ViewBlock
+	Blocks     []*ViewBlock
 }
 
 type ViewBlock struct {
-	Id int
-	Type string
+	Id     int
+	Type   string
 	Config string
 }
 
 type ViewBlockConfig struct {
-	Type string
+	Type   interface{}
 	Common ViewBlockCommonConfig
 }
 
 type ViewBlockCommonConfig struct {
-	Input []*DataSet
-	Refresh float64
+	Input    []*DataSet
+	Refresh  float64
 	Position *CommonPosition
 }
 
 type CommonPosition struct {
-	Left string
-	Top string
-	Right string
+	Left   string
+	Top    string
+	Right  string
 	Bottom string
 }
 
 type DataSet struct {
-	Id int
-	Type string
+	Id     int
+	Type   string
 	Config string
+	Title  string
 }
 
 type UploadResource struct {
-	Id int
+	Id   int
 	Path string
 }
 

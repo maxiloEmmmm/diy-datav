@@ -5,9 +5,12 @@ import * as typeType from '@/components/types/type'
 import {httpInputConfig} from 'type/input'
 import {StaticTextConfig} from 'type/types'
 
+// .config 要存数据库 为json字符串
+// .config.common.input.*.config 要存数据库 为json字符串
+
 export const ViewBLockTypeConfigType = () => {
     try {
-        return JSON.stringify(StaticTextConfig())
+        return StaticTextConfig()
     }catch (e) {
         console.log("get ViewBLockTypeConfigType err", e)
     }
@@ -30,6 +33,7 @@ export const ViewBLockTypeCommonInputItem = () => {
         return {
             config: ViewBLockTypeCommonInputItemConfig(),
             type: ViewBLockTypeCommonInputItemType(),
+            title: '',
             id: ''
         }
     }catch (e) {

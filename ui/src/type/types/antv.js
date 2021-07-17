@@ -392,7 +392,7 @@ export const AntVConfigDefault = {
         return true
     },
     dataIndex() {
-        return 0
+        return -1
     },
     layerAdjustEnable() {
         return false

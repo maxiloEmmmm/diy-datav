@@ -26,6 +26,7 @@ var (
 	DataSetsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "type", Type: field.TypeString, Size: 255},
+		{Name: "title", Type: field.TypeString, Size: 2147483647},
 		{Name: "config", Type: field.TypeString, Size: 2147483647},
 		{Name: "view_block_dataset", Type: field.TypeInt, Nullable: true},
 	}
@@ -37,7 +38,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "data_sets_view_blocks_dataset",
-				Columns:    []*schema.Column{DataSetsColumns[3]},
+				Columns:    []*schema.Column{DataSetsColumns[4]},
 				RefColumns: []*schema.Column{ViewBlocksColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

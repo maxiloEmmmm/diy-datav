@@ -7,7 +7,7 @@ import {
 import configMixin from '../config-mixin'
 import easyExample from './antv-config-easy-example'
 import util from 'pkg/util'
-import inputChoose from './input-choose'
+import inputChoose from './input-choose.vue'
 export default {
     components: {inputChoose},
     mixins: [configMixin],
@@ -344,7 +344,12 @@ export default {
                     }} />
                 </a-tab-pane>
                 <a-tab-pane key="data" tab="数据">
-                    <inputChoose inputs={this.cfg.common.input} />
+                    <inputChoose inputs={this.cfg.common.input}
+                         value={this.cfg.type.dataIndex}
+                         onChange={value => {
+                             this.cfg.type.dataIndex = value
+                             this.onChange()
+                        }} />
                 </a-tab-pane>
             </a-tabs>
         </div>

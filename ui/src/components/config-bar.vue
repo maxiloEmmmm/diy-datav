@@ -43,8 +43,19 @@ export default {
                 return []
             }
 
-            return inputs.filter(input => !!input.id)
+            return inputs
         },
+        onChange() {
+            try {
+                const config = JSON.parse(this.currentConfigBlockConfig)
+                this.mixinSetConfigConfig(JSON.stringify({
+                    common: this.cfg,
+                    type: config.type
+                }))
+            }catch(e) {
+                console.log('config change json parse err', e, this.cfg)
+            }
+        }
     },
     render() {
         let cm = configComponent[this.currentConfigBlockType]
@@ -59,9 +70,11 @@ export default {
                     <a-tab-pane key="type" tab="数据">
                         <more initCount={this.cfg.input.length} onAdd={payload => {
                             this.cfg.input[payload.count] = ViewBLockTypeCommonInputItem()
+                            this.onChange()
                             payload.done()
                         }} onRemove={payload => {
                             this.cfg.input = this.cfg.input.filter((v, i) => i !== payload.index)
+                            this.onChange()
                             payload.done()
                         }} component={index => {
                             const cm = inputComponent[this.cfg.input[index].type]
@@ -69,10 +82,16 @@ export default {
                                 <inputConfigComponent onChange={payload => {
                                     this.cfg.input[index].type = payload.type
                                     this.cfg.input[index].config = payload.config
+                                    this.onChange()
                                 }} currentType={this.cfg.input[index].type}/>,
                                 {cm ? [
                                     <a-divider/>,
-                                    <cm config={this.cfg.input[index].config}/>
+                                    <ysz-list-item v-slots={{
+                                        left: () => '标题'
+                                    }}>
+                                        <a-input size="small" vModel={[this.cfg.input[index].title, 'value']} onChange={this.onChange}/>
+                                    </ysz-list-item>,
+                                    <cm vModel={[this.cfg.input[index].config, 'config']} onChange={this.onChange}/>
                                 ] : null}
                             </div>
                         }}/>

@@ -1,6 +1,6 @@
 <script lang="jsx">
 import {sqlInputConfigParse, sqlInputConfig} from "type";
-import configMixin from '../config-mixin'
+import configMixin from './config-mixin'
 export default {
     mixins: [configMixin],
     render() {
