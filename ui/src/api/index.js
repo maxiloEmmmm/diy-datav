@@ -19,7 +19,16 @@ export const api = {
     },
     [apiType.Data](id) {
         return http.get(`data/${id}`)
-    }
+    },
+    [apiType.StaticList]() {
+        return http.get(`tc/kind/static`)
+    },
+    [apiType.HttpList]() {
+        return http.get(`tc/kind/http`)
+    },
+    [apiType.MysqlList]() {
+        return http.get(`tc/kind/mysql`)
+    },
 }
 
 export default {

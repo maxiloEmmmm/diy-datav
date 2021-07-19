@@ -18,7 +18,7 @@ export default {
         }
     },
     render() {
-        return <div ref="chart" style="width: 100%; height: 100%"></div>
+        return <div ref="chart" style="width: 100%; height: 100%"/>
     },
     data() {
         return {

@@ -15,6 +15,7 @@ func (TypeConfig) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id"),
 		field.String("type").MaxLen(255),
+		field.String("title"),
 		field.Text("config"),
 	}
 }

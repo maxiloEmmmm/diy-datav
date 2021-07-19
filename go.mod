@@ -11,5 +11,4 @@ require (
 	github.com/maxiloEmmmm/go-tool v0.0.6
 	github.com/maxiloEmmmm/go-web v0.0.19-beta16
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.0
 )

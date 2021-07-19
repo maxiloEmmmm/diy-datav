@@ -991,6 +991,7 @@ type TypeConfigMutation struct {
 	typ           string
 	id            *int
 	_type         *string
+	title         *string
 	_config       *string
 	clearedFields map[string]struct{}
 	done          bool
@@ -1119,6 +1120,42 @@ func (m *TypeConfigMutation) ResetType() {
 	m._type = nil
 }
 
+// SetTitle sets the "title" field.
+func (m *TypeConfigMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *TypeConfigMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the TypeConfig entity.
+// If the TypeConfig object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TypeConfigMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *TypeConfigMutation) ResetTitle() {
+	m.title = nil
+}
+
 // SetConfig sets the "config" field.
 func (m *TypeConfigMutation) SetConfig(s string) {
 	m._config = &s
@@ -1169,9 +1206,12 @@ func (m *TypeConfigMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TypeConfigMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m._type != nil {
 		fields = append(fields, typeconfig.FieldType)
+	}
+	if m.title != nil {
+		fields = append(fields, typeconfig.FieldTitle)
 	}
 	if m._config != nil {
 		fields = append(fields, typeconfig.FieldConfig)
@@ -1186,6 +1226,8 @@ func (m *TypeConfigMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case typeconfig.FieldType:
 		return m.GetType()
+	case typeconfig.FieldTitle:
+		return m.Title()
 	case typeconfig.FieldConfig:
 		return m.Config()
 	}
@@ -1199,6 +1241,8 @@ func (m *TypeConfigMutation) OldField(ctx context.Context, name string) (ent.Val
 	switch name {
 	case typeconfig.FieldType:
 		return m.OldType(ctx)
+	case typeconfig.FieldTitle:
+		return m.OldTitle(ctx)
 	case typeconfig.FieldConfig:
 		return m.OldConfig(ctx)
 	}
@@ -1216,6 +1260,13 @@ func (m *TypeConfigMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
+		return nil
+	case typeconfig.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
 		return nil
 	case typeconfig.FieldConfig:
 		v, ok := value.(string)
@@ -1275,6 +1326,9 @@ func (m *TypeConfigMutation) ResetField(name string) error {
 	switch name {
 	case typeconfig.FieldType:
 		m.ResetType()
+		return nil
+	case typeconfig.FieldTitle:
+		m.ResetTitle()
 		return nil
 	case typeconfig.FieldConfig:
 		m.ResetConfig()

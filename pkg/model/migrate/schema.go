@@ -48,6 +48,7 @@ var (
 	TypeConfigsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "type", Type: field.TypeString, Size: 255},
+		{Name: "title", Type: field.TypeString},
 		{Name: "config", Type: field.TypeString, Size: 2147483647},
 	}
 	// TypeConfigsTable holds the schema information for the "type_configs" table.

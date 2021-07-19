@@ -1,5 +1,7 @@
 package types
 
+import "github.com/maxiloEmmmm/diy-datav/pkg/model"
+
 type View struct {
 	Id         int
 	Desc       string
@@ -50,4 +52,18 @@ type UploadRequest struct {
 
 type BgRequest struct {
 	Id int `uri:"id"`
+}
+
+type TypeConfig struct {
+	Id     int    `json:"id"`
+	Title  string `json:"title"`
+	Config string `json:"config"`
+}
+
+func NewTypeConfig(config *model.TypeConfig) *TypeConfig {
+	return &TypeConfig{
+		Id:     config.ID,
+		Config: config.Config,
+		Title:  config.Title,
+	}
 }

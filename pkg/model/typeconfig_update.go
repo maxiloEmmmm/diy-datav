@@ -32,6 +32,12 @@ func (tcu *TypeConfigUpdate) SetType(s string) *TypeConfigUpdate {
 	return tcu
 }
 
+// SetTitle sets the "title" field.
+func (tcu *TypeConfigUpdate) SetTitle(s string) *TypeConfigUpdate {
+	tcu.mutation.SetTitle(s)
+	return tcu
+}
+
 // SetConfig sets the "config" field.
 func (tcu *TypeConfigUpdate) SetConfig(s string) *TypeConfigUpdate {
 	tcu.mutation.SetConfig(s)
@@ -135,6 +141,13 @@ func (tcu *TypeConfigUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: typeconfig.FieldType,
 		})
 	}
+	if value, ok := tcu.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: typeconfig.FieldTitle,
+		})
+	}
 	if value, ok := tcu.mutation.Config(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -164,6 +177,12 @@ type TypeConfigUpdateOne struct {
 // SetType sets the "type" field.
 func (tcuo *TypeConfigUpdateOne) SetType(s string) *TypeConfigUpdateOne {
 	tcuo.mutation.SetType(s)
+	return tcuo
+}
+
+// SetTitle sets the "title" field.
+func (tcuo *TypeConfigUpdateOne) SetTitle(s string) *TypeConfigUpdateOne {
+	tcuo.mutation.SetTitle(s)
 	return tcuo
 }
 
@@ -292,6 +311,13 @@ func (tcuo *TypeConfigUpdateOne) sqlSave(ctx context.Context) (_node *TypeConfig
 			Type:   field.TypeString,
 			Value:  value,
 			Column: typeconfig.FieldType,
+		})
+	}
+	if value, ok := tcuo.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: typeconfig.FieldTitle,
 		})
 	}
 	if value, ok := tcuo.mutation.Config(); ok {

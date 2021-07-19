@@ -6,36 +6,28 @@ export default {
     render() {
         return <div>
             <ysz-list-item v-slots={{
-                left: () => '地址'
+                left: () => '查询语句'
             }}>
-                <a-input size="small" vModel={[this.cfg.host, 'value']} onChange={this.onChange}/>
-            </ysz-list-item>
-            <ysz-list-item v-slots={{
-                left: () => '端口'
-            }}>
-                <a-input size="small" vModel={[this.cfg.port, 'value']} onChange={this.onChange}/>
-            </ysz-list-item>
-            <ysz-list-item v-slots={{
-                left: () => '用户'
-            }}>
-                <a-input size="small" vModel={[this.cfg.user, 'value']} onChange={this.onChange}/>
-            </ysz-list-item>
-            <ysz-list-item v-slots={{
-                left: () => '密码'
-            }}>
-                <a-input size="small" vModel={[this.cfg.pass, 'value']} onChange={this.onChange}/>
+                <a-input size="small" vModel={[this.cfg.sql, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
             <ysz-list-item v-slots={{
                 left: () => '数据库'
             }}>
-                <a-input size="small" vModel={[this.cfg.db, 'value']} onChange={this.onChange}/>
+                <a-select options={this.engines} size="small" vModel={[this.cfg.engine, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
         </div>
     },
     data() {
         return {
-            cfg: sqlInputConfig()
+            cfg: sqlInputConfig(),
+            engines: []
         }
+    },
+    created() {
+        this.$api[this.$apiType.MysqlList]()
+            .then(response => {
+                this.refs = response.data.map(ref => ({value: ref.id, label: ref.title}))
+            })
     },
     methods: {
         transformConfig() {

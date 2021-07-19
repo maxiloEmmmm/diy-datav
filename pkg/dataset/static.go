@@ -3,6 +3,8 @@ package dataset
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"github.com/maxiloEmmmm/diy-datav/pkg/app"
 )
 
 const Static = "dataset.static"
@@ -18,12 +20,26 @@ type StaticConfig struct {
 }
 
 func (h *static) Load(ctx context.Context, config string) (interface{}, error) {
-	hc := &StaticConfig{}
-	err := json.Unmarshal([]byte(config), hc)
+	sc := &StaticConfig{}
+	err := json.Unmarshal([]byte(config), sc)
 	if err != nil {
 		return EmptyData{}, err
 	}
 
-	// TODO: read static data from db by id
-	return EmptyData{}, nil
+	tc, err := app.Db.TypeConfig.Get(ctx, sc.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if tc.Type != Static {
+		return nil, errors.New("engine type not eq")
+	}
+
+	td := EmptyData{}
+	err = json.Unmarshal([]byte(tc.Config), &td)
+	if err != nil {
+		return EmptyData{}, err
+	}
+
+	return td, nil
 }

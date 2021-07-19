@@ -58,6 +58,15 @@ export default function() {
         }),
         [type.ViewUploadBG]: mock('view/bg/upload', 'post', function(request) {
             return {code: 'ok', msg: '', data: request.body}
-        })
+        }),
+        [type.StaticList]: mock('tc/kind/static', 'get', function(request) {
+            return {code: 'ok', msg: '', data: []}
+        }),
+        [type.HttpList]: mock('tc/kind/http', 'get', function(request) {
+            return {code: 'ok', msg: '', data: []}
+        }),
+        [type.MysqlList]: mock('tc/kind/mysql', 'get', function(request) {
+            return {code: 'ok', msg: '', data: []}
+        }),
     }
 }

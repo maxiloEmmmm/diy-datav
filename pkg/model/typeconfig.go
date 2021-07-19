@@ -17,6 +17,8 @@ type TypeConfig struct {
 	ID int `json:"id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
 	// Config holds the value of the "config" field.
 	Config string `json:"config,omitempty"`
 }
@@ -28,7 +30,7 @@ func (*TypeConfig) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case typeconfig.FieldID:
 			values[i] = new(sql.NullInt64)
-		case typeconfig.FieldType, typeconfig.FieldConfig:
+		case typeconfig.FieldType, typeconfig.FieldTitle, typeconfig.FieldConfig:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type TypeConfig", columns[i])
@@ -56,6 +58,12 @@ func (tc *TypeConfig) assignValues(columns []string, values []interface{}) error
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
 				tc.Type = value.String
+			}
+		case typeconfig.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				tc.Title = value.String
 			}
 		case typeconfig.FieldConfig:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -93,6 +101,8 @@ func (tc *TypeConfig) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", tc.ID))
 	builder.WriteString(", type=")
 	builder.WriteString(tc.Type)
+	builder.WriteString(", title=")
+	builder.WriteString(tc.Title)
 	builder.WriteString(", config=")
 	builder.WriteString(tc.Config)
 	builder.WriteByte(')')

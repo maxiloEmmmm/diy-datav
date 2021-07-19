@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
 	// FieldConfig holds the string denoting the config field in the database.
 	FieldConfig = "config"
 	// Table holds the table name of the typeconfig in the database.
@@ -19,6 +21,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldType,
+	FieldTitle,
 	FieldConfig,
 }
 

@@ -25,6 +25,12 @@ func (tcc *TypeConfigCreate) SetType(s string) *TypeConfigCreate {
 	return tcc
 }
 
+// SetTitle sets the "title" field.
+func (tcc *TypeConfigCreate) SetTitle(s string) *TypeConfigCreate {
+	tcc.mutation.SetTitle(s)
+	return tcc
+}
+
 // SetConfig sets the "config" field.
 func (tcc *TypeConfigCreate) SetConfig(s string) *TypeConfigCreate {
 	tcc.mutation.SetConfig(s)
@@ -96,6 +102,9 @@ func (tcc *TypeConfigCreate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf("model: validator failed for field \"type\": %w", err)}
 		}
 	}
+	if _, ok := tcc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New("model: missing required field \"title\"")}
+	}
 	if _, ok := tcc.mutation.Config(); !ok {
 		return &ValidationError{Name: "config", err: errors.New("model: missing required field \"config\"")}
 	}
@@ -139,6 +148,14 @@ func (tcc *TypeConfigCreate) createSpec() (*TypeConfig, *sqlgraph.CreateSpec) {
 			Column: typeconfig.FieldType,
 		})
 		_node.Type = value
+	}
+	if value, ok := tcc.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: typeconfig.FieldTitle,
+		})
+		_node.Title = value
 	}
 	if value, ok := tcc.mutation.Config(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
