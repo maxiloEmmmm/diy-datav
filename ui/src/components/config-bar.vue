@@ -68,6 +68,11 @@ export default {
             <a-tab-pane key="common" tab="通用">
                 <a-tabs class='common-config' size="small" tab-position="left">
                     <a-tab-pane key="type" tab="数据">
+                        <ysz-list-item v-slots={{
+                            left: () => '刷新时间'
+                        }}>
+                            <a-input-number formatter={v => `${v}秒`} size="small" vModel={[this.cfg.refresh, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item>,
                         <more initCount={this.cfg.input.length} onAdd={payload => {
                             this.cfg.input[payload.count] = ViewBLockTypeCommonInputItem()
                             this.onChange()

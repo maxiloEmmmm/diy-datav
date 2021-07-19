@@ -40,7 +40,12 @@ export default {
     },
     data() {
         return {
-            view: ViewType()
+            view: ViewType(),
+            bg: {
+                w: 1,
+                h: 1,
+                url: ''
+            }
         }
     },
     created() {
@@ -63,6 +68,7 @@ export default {
     computed: {
         _bg_style() {
             return {
+                // TODO: bg.url empty load loading
                 backgroundImage: `url(${bgAssetsDev})`,
                 backgroundSize: '100% 100%'
             }
@@ -70,33 +76,61 @@ export default {
         dragBlockID() {
             return this.$store.state.view.dragBlockId
         },
+        ...mapState('view', ['radio']),
         ...mapState('config', {
             configShow: 'show',
             currentConfigBlockType: state => state.block.type,
             currentConfigBlockConfig: state => state.block.config,
             currentConfigBlockKey: state => state.block.key
-        })
+        }),
     },
     watch: {
         currentConfigBlockType: 'onTypeChange',
         currentConfigBlockConfig: 'onConfigChange'
     },
     methods: {
+        loadRadio() {
+            this.$store.commit('view/setRadio', this.bg.width * document.body.scrollHeight / this.bg.height * document.body.scrollWidth)
+        },
+        loadBGRadio(url) {
+            return new Promise(ok => {
+                let imgObj = new Image();
+                imgObj.onload = () => {
+                    this.bg.w = imgObj.width
+                    this.bg.h = imgObj.height
+                    this.loadRadio()
+                    ok()
+                }
+                let url = new URL(url)
+                url.searchParams.set("_c", Date.parse(new Date))
+                this.bg.url = url.toString()
+            })
+        },
         fetch() {
             this.$api[this.$apiType.ViewInfo]("1")
-                .then(response => {
-                    this.view = {
-                        ...ViewType(),
-                        ...response.data.data,
-                        blocks: response.data.data.blocks.map(block => {
-                            return {
-                                ...ViewBlockType(),
-                                ...block,
-                            }
-                        })
-                    }
+                .then(async response => {
+                    // store radio
+                    // e = cb/ad
+                    // 系数 = 显示器长*背景宽 / 背景长*显示器宽
 
-                    this.$store.dispatch('view/fetchData')
+                    try {
+                        await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.bgAssetsId}/bg`)
+
+                        this.view = {
+                            ...ViewType(),
+                            ...response.data.data,
+                            blocks: response.data.data.blocks.map(block => {
+                                return {
+                                    ...ViewBlockType(),
+                                    ...block,
+                                }
+                            })
+                        }
+
+                        this.$store.dispatch('view/fetchData')
+                    }catch (e) {
+                        // load bg failed or dispatch err
+                    }
                 })
         },
         newBlock() {

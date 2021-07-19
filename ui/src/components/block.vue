@@ -77,8 +77,7 @@ export default {
             this.cfg.common.input.forEach((input, index) => {
                 this.$store.commit('view/loadData', {
                     id: input.id,
-                    //TODO: wait edit
-                    refresh: 5,
+                    refresh: this.cfg.common.refresh,
                     cb: (data) => {
                         this.data[index] = data
                     }

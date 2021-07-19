@@ -6,7 +6,7 @@ const clockStart = 0
 
 const state = {
     dragBlockId: "",
-
+    radio: 1,
     focus: {
         item: "",
         map: {}
@@ -97,6 +97,9 @@ const mutations = {
     },
     stopClock(state) {
         state.clock = clockStop
+    },
+    setRadio(state, radio) {
+        state.radio = radio
     }
 }
 

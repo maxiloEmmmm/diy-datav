@@ -45,7 +45,7 @@ export const ViewBLockTypeCommon = () => {
     return {
         position: common.PositionType(),
         input: [],
-        refresh: 10 * 1000,
+        refresh: 10,
     }
 }
 

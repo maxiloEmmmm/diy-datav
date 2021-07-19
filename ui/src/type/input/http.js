@@ -1,4 +1,6 @@
 import util from 'pkg/util'
+import * as common from './common'
+import {commonInputConfigParse} from "./common";
 
 export const httpInputConfigFilter = {
     url(t) {
@@ -6,7 +8,8 @@ export const httpInputConfigFilter = {
     },
     ref(t) {
         return util.isNumber(t) ? t : httpInputConfigDefault.ref()
-    }
+    },
+    ...common.commonInputConfigFilter
 }
 
 export const httpInputConfigDefault = {
@@ -15,19 +18,24 @@ export const httpInputConfigDefault = {
     },
     ref() {
         return 0
-    }
+    },
+    ...common.commonInputConfigDefault
 }
 
 export const httpInputConfigParse = (t) => {
     let cfg = httpInputConfig()
     cfg.url = httpInputConfigFilter.url(t.url)
-    cfg.ref = httpInputConfigFilter.url(t.ref)
-    return cfg
+    cfg.ref = httpInputConfigFilter.ref(t.ref)
+    return {
+        ...cfg,
+        ...common.commonInputConfigParse(t)
+    }
 }
 
 export const httpInputConfig = () => {
     return {
         url: httpInputConfigDefault.url(),
-        ref: httpInputConfigDefault.ref()
+        ref: httpInputConfigDefault.ref(),
+        ...common.commonInputConfig()
     }
 }

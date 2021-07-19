@@ -1,8 +1,8 @@
 <script lang="jsx">
-import { CloudOutlined, ConsoleSqlOutlined} from '@ant-design/icons-vue';
+import { CloudOutlined, ConsoleSqlOutlined, ReadOutlined} from '@ant-design/icons-vue';
 import * as dataType from './type.js'
 import SelectItem from "../select-item.vue";
-import {sqlInputConfig, httpInputConfig} from 'type'
+import {sqlInputConfig, httpInputConfig, staticInputConfig} from 'type'
 
 export default {
     components: {SelectItem},
@@ -18,6 +18,7 @@ export default {
         return <a-row gutter={[16,16]}>
             <a-col span={8}><select-item active={this.currentType === dataType.Http} onClick={this.onHttpTypeClick} icon={() => <CloudOutlined style="font-size:1.4rem"/>}>Http</select-item></a-col>
             <a-col span={8}><select-item active={this.currentType === dataType.Sql} onClick={this.onSqlTypeClick} icon={() => <ConsoleSqlOutlined style="font-size:1.4rem"/>}>数据库</select-item></a-col>
+            <a-col span={8}><select-item active={this.currentType === dataType.Static} onClick={this.onStaticTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>静态</select-item></a-col>
         </a-row>
     },
     methods: {
@@ -37,6 +38,14 @@ export default {
                 })
             }
         },
+        onStaticTypeClick() {
+            if(this.currentType !== dataType.Static) {
+                this.$emit('change', {
+                    type: dataType.Static,
+                    config: JSON.stringify(staticInputConfig()),
+                })
+            }
+        }
     }
 }
 </script>

@@ -1,5 +1,5 @@
 <script lang="jsx">
-import {sqlInputConfigParse, sqlInputConfig} from "type";
+import {sqlInputConfigParse, sqlInputConfig, sqlInputConfigDefault} from "type";
 import configMixin from './config-mixin'
 export default {
     mixins: [configMixin],
@@ -13,7 +13,7 @@ export default {
             <ysz-list-item v-slots={{
                 left: () => '数据库'
             }}>
-                <a-select options={this.engines} size="small" vModel={[this.cfg.engine, 'value']} onChange={this.onChange}/>
+                <a-select style="width:100%" options={this.engines} size="small" vModel={[this.cfg.engine, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
         </div>
     },
@@ -26,7 +26,10 @@ export default {
     created() {
         this.$api[this.$apiType.MysqlList]()
             .then(response => {
-                this.refs = response.data.map(ref => ({value: ref.id, label: ref.title}))
+                this.engines = [
+                    {label: '请选择', value: sqlInputConfigDefault.engine()},
+                    ...response.data.data.map(ref => ({value: ref.id, label: ref.title}))
+                ]
             })
     },
     methods: {
@@ -34,7 +37,7 @@ export default {
             try {
                 this.cfg = sqlInputConfigParse(JSON.parse(this.config))
             }catch(e) {
-                console.log('http config parse failed in http-config', e, this.config)
+                console.log('sql config parse failed in sql-config', e, this.config)
             }
         },
     }

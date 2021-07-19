@@ -34,6 +34,7 @@ export const api = {
 export default {
     install(app) {
         app.config.globalProperties.$api = api
+        app.config.globalProperties.$api_url = http.defaults.baseURL
         app.config.globalProperties.$apiType = apiType
         if(import.meta.env.VITE_MOCK == 'on') {
             // TODO: repalce api generate
