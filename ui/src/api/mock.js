@@ -21,6 +21,7 @@ export default function() {
     return {
         [type.ViewInfo]: mockReg('view/[^/]+$', 'get', function(request) {
             let view = ViewType()
+            view.id = "1"
             let block = ViewBlockType()
             let block2 = ViewBlockType()
             view.blocks = [block, block2]

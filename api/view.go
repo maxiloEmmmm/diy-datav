@@ -5,6 +5,9 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/service"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
 	"github.com/maxiloEmmmm/go-web/contact"
+	"image"
+	"image/color"
+	"image/png"
 	"net/http"
 )
 
@@ -51,9 +54,14 @@ func ViewBg(c *contact.GinHelp) {
 	if err != nil {
 		contact.Warning.Log("web.download", fmt.Sprintf("view id: %d, err: %v", view.Id, err))
 		//	fallback to write black
-		c.Writer.Header().Set("Content-Type", "image/gif")
-		_, _ = c.Writer.Write([]byte("data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="))
+		c.Writer.Header().Set("Content-Type", "image/png")
+
+		alpha := image.NewAlpha(image.Rect(0, 0, 800, 764))
+		for x := 0; x < 100; x++ {
+			for y := 0; y < 100; y++ {
+				alpha.Set(x, y, color.Alpha{A: uint8(x % 256)})
+			}
+		}
+		_ = png.Encode(c.Writer, alpha)
 	}
 }
-
-

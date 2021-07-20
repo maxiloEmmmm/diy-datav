@@ -5,7 +5,9 @@ import * as apiType from './type'
 
 export const type = apiType
 
-http.defaults.baseURL = import.meta.env.VITE_API
+http.defaults.baseURL = /^http/.test(import.meta.env.VITE_API)
+    ? import.meta.env.VITE_API
+    : `${window.location.protocol}//${window.location.host}${/^\//.test(import.meta.env.VITE_API) ? import.meta.env.VITE_API : `/${import.meta.env.VITE_API}`}`
 
 export const api = {
     [apiType.ViewInfo](id) {

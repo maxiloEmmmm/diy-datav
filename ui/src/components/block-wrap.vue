@@ -14,7 +14,7 @@ export default {
             class: ['ext-wrap', ...this.$attrs.class.split(' ')],
         }
 
-        let help = this.hasHelp ? <div class="ext-help">
+        let help = this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help">
             {this.helps.map(help => {
                 const Component = help.component()
                 return <Component

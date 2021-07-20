@@ -12,10 +12,9 @@ export default {
                 <view-block type={block.type} config={block.config} />
             </block-wrap>
         })
-        let bg = <div id='diy-data-view_bg' style={this._bg_style} />
+        let bg = this.bg.url ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
         let util = <div id='diy-data-view_util'>
             <a-button onClick={this.newBlock}>添加块</a-button>
-            current drag id: { this.dragBlockID }, focus: {this.app_mixin.focus.in ? 'focus' : 'no-focus'}
         </div>
 
         // TODO: 考虑要不要加个预览在配置旁边
@@ -44,7 +43,8 @@ export default {
             bg: {
                 w: 1,
                 h: 1,
-                url: ''
+                url: '',
+                resize: false
             }
         }
     },
@@ -90,20 +90,29 @@ export default {
     },
     methods: {
         loadRadio() {
-            this.$store.commit('view/setRadio', this.bg.width * document.body.scrollHeight / this.bg.height * document.body.scrollWidth)
+            if(!this.bg.resize) {
+                this.bg.resize = true
+                window.addEventListener("resize", this.loadRadio)
+            }
+            this.$store.commit('view/setRadio', (this.bg.w * document.body.scrollHeight) / (this.bg.h * document.body.scrollWidth))
         },
         loadBGRadio(url) {
-            return new Promise(ok => {
+            return new Promise((ok, nok) => {
                 let imgObj = new Image();
                 imgObj.onload = () => {
                     this.bg.w = imgObj.width
                     this.bg.h = imgObj.height
                     this.loadRadio()
+                    this.bg.url = imgObj.src
                     ok()
                 }
-                let url = new URL(url)
-                url.searchParams.set("_c", Date.parse(new Date))
-                this.bg.url = url.toString()
+                imgObj.onerror = function(e) {
+                    nok(`load img [${imgObj.src}] err`)
+                }
+
+                let urlObj = new URL(url)
+                urlObj.searchParams.set("_c", Date.parse(new Date))
+                imgObj.src = urlObj.toString()
             })
         },
         fetch() {
@@ -114,7 +123,8 @@ export default {
                     // 系数 = 显示器长*背景宽 / 背景长*显示器宽
 
                     try {
-                        await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.bgAssetsId}/bg`)
+                        // await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.id}/bg`)
+                        this.bg.url = `${this.$api_url}/view/${response.data.data.id}/bg`
 
                         this.view = {
                             ...ViewType(),
@@ -130,6 +140,7 @@ export default {
                         this.$store.dispatch('view/fetchData')
                     }catch (e) {
                         // load bg failed or dispatch err
+                        console.log('design init err', e)
                     }
                 })
         },
@@ -182,6 +193,9 @@ export default {
 
     #diy-data-view_bg {
         position: absolute; top: 0; right: 0; left: 0; bottom: 0; z-index: 1;
+        &.center {
+            display: flex; justify-content: center; align-items: center;
+        }
     }
 
     #diy-data-view_util {

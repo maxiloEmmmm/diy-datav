@@ -4,8 +4,8 @@ import { DragOutlined } from '@ant-design/icons-vue';
 import util from 'pkg/util'
 import {
     UpCircleOutlined, DownCircleOutlined, LeftCircleOutlined,
-    RightCircleOutlined, RadiusUpleftOutlined, RadiusBottomleftOutlined,
-    RadiusBottomrightOutlined, RadiusUprightOutlined
+    RightCircleOutlined,
+    RadiusBottomrightOutlined,
 } from '@ant-design/icons-vue'
 
 export default {
@@ -25,11 +25,11 @@ export default {
         // bar view in body or current move?
         // move must e.stopPropagation
 
-        let bar = this.enable ? <div style="position:absolute; inset: 0;">
-            <RadiusBottomrightOutlined onMousedown={this.onBarDown} style="position:absolute; right: -2rem; bottom: -2rem; cursor: pointer"/>
+        let bar = this.enable ? <div style="position:absolute; inset: 0;z-index: 2">
+            <RadiusBottomrightOutlined onMousedown={this.onBarDown} style="position:absolute; right: 0; bottom: 0; cursor: pointer"/>
         </div> : null
 
-        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0;">
+        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0; z-index: 3">
             <UpCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
             <DownCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
             <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
@@ -85,25 +85,11 @@ export default {
             }
         }
     },
-    watch: {
-        enable(val) {
-            // TODO: bug: everyone can disable/active it for move
-            (val ? this.mixinActiveHelp : this.mixinDisableHelp)(HelpModule.ViewBlock, "move")
-        }
-    },
     emits: ['mousedown'],
     methods: {
         onMouseDown(e) {
             e.preventDefault()
             e.stopPropagation()
-
-            this.mixinAddHelp(HelpModule.ViewBlock, [
-                {key: "move", component() {
-                        return <DragOutlined twoToneColor="red"/>
-                    }, cb: () => {
-                        console.log("move help click")
-                    }, disable: !this.enable}
-            ])
 
             this.$emit('mousedown', e)
 
