@@ -67,3 +67,9 @@ func NewTypeConfig(config *model.TypeConfig) *TypeConfig {
 		Title:  config.Title,
 	}
 }
+
+type Enum struct {
+	Label string
+	Value interface{}
+	V     interface{}
+}

@@ -5,6 +5,7 @@ import (
 	appApi "github.com/maxiloEmmmm/diy-datav/api"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	"github.com/maxiloEmmmm/go-web/contact"
 )
 
@@ -22,6 +23,15 @@ func main() {
 	}
 
 	curd := model.NewCurdBuilder(app.Db)
+	curd.Apis.TypeConfig.Filter.GetPipe = func(help *contact.GinHelp, getPipe *model.TypeConfigQuery) {
+		if val, exist := help.GetQuery("type"); exist && val != "" {
+			getPipe.Where(typeconfig.Type(val))
+		}
+
+		if val, exist := help.GetQuery("title"); exist && val != "" {
+			getPipe.Where(typeconfig.TitleContains(val))
+		}
+	}
 	curd.Route("/", apiGroup, []string{model.TypeTypeConfig})
 	engine.Run(":8000")
 }

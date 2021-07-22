@@ -1,3 +1,3 @@
-export const Http = 'Http'
-export const Sql = 'Sql'
-export const Static = "Static"
+export const Http = 'dataset.http'
+export const Sql = 'dataset.sql'
+export const Static = "dataset.static"

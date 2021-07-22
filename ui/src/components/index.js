@@ -8,11 +8,14 @@ import listItemTop from './list-item-top.vue'
 import more from './more.vue'
 import colorPick from './color-pick.vue'
 import configBar from './config-bar.vue'
+import antdTool from 'pkg/antd-tool'
+
 export default {
     install(app) {
+        app.use(antdTool)
         app.use(antd)
-        app.component(listItem.name, listItem)
-        app.component(listItemTop.name, listItemTop)
+        // app.component(listItem.name, listItem)
+        // app.component(listItemTop.name, listItemTop)
         app.component(blockWrap.name, blockWrap)
         app.component(block.name, block)
         app.component(selectItem.name, selectItem)

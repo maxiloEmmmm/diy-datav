@@ -15,6 +15,7 @@ type TypeConfigServiceI7e interface {
 	//Get()
 	//Delete()
 
+	Kind() ([]*types.Enum, error)
 	HttpKind() ([]*types.TypeConfig, error)
 	StaticKind() ([]*types.TypeConfig, error)
 	MysqlKind() ([]*types.TypeConfig, error)
@@ -58,7 +59,7 @@ func (t TypeConfigService) StaticKind() ([]*types.TypeConfig, error) {
 
 func (t TypeConfigService) MysqlKind() ([]*types.TypeConfig, error) {
 	tc, err := app.Db.TypeConfig.Query().Where(
-		typeconfig.Type(dataset.Mysql),
+		typeconfig.Type(dataset.Sql),
 	).All(t.Context)
 	if err != nil {
 		return nil, err
@@ -70,6 +71,14 @@ func (t TypeConfigService) MysqlKind() ([]*types.TypeConfig, error) {
 	}
 
 	return data, nil
+}
+
+func (t TypeConfigService) Kind() ([]*types.Enum, error) {
+	return []*types.Enum{
+		{Label: dataset.Http, Value: dataset.Http},
+		{Label: dataset.Sql, Value: dataset.Sql},
+		{Label: dataset.Static, Value: dataset.Static},
+	}, nil
 }
 
 func NewTypeConfigService(context context.Context) TypeConfigServiceI7e {

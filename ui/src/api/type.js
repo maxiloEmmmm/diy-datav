@@ -4,5 +4,7 @@ export const ViewUploadBG = 'ViewUploadBG'
 
 export const Data = 'Data'
 export const StaticList = "StaticList"
-export const MysqlList = "MysqlList"
+export const SqlList = "SqlList"
 export const HttpList = "HttpList"
+export const KindList = "KindList"
+export const TCList = "TCList"

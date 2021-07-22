@@ -6,7 +6,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
+	entSql "entgo.io/ent/dialect/sql"
 	"errors"
 	"fmt"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
@@ -14,32 +14,32 @@ import (
 	"sync"
 )
 
-const Mysql = "dataset.mysql"
+const Sql = "dataset.sql"
 
 func init() {
-	Reg[Mysql] = &mysql{}
+	Reg[Sql] = &sql{}
 }
 
-type mysql struct{}
+type sql struct{}
 
 type mysqlConfig struct {
 	Sql    string
 	Engine int
 }
 
-func (h *mysql) Load(ctx context.Context, config string) (interface{}, error) {
+func (h *sql) Load(ctx context.Context, config string) (interface{}, error) {
 	mc := &mysqlConfig{}
 	err := json.Unmarshal([]byte(config), mc)
 	if err != nil {
 		return EmptyData{}, err
 	}
 
-	engine, err := NewMysqlEngine(ctx, mc.Engine)
+	engine, err := NewEngine(ctx, mc.Engine)
 	if err != nil {
 		return EmptyData{}, err
 	}
 
-	rows := &sql.Rows{}
+	rows := &entSql.Rows{}
 	if err = (*engine).Query(ctx, mc.Sql, []interface{}{}, rows); err != nil {
 		return EmptyData{}, err
 	}
@@ -88,48 +88,55 @@ func (h *mysql) Load(ctx context.Context, config string) (interface{}, error) {
 	return result, rows.Err()
 }
 
-type MysqlEngineType *sql.Driver
+type sqlEngineType *entSql.Driver
 
 //todo: close engine by channel
-var mysqlEngine = make(map[int]MysqlEngineType, 0)
-var mysqlEngineLock = sync.Mutex{}
+var sqlEngine = make(map[int]sqlEngineType, 0)
+var sqlEngineLock = sync.Mutex{}
 
-type mysqlOpenConfig struct {
+type sqlOpenConfig struct {
 	Host string
 	Port int
 	Pass string
 	User string
 	DB   string
+	Type string
 }
 
-func NewMysqlEngine(ctx context.Context, id int) (MysqlEngineType, error) {
+func NewEngine(ctx context.Context, id int) (sqlEngineType, error) {
 	tc, err := app.Db.TypeConfig.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if tc.Type != Mysql {
+	if tc.Type != Sql {
 		return nil, errors.New("engine type not eq")
 	}
 
-	mysqlEngineLock.Lock()
-	defer mysqlEngineLock.Unlock()
-	if engine, ok := mysqlEngine[id]; ok {
+	sqlEngineLock.Lock()
+	defer sqlEngineLock.Unlock()
+	if engine, ok := sqlEngine[id]; ok {
 		return engine, nil
 	}
 
-	moc := &mysqlOpenConfig{}
+	moc := &sqlOpenConfig{}
 	err = json.Unmarshal([]byte(tc.Config), moc)
 	if err != nil {
 		return nil, err
 	}
 
-	drv, err := sql.Open(dialect.MySQL, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", moc.User, moc.Pass, moc.Host, moc.Port, moc.DB))
+	switch moc.Type {
+	case dialect.MySQL, dialect.SQLite, dialect.Postgres, dialect.Gremlin:
+	default:
+		return nil, fmt.Errorf("unknown sql db type(%s)", moc.Type)
+	}
+
+	drv, err := entSql.Open(moc.Type, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", moc.User, moc.Pass, moc.Host, moc.Port, moc.DB))
 	if err != nil {
 		return nil, err
 	}
 
-	mysqlEngine[id] = drv
+	sqlEngine[id] = drv
 
 	return drv, nil
 }

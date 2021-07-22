@@ -8,8 +8,9 @@ import (
 
 func init() {
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/static", StaticKind))
-	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/mysql", MysqlKind))
+	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/sql", MysqlKind))
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/http", HttpKind))
+	Apis = append(Apis, newApi(http.MethodGet, "tc/kind", Kind))
 	//Apis = append(Apis, newApi(http.MethodGet, "tc", Static))
 	//Apis = append(Apis, newApi(http.MethodPost, "tc", Static))
 	//Apis = append(Apis, newApi(http.MethodGet, "tc/:id", Static))
@@ -31,6 +32,12 @@ func MysqlKind(c *contact.GinHelp) {
 
 func HttpKind(c *contact.GinHelp) {
 	data, err := service.NewTypeConfigService(c.AppContext).HttpKind()
+	c.AssetsInValid("load", err)
+	c.Resource(data)
+}
+
+func Kind(c *contact.GinHelp) {
+	data, err := service.NewTypeConfigService(c.AppContext).Kind()
 	c.AssetsInValid("load", err)
 	c.Resource(data)
 }

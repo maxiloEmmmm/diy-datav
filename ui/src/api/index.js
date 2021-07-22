@@ -2,6 +2,7 @@ import mockUtil from './mock'
 
 import http from 'pkg/http'
 import * as apiType from './type'
+import antdTool from 'pkg/antd-tool'
 
 export const type = apiType
 
@@ -28,13 +29,17 @@ export const api = {
     [apiType.HttpList]() {
         return http.get(`tc/kind/http`)
     },
-    [apiType.MysqlList]() {
-        return http.get(`tc/kind/mysql`)
+    [apiType.SqlList]() {
+        return http.get(`tc/kind/sql`)
     },
+    [apiType.KindList]() {
+        return http.get(`tc/kind`)
+    }
 }
 
 export default {
     install(app) {
+        antdTool.http.engine = http
         app.config.globalProperties.$api = api
         app.config.globalProperties.$api_url = http.defaults.baseURL
         app.config.globalProperties.$apiType = apiType

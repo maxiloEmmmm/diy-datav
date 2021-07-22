@@ -37,7 +37,7 @@ export default {
     },
     computed: {
         ...mapGetters('view', {
-            appHelp: 'help'
+            appHelp: 'help',
         }),
         hasHelp() {
             return this.helps.length > 0
