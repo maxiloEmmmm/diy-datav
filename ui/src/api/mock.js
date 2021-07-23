@@ -73,6 +73,7 @@ export default function() {
             return {code: 'ok', msg: '', data: [
                 {label: inputType.Sql, value: inputType.Sql},
                 {label: inputType.Http, value: inputType.Http},
+                {label: inputType.Static, value: inputType.Static},
             ]}
         }),
         [apiType.TCList]: mockReg('tc', 'get', function () {

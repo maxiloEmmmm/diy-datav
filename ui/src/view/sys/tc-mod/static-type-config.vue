@@ -1,17 +1,19 @@
 <script lang="jsx">
 import typeConfigMixin from './type-config-mixin'
-import {httpTypeConfigParse, httpTypeConfig} from "./types";
+import {staticTypeConfig, staticTypeConfigParse} from "./types";
 export default {
     mixins: [typeConfigMixin],
     data() {
         return {
-            cfg: httpTypeConfig()
+            cfg: staticTypeConfig()
         }
     },
     mounted() {
         this.$nextTick(() => {
             this.$refs.form.setFields([
-                {title: '接口地址', field: 'url'}
+                {title: '数据', field: 'data', type: 'code', option: {
+                    language: 'json'
+                }},
             ])
             this.$refs.form.setModels([
                 {key: 'default'}
@@ -23,12 +25,12 @@ export default {
     methods: {
         transformConfig() {
             try {
-                this.cfg = httpTypeConfigParse(JSON.parse(this.config))
+                this.cfg = staticTypeConfigParse(JSON.parse(this.config))
                 if(this.$refs.form) {
                     this.$refs.form.setData(this.cfg)
                 }
             }catch(e) {
-                console.log('http config parse failed in http-config', e, this.config)
+                console.log('static config parse failed in static-config', e, this.config)
             }
         },
     }
