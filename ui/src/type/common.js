@@ -1,8 +1,8 @@
 export const PositionType = function() {
     return {
-        left: '',
-        right: '',
-        top: '',
-        bottom: ''
+        left: 0,
+        top: 0,
+        width: 10,
+        height: 10
     }
 }

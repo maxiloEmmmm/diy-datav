@@ -4,17 +4,23 @@ import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
 import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined } from '@ant-design/icons-vue';
+import * as designModel from './model'
 export default {
     render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
-            return <block-wrap class="diy-data-view_block" key={blockKey} block-key={blockKey} onMousedown={e => this.onBlockMouseDown(blockKey)}>
+            return <block-wrap class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
                 <view-block type={block.type} config={block.config} />
             </block-wrap>
         })
         let bg = this.bg.url ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
         let util = <div id='diy-data-view_util'>
-            <a-button onClick={this.newBlock}>添加块</a-button>
+            {this.isDesign ?
+                [
+                    <a-button onClick={this.newBlock}>添加块</a-button>,
+                    <a-button onClick={this.save}>保存</a-button>
+                ] : null}
+            <a-button>全屏</a-button>
         </div>
 
         // TODO: 考虑要不要加个预览在配置旁边
@@ -22,12 +28,11 @@ export default {
         //     <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
         // </div> : null
 
-        let configBar = <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
+        let configBar = this.isDesign ? <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
             <config-bar></config-bar>
-        </a-drawer>
+        </a-drawer> : null
 
         return <div id='diy-datav-view'
-            onDrop={this.onDrop}
             onMousedown={this.onMouseDown}
         >
             {bg}
@@ -55,6 +60,10 @@ export default {
             {key: "edit", component() {
                     return <BarChartOutlined twoToneColor="red"/>
                 }, cb: (payload) => {
+                    if(payload.type !== 'click') {
+                        return
+                    }
+
                     if(!payload.blockKey) {
                         return
                     }
@@ -83,6 +92,18 @@ export default {
             currentConfigBlockConfig: state => state.block.config,
             currentConfigBlockKey: state => state.block.key
         }),
+        id() {
+            return this.$route.params.id || ""
+        },
+        model() {
+            return this.$route.meta.model || designModel.Design
+        },
+        isDesign() {
+            return this.model === designModel.Design
+        },
+        isView() {
+            return this.model === designModel.View
+        }
     },
     watch: {
         currentConfigBlockType: 'onTypeChange',
@@ -116,39 +137,39 @@ export default {
             })
         },
         fetch() {
-            this.$api[this.$apiType.ViewInfo]("1")
-                .then(async response => {
-                    // store radio
-                    // e = cb/ad
-                    // 系数 = 显示器长*背景宽 / 背景长*显示器宽
+            if(this.id) {
+                this.$api[this.$apiType.ViewInfo](this.id)
+                    .then(async response => {
+                        // store radio
+                        // e = cb/ad
+                        // 系数 = 显示器长*背景宽 / 背景长*显示器宽
 
-                    try {
-                        // await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.id}/bg`)
-                        this.bg.url = `${this.$api_url}/view/${response.data.data.id}/bg`
+                        try {
+                            // await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.id}/bg`)
+                            this.bg.url = `${this.$api_url}/view/${response.data.data.id}/bg`
 
-                        this.view = {
-                            ...ViewType(),
-                            ...response.data.data,
-                            blocks: response.data.data.blocks.map(block => {
-                                return {
-                                    ...ViewBlockType(),
-                                    ...block,
-                                }
-                            })
+                            this.view = {
+                                ...ViewType(),
+                                ...response.data.data,
+                                blocks: response.data.data.blocks.map(block => {
+                                    return {
+                                        ...ViewBlockType(),
+                                        ...block,
+                                    }
+                                })
+                            }
+                        }catch (e) {
+                            // load bg failed or dispatch err
+                            console.log('design init err', e)
                         }
-
-                        this.$store.dispatch('view/fetchData')
-                    }catch (e) {
-                        // load bg failed or dispatch err
-                        console.log('design init err', e)
-                    }
-                })
+                    })
+            }else {
+                this.view = ViewType()
+            }
+            this.$store.dispatch('view/fetchData')
         },
         newBlock() {
             this.view.newBlockAndStore()
-        },
-        onDrop() {
-
         },
         onMouseDown() {
             this.mixinDoFocus()
@@ -175,6 +196,10 @@ export default {
             }
         },
         blockConfigReplace(blockKey) {
+            if(this.isView) {
+                return
+            }
+
             const block = this.view.blocks.filter(block => block.getKey() === blockKey)[0]
             if (!!block) {
                 this.mixinSetConfigKey(blockKey)
@@ -182,6 +207,26 @@ export default {
                 this.mixinSetConfigTypeAndConfig(block.type, block.config)
                 this.mixinConfigShow()
             }
+        },
+        onBlockWrapConfig(key, config) {
+            const block = this.view.blocks.filter(block => block.getKey() === key)[0]
+            if (!!block) {
+                block.config = config
+            }
+        },
+        save() {
+            this.$confirm({
+                title: '描述',
+                content: <a-textarea vModel={this.view.desc}/>,
+                onOk() {
+                    this.$api[this.$apiType.ViewStore](this.view)
+                        .then(response => {
+                            this.$message.info(response.data.code)
+                        })
+                },
+                onCancel() {},
+            })
+
         }
     }
 }

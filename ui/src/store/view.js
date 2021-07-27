@@ -5,7 +5,6 @@ const clockStop = -1
 const clockStart = 0
 
 const state = {
-    dragBlockId: "",
     radio: 1,
     focus: {
         item: "",
@@ -26,7 +25,7 @@ const getters = {
         return rets
     },
     fetchAble(state) {
-        return state.clock != clockStop
+        return state.clock !== clockStop
     }
 }
 
@@ -38,12 +37,6 @@ function normalHelp(help) {
 }
 
 const mutations = {
-    setDragBlockID(state, payload) {
-        state.dragBlockId = payload
-    },
-    clearDragBlockID(state) {
-        state.dragBlockId = ''
-    },
     addHelp(state, payload = {typ: "", helps: []}) {
         if(!state.help[payload.typ]) {
             state.help[payload.typ] = []
@@ -80,16 +73,21 @@ const mutations = {
     setData(state, payload = {id: "", data}) {
         state.dataSet[payload.id] = payload.data
     },
-    updateDataRefresh(state, payload = {id: "", refresh: 1000 * 10}) {
+    updateDataRefresh(state, payload = {id: "", refresh: 10}) {
 
     },
-    loadData(state, payload = {id: "", refresh: 1000 * 10, cb: Function}) {
-        state.dataSet[payload.id] = payload
+    loadData(state, payload = {input: {key: String}, refresh: 10, cb: Function}) {
+        state.dataSet[payload.input.key] = payload
     },
     addClock(state) {
         if (state.clock === clockStop) {
             return
         }
+
+        if (state.clock >= 3600) {
+            state.clock = clockStart
+        }
+
         state.clock += 1
     },
     activeClock(state) {
@@ -107,6 +105,7 @@ let fetchHandler = null
 
 // TODO: support view config engine, websocket or xhr
 let fetchEngine = api[apiType.Data]
+let fetchTmpEchoEngine = api[apiType.TmpEchoData]
 
 const actions = {
     addFocusItem({state}, cb) {
@@ -128,13 +127,26 @@ const actions = {
             commit('activeClock')
             fetchHandler = setInterval(() => {
                 if(getters.fetchAble) {
-                    for(let id in state.dataSet) {
-                        const ds = state.dataSet[id]
-                        if(state.clock % ds.refresh === 0 && fetchEngine !== null) {
-                            fetchEngine(id)
-                                .then(response => {
-                                    ds.cb(response.data.data)
-                                })
+                    for(let key in state.dataSet) {
+                        const ds = state.dataSet[key]
+                        if(state.clock % ds.refresh === 0) {
+                            let pro = null
+                            if(ds.input.id) {
+                                if(fetchEngine !== null) {
+                                    pro = fetchEngine(ds.input.id)
+                                }
+                            }else {
+                                if(fetchTmpEchoEngine !== null) {
+                                    pro = fetchTmpEchoEngine({
+                                        type: ds.input.type,
+                                        config: ds.input.config
+                                    })
+                                }
+                            }
+
+                            pro.then(response => {
+                                ds.cb(response.data)
+                            })
                         }
                     }
                 }

@@ -3,23 +3,23 @@ import * as common from './common'
 import {commonInputConfigParse} from "./common";
 
 export const httpInputConfigFilter = {
+    ...common.commonInputConfigFilter,
     url(t) {
         return util.isString(t) ? t : httpInputConfigDefault.url()
     },
     ref(t) {
         return util.isNumber(t) ? t : httpInputConfigDefault.ref()
     },
-    ...common.commonInputConfigFilter
 }
 
 export const httpInputConfigDefault = {
+    ...common.commonInputConfigDefault,
     url() {
         return ''
     },
     ref() {
         return 0
     },
-    ...common.commonInputConfigDefault
 }
 
 export const httpInputConfigParse = (t) => {
@@ -27,15 +27,15 @@ export const httpInputConfigParse = (t) => {
     cfg.url = httpInputConfigFilter.url(t.url)
     cfg.ref = httpInputConfigFilter.ref(t.ref)
     return {
+        ...common.commonInputConfigParse(t),
         ...cfg,
-        ...common.commonInputConfigParse(t)
     }
 }
 
 export const httpInputConfig = () => {
     return {
+            ...common.commonInputConfig(),
         url: httpInputConfigDefault.url(),
         ref: httpInputConfigDefault.ref(),
-        ...common.commonInputConfig()
     }
 }

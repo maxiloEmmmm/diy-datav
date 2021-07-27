@@ -1,6 +1,7 @@
 <script lang="tsx">
 import components from './types/component.js'
 import util from 'pkg/util'
+import {ViewBLockTypeCommonInputItemParse, ViewBlockTypeConfig} from 'type'
 export default {
     name: 'view-block',
     render() {
@@ -12,12 +13,7 @@ export default {
     },
     data() {
         return {
-            cfg: {
-                common: {
-                    input: []
-                },
-                type: ""
-            },
+            cfg: ViewBlockTypeConfig(),
             data: []
         }
     },
@@ -27,7 +23,7 @@ export default {
             default: "",
         },
         config: {
-            type: [String, Object],
+            type: String,
             default() {
                 return ""
             },
@@ -39,44 +35,24 @@ export default {
             handler: 'transformTypeConfig'
         }
     },
-    created() {
-        this.fetch()
-    },
     methods: {
         transformTypeConfig() {
-            // TODO: wait alert
-            // TODO: parse config from props, get common and type config
-            switch (typeof this.config) {
-                case 'object':
-                    this.mergeConfig(this.config)
-                    break
-                case 'string':
-                    try {
-                        this.mergeConfig(JSON.parse(this.config))
-                    }catch(e) {
-                        return
-                    }
-                    break
-                default:
-                    return
-            }
-        },
-        mergeConfig(config) {
-            let common = config.common
-            this.cfg.common.input = this.normalInput(common.input)
-            this.cfg.type = config.type || {}
+            const cfg = JSON.parse(this.config)
+            cfg.common.input = this.normalInput(cfg.common.input)
+            this.cfg = cfg
+            this.fetch()
         },
         normalInput(inputs) {
             if(!Array.isArray(inputs)) {
                 return []
             }
 
-            return inputs.filter(input => !!input.id)
+            return inputs.map(ViewBLockTypeCommonInputItemParse)
         },
         fetch() {
             this.cfg.common.input.forEach((input, index) => {
                 this.$store.commit('view/loadData', {
-                    id: input.id,
+                    input,
                     refresh: this.cfg.common.refresh,
                     cb: (data) => {
                         this.data[index] = data

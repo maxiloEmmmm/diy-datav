@@ -24,11 +24,11 @@ export default {
         }
     },
     created() {
-        this.$api[this.$apiType.MysqlList]()
+        this.$api[this.$apiType.SqlList]()
             .then(response => {
                 this.engines = [
                     {label: '请选择', value: sqlInputConfigDefault.engine()},
-                    ...response.data.data.map(ref => ({value: ref.id, label: ref.title}))
+                    ...response.data.map(ref => ({value: ref.id, label: ref.title}))
                 ]
             })
     },

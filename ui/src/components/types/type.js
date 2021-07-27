@@ -1,3 +1,2 @@
 export const AntV = 'AntV'
-export const StaticText = 'StaticText'
-export const DynamicText = 'DynamicText'
+export const Text = 'Text'

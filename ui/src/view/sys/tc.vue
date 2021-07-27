@@ -6,12 +6,12 @@ export default {
         return <tool-curd layout={[
             {key: 'default', col: 2},
             {key: 'single', col: 1}
-        ]} models={this.models} columns={this.columns} fetch-url="tc"/>
+        ]} models={this.models} columns={this.columns} fetch-url="typeconfig"/>
     },
     data() {
         return {
             columns: [
-                {title: 'ID', field: 'id'},
+                {title: 'ID', field: 'id', key: true},
                 {title: '标题', field: 'title', filter: true},
                 {title: '配置', field: 'config', type: 'customer', layout_key: 'single', option: {
                     customer_form: (props) => {
@@ -32,15 +32,15 @@ export default {
             },
             models: [
                 {title: '更新', disabled: ['id'], xhr: {method: 'patch'}},
-                {title: '新增', hide: ['id'], xhr: {method: 'post'}, dispatchArea: 'topBar'},
+                {title: '新增', hide: ['id'], omit: ['id'], xhr: {method: 'post'}, dispatchArea: 'topBar'},
                 {title: '删除', hide: '*', xhr: {method: 'delete'}}
             ]
         }
     },
     created() {
-        this.$api[this.$apiType.KindList]("1")
+        this.$api[this.$apiType.KindList]()
             .then(response => {
-                this.store.typeOptions = response.data.data
+                this.store.typeOptions = response.data
             })
     }
 }

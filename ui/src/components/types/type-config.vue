@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { BarChartOutlined, ReadOutlined } from '@ant-design/icons-vue';
 import * as componentType from '@/components/types/type.js'
-import {AntVConfig, ViewBlockType, StaticTextConfig} from 'type'
+import {AntVConfig, ViewBlockType, TextConfig} from 'type'
 import {mapState} from "vuex";
 import SelectItem from "../select-item.vue";
 
@@ -11,34 +11,35 @@ export default {
         // TODO: tranform to config list
         return <a-row gutter={[16,16]}>
             <a-col span={4}><select-item active={this.currentType === componentType.AntV} onClick={this.onAntVTypeClick} icon={() => <BarChartOutlined style="font-size:1.4rem"/>}>图表</select-item></a-col>
-            <a-col span={4}><select-item active={this.currentType === componentType.StaticText} onClick={this.onStaticTextTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>静态文本</select-item></a-col>
-            <a-col span={4}><select-item active={this.currentType === componentType.DynamicText} onClick={this.onDynamicTextTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem" spin/>}>动态文本</select-item></a-col>
+            <a-col span={4}><select-item active={this.currentType === componentType.Text} onClick={this.onTextTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>静态文本</select-item></a-col>
         </a-row>
     },
     computed: {
         ...mapState('config', {
-            currentType: state => state.block.type
+            currentType: state => state.block.type,
+            currentConfigBlockConfig: state => state.block.config
         })
     },
     methods: {
+        onChange(typ, config) {
+            try {
+                const oldConfig = JSON.parse(this.currentConfigBlockConfig)
+                this.mixinSetConfigTypeAndConfig(typ, JSON.stringify({
+                        common: oldConfig.common,
+                        type: config
+                }))
+            }catch(e) {
+                console.log('config change json parse err', e, this.cfg)
+            }
+        },
         onAntVTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.AntV, JSON.stringify({
-                ...ViewBlockType().config,
-                type: AntVConfig()
-            }))
+            if(this.currentType === componentType.AntV) return
+            this.onChange(componentType.AntV, JSON.stringify(AntVConfig()))
         },
-        onStaticTextTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.StaticText, JSON.stringify({
-                ...ViewBlockType().config,
-                type: StaticTextConfig()
-            }))
+        onTextTypeClick() {
+            if(this.currentType === componentType.Text) return
+            this.onChange(componentType.Text, JSON.stringify(TextConfig()))
         },
-        onDynamicTextTypeClick() {
-            this.mixinSetConfigTypeAndConfig(componentType.DynamicText, JSON.stringify({
-                ...ViewBlockType().config,
-                type: AntVConfig()
-            }))
-        }
     }
 }
 </script>

@@ -40,7 +40,7 @@ func (h *sql) Load(ctx context.Context, config string) (interface{}, error) {
 	}
 
 	rows := &entSql.Rows{}
-	if err = (*engine).Query(ctx, mc.Sql, []interface{}{}, rows); err != nil {
+	if err = engine.Query(ctx, mc.Sql, []interface{}{}, rows); err != nil {
 		return EmptyData{}, err
 	}
 
@@ -88,7 +88,11 @@ func (h *sql) Load(ctx context.Context, config string) (interface{}, error) {
 	return result, rows.Err()
 }
 
-type sqlEngineType *entSql.Driver
+type SqlDriver interface {
+	dialect.Driver
+}
+
+type sqlEngineType SqlDriver
 
 //todo: close engine by channel
 var sqlEngine = make(map[int]sqlEngineType, 0)
@@ -139,4 +143,14 @@ func NewEngine(ctx context.Context, id int) (sqlEngineType, error) {
 	sqlEngine[id] = drv
 
 	return drv, nil
+}
+
+func RemoveConnect(id int) error {
+	sqlEngineLock.Lock()
+	defer sqlEngineLock.Unlock()
+	if engine, ok := sqlEngine[id]; ok {
+		_ = engine.Close()
+		delete(sqlEngine, id)
+	}
+	return nil
 }

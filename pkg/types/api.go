@@ -69,7 +69,12 @@ func NewTypeConfig(config *model.TypeConfig) *TypeConfig {
 }
 
 type Enum struct {
-	Label string
-	Value interface{}
+	Label string      `json:"label"`
+	Value interface{} `json:"value"`
 	V     interface{}
+}
+
+type TmpEcho struct {
+	Type   string `json:"type"`
+	Config string `json:"config"`
 }

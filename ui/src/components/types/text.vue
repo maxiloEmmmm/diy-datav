@@ -1,11 +1,11 @@
 <script lang="jsx">
-import {StaticTextConfig, StaticTextConfigParse} from 'type'
+import {TextConfig, TextConfigParse} from 'type'
 export default {
     props: {
         config: {
             type: Object,
             default() {
-                return StaticTextConfig()
+                return TextConfig()
             }
         }
     },
@@ -44,7 +44,7 @@ export default {
     },
     data() {
         return {
-            cfg: StaticTextConfig()
+            cfg: TextConfig()
         }
     },
     watch: {
@@ -59,7 +59,7 @@ export default {
     methods: {
         parse() {
             try {
-                this.cfg = StaticTextConfigParse(this.config)
+                this.cfg = TextConfigParse(this.config)
             }catch(e) {
                 console.log('static text config parse failed', e, this.config)
             }

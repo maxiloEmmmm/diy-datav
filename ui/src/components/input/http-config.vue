@@ -28,7 +28,7 @@ export default {
             .then(response => {
                 this.refs = [
                     {label: '无', value: httpInputConfigDefault.ref()},
-                    ...response.data.data.map(ref => ({value: ref.id, label: ref.title}))
+                    ...response.data.map(ref => ({value: ref.id, label: ref.title}))
                 ]
             })
     },

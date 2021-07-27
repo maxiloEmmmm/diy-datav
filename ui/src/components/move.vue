@@ -2,6 +2,7 @@
 import {Module as HelpModule} from '@/mixins/help'
 import { DragOutlined } from '@ant-design/icons-vue';
 import util from 'pkg/util'
+import {PositionType} from 'type'
 import {
     UpCircleOutlined, DownCircleOutlined, LeftCircleOutlined,
     RightCircleOutlined,
@@ -25,11 +26,7 @@ export default {
         // bar view in body or current move?
         // move must e.stopPropagation
 
-        let bar = this.enable ? <div style="position:absolute; inset: 0;z-index: 2">
-            <RadiusBottomrightOutlined onMousedown={this.onBarDown} style="position:absolute; right: 0; bottom: 0; cursor: pointer"/>
-        </div> : null
-
-        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0; z-index: 3">
+        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0;">
             <UpCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
             <DownCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
             <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
@@ -46,7 +43,6 @@ export default {
             onMouseenter={this.onMouseEnter}
             onMouseleave={this.onMouseLeave}
         >
-            {bar}
             {moveMiniBar}
             {context}
         </div>
@@ -55,6 +51,10 @@ export default {
         enable: {
             type: Boolean, default: false
         },
+        position: {
+            default: () => PositionType(),
+            type: Object
+        }
     },
     data() {
         return {
@@ -75,8 +75,10 @@ export default {
                     }
                 },
                 box: {
-                    width: 10,
-                    height: 10,
+                    left: this.$props.position.left,
+                    top: this.$props.position.top,
+                    width: this.$props.position.width,
+                    height: this.$props.position.height,
                     old: {
                         width: 10,
                         height: 10
@@ -85,7 +87,34 @@ export default {
             }
         }
     },
-    emits: ['mousedown'],
+    watch: {
+        'status.box': {
+            deep: true,
+            handler() {
+                this.$emit('position', {
+                    left: this.status.box.left,
+                    top: this.status.box.top,
+                    width: this.status.box.width,
+                    height: this.status.box.height
+                })
+            }
+        }
+    },
+    created() {
+        this.mixinAddHelp(HelpModule.ViewBlock, [
+            {key: "resize", component() {
+                    return <RadiusBottomrightOutlined twoToneColor="red"/>
+                }, cb: (payload) => {
+                    if(payload.type !== 'mousedown') {
+                        return
+                    }
+
+                    this.onBarDown(payload.e)
+                },
+            }
+        ])
+    },
+    emits: ['mousedown', 'position'],
     methods: {
         onMouseDown(e) {
             e.preventDefault()

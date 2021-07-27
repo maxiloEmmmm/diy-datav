@@ -3,21 +3,21 @@ import util from 'pkg/util'
 import * as inputType from '@/components/input/type'
 import * as typeType from '@/components/types/type'
 import {httpInputConfig} from 'type/input'
-import {StaticTextConfig} from 'type/types'
+import {TextConfig} from 'type/types'
 
 // .config 要存数据库 为json字符串
 // .config.common.input.*.config 要存数据库 为json字符串
 
 export const ViewBLockTypeConfigType = () => {
     try {
-        return StaticTextConfig()
+        return TextConfig()
     }catch (e) {
         console.log("get ViewBLockTypeConfigType err", e)
     }
 }
 
 export const ViewBLockTypeType = () => {
-    return typeType.StaticText
+    return typeType.Text
 }
 
 export const ViewBLockTypeCommonInputItemType = () => {
@@ -34,11 +34,36 @@ export const ViewBLockTypeCommonInputItem = () => {
             config: ViewBLockTypeCommonInputItemConfig(),
             type: ViewBLockTypeCommonInputItemType(),
             title: '',
+            key: ViewBLockTypeCommonInputItemDefault.key(),
             id: ''
         }
     }catch (e) {
         console.log('get ViewBLockTypeCommonInputItem err', e)
     }
+}
+
+export const ViewBLockTypeCommonInputItemFilter = {
+    key(t) {
+        return util.isString(t) && t ? t : ViewBLockTypeCommonInputItemDefault.key()
+    },
+    refresh(t) {
+        return util.isNumber(t) && t > 0 ? t : ViewBLockTypeCommonInputItemDefault.refresh()
+    }
+}
+
+export const ViewBLockTypeCommonInputItemDefault = {
+    key() {
+        return util.uuid('input')
+    },
+    refresh() {
+        return 10
+    }
+}
+
+export const ViewBLockTypeCommonInputItemParse = (t) => {
+    t.key = ViewBLockTypeCommonInputItemFilter.key(t.key)
+    // t.refresh = ViewBLockTypeCommonInputItemFilter.refresh(t.refresh)
+    return t
 }
 
 export const ViewBLockTypeCommon = () => {
@@ -57,10 +82,14 @@ export const ViewBlockType = function() {
         },
         id: '',
         type: ViewBLockTypeType(),
-        config: {
-            common: ViewBLockTypeCommon(),
-            type: ViewBLockTypeConfigType()
-        },
+        config: JSON.stringify(ViewBlockTypeConfig())
+    }
+}
+
+export const ViewBlockTypeConfig = function() {
+    return {
+        common: ViewBLockTypeCommon(),
+        type: ViewBLockTypeConfigType()
     }
 }
 

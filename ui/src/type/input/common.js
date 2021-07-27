@@ -1,3 +1,4 @@
+import util from 'pkg/util'
 export const commonInputConfigFilter = {
 }
 

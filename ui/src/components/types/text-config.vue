@@ -1,8 +1,8 @@
 <script lang="tsx">
 import configMixin from '../config-mixin'
 import {
-    ViewBlockType, StaticTextConfig, StaticTextConfigParse,
-    StaticTextHorizontalAlignOptions, StaticTextVerticalAlignOptions
+    ViewBlockType, TextConfig, TextConfigParse,
+    TextHorizontalAlignOptions, TextVerticalAlignOptions
 } from 'type'
 
 function SizeRange(end, step) {
@@ -23,12 +23,12 @@ export default {
         return {
             cfg: {
                 ...ViewBlockType().config,
-                type: StaticTextConfig()
+                type: TextConfig()
             },
             store: {
                 size: SizeRange(5, 0.04).map(val => ({label: val, value: val})),
-                horizontalAlignOptions: StaticTextHorizontalAlignOptions,
-                verticalAlignOptions: StaticTextVerticalAlignOptions
+                horizontalAlignOptions: TextHorizontalAlignOptions,
+                verticalAlignOptions: TextVerticalAlignOptions
             }
         }
     },
@@ -90,7 +90,7 @@ export default {
         transformConfig() {
             try {
                 const blockCfg = JSON.parse(this.config)
-                blockCfg.type = StaticTextConfigParse(blockCfg.type)
+                blockCfg.type = TextConfigParse(blockCfg.type)
                 this.cfg = blockCfg
             }catch(e) {
                 console.log('static text config parse failed', e, this.config)

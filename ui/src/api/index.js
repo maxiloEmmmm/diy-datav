@@ -14,6 +14,9 @@ export const api = {
     [apiType.ViewInfo](id) {
         return http.get(`view/${id}`)
     },
+    [apiType.ViewList]() {
+        return http.get(`view`)
+    },
     [apiType.ViewStore](view) {
         return http.put('view', view)
     },
@@ -22,6 +25,9 @@ export const api = {
     },
     [apiType.Data](id) {
         return http.get(`data/${id}`)
+    },
+    [apiType.TmpEchoData](config) {
+        return http.post(`data-tmp-echo`, config)
     },
     [apiType.StaticList]() {
         return http.get(`tc/kind/static`)

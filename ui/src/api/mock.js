@@ -1,7 +1,7 @@
 import * as type from './type'
 import mockUtil from 'mockjs'
 import http from 'pkg/http'
-import { ViewType, ViewBlockType, AntVConfig, StaticTextConfig } from 'type'
+import { ViewType, ViewBlockType, AntVConfig, TextConfig } from 'type'
 import util from 'pkg/util'
 import * as componentType from '@/components/types/type.js'
 import * as inputType from '@/components/input/type.js'
@@ -27,9 +27,9 @@ export default function() {
             view.blocks = [block, block2]
 
             block.type = componentType.AntV
-            block2.type = componentType.StaticText
+            block2.type = componentType.Text
 
-            let staticTextConfig = StaticTextConfig()
+            let staticTextConfig = TextConfig()
             staticTextConfig.text = "test"
             block2.config.type = staticTextConfig
             block2.config = JSON.stringify(block2.config)
@@ -54,8 +54,25 @@ export default function() {
                 { year: '1994', value: 0.33 },
             ]}
         }),
+        [apiType.TmpEchoData]: mockReg('data-tmp-echo/[^/]+$', 'post', function(request) {
+            return {code: 'ok', msg: '', data: [
+                    { year: '1991', value: 0.19 },
+                    { year: '1992', value: 0.21 },
+                    { year: '1993', value: 0.27 },
+                    { year: '1994', value: 0.33 },
+                ]}
+        }),
         [type.ViewStore]: mock('view', 'put', function(request) {
             return {code: 'ok', msg: '', data: request.body}
+        }),
+        [type.ViewList]: mockReg('view', 'get', function () {
+            return {code: 'ok', msg: '', data: [ViewType(), ViewType()]}
+        }),
+        [type.ViewGet]: mockReg('view/[^/]+', 'get', function(request) {
+            return {code: 'ok', msg: '', data: ViewType()}
+        }),
+        [type.ViewDelete]: mockReg('view/[^/]+', 'delete', function(request) {
+            return {code: 'ok', msg: '', data: null}
         }),
         [type.ViewUploadBG]: mock('view/bg/upload', 'post', function(request) {
             return {code: 'ok', msg: '', data: request.body}
@@ -76,7 +93,7 @@ export default function() {
                 {label: inputType.Static, value: inputType.Static},
             ]}
         }),
-        [apiType.TCList]: mockReg('tc', 'get', function () {
+        [apiType.TCList]: mockReg('typeconfig', 'get', function () {
             return {code: 'ok', msg: '', data: [
                 {type: inputType.Sql, config: '{"sql": "select * from db"}', id: 1, title: 'db1'},
                 {type: inputType.Http, config: '{"url": "www.baidu.com"}', id: 2, title: 'http1'},

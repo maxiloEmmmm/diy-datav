@@ -42,8 +42,9 @@ export default {
         transformConfig() {
             console.log('impl `transformConfig` function')
         },
-        onChange: util.debounce(function(){
+        onChange: util.debounce(function(data){
             try {
+                this.cfg = data
                 this.change && this.change(JSON.stringify(this.cfg))
             }catch(e) {
                 console.log('config change json parse err', e, this.cfg)

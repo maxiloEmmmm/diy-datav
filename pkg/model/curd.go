@@ -182,35 +182,33 @@ func (c *AssetsApi) Delete(help *contact.GinHelp) {
 }
 
 func (c *AssetsApi) Create(help *contact.GinHelp) {
-	body := &struct {
-		Payload Assets
-	}{}
+	body := &Assets{}
 	help.InValidBind(body)
 
 	pipe := c.Client.Assets.Create()
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldPath] {
-		pipe.SetPath(body.Payload.Path)
+		pipe.SetPath(body.Path)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldExt] {
-		pipe.SetExt(body.Payload.Ext)
+		pipe.SetExt(body.Ext)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[assets.FieldType] {
-		pipe.SetType(body.Payload.Type)
+		pipe.SetType(body.Type)
 	}
 	if !c.SkipCreateAutoEdge {
-		if body.Payload.Edges.View != nil {
-			pipe.AddView(body.Payload.Edges.View...)
+		if body.Edges.View != nil {
+			pipe.AddView(body.Edges.View...)
 		}
 	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+		c.Filter.CreatePipe(help, pipe, body.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+		c.Filter.CreateAfter(help, item, body.Edges)
 	}
 
 	help.Resource(item)
@@ -222,9 +220,7 @@ func (c *AssetsApi) Update(help *contact.GinHelp) {
 	}{}
 	help.InValidBindUri(&uri)
 
-	body := &struct {
-		Payload Assets
-	}{}
+	body := &Assets{}
 
 	item := c.Client.Assets.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -232,26 +228,26 @@ func (c *AssetsApi) Update(help *contact.GinHelp) {
 	} else {
 		pipe := item.Update()
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldPath] {
-			pipe.SetPath(body.Payload.Path)
+			pipe.SetPath(body.Path)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldExt] {
-			pipe.SetExt(body.Payload.Ext)
+			pipe.SetExt(body.Ext)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[assets.FieldType] {
-			pipe.SetType(body.Payload.Type)
+			pipe.SetType(body.Type)
 		}
 		if !c.SkipUpdateAutoEdge {
-			if body.Payload.Edges.View != nil {
-				pipe.AddView(body.Payload.Edges.View...)
+			if body.Edges.View != nil {
+				pipe.AddView(body.Edges.View...)
 			}
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+			c.Filter.UpdatePipe(help, pipe, body.Edges)
 		}
 		item = pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+			c.Filter.UpdateAfter(help, item, body.Edges)
 		}
 	}
 	help.Resource(item)
@@ -326,32 +322,33 @@ func (c *DataSetApi) Delete(help *contact.GinHelp) {
 }
 
 func (c *DataSetApi) Create(help *contact.GinHelp) {
-	body := &struct {
-		Payload DataSet
-	}{}
+	body := &DataSet{}
 	help.InValidBind(body)
 
 	pipe := c.Client.DataSet.Create()
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[dataset.FieldType] {
-		pipe.SetType(body.Payload.Type)
+		pipe.SetType(body.Type)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[dataset.FieldTitle] {
+		pipe.SetTitle(body.Title)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[dataset.FieldConfig] {
-		pipe.SetConfig(body.Payload.Config)
+		pipe.SetConfig(body.Config)
 	}
 	if !c.SkipCreateAutoEdge {
-		if body.Payload.Edges.Block != nil {
-			pipe.SetBlock(body.Payload.Edges.Block)
+		if body.Edges.Block != nil {
+			pipe.SetBlock(body.Edges.Block)
 		}
 	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+		c.Filter.CreatePipe(help, pipe, body.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+		c.Filter.CreateAfter(help, item, body.Edges)
 	}
 
 	help.Resource(item)
@@ -363,9 +360,7 @@ func (c *DataSetApi) Update(help *contact.GinHelp) {
 	}{}
 	help.InValidBindUri(&uri)
 
-	body := &struct {
-		Payload DataSet
-	}{}
+	body := &DataSet{}
 
 	item := c.Client.DataSet.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -373,23 +368,26 @@ func (c *DataSetApi) Update(help *contact.GinHelp) {
 	} else {
 		pipe := item.Update()
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[dataset.FieldType] {
-			pipe.SetType(body.Payload.Type)
+			pipe.SetType(body.Type)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[dataset.FieldTitle] {
+			pipe.SetTitle(body.Title)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[dataset.FieldConfig] {
-			pipe.SetConfig(body.Payload.Config)
+			pipe.SetConfig(body.Config)
 		}
 		if !c.SkipUpdateAutoEdge {
-			if body.Payload.Edges.Block != nil {
-				pipe.SetBlock(body.Payload.Edges.Block)
+			if body.Edges.Block != nil {
+				pipe.SetBlock(body.Edges.Block)
 			}
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+			c.Filter.UpdatePipe(help, pipe, body.Edges)
 		}
 		item = pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+			c.Filter.UpdateAfter(help, item, body.Edges)
 		}
 	}
 	help.Resource(item)
@@ -464,17 +462,18 @@ func (c *TypeConfigApi) Delete(help *contact.GinHelp) {
 }
 
 func (c *TypeConfigApi) Create(help *contact.GinHelp) {
-	body := &struct {
-		Payload TypeConfig
-	}{}
+	body := &TypeConfig{}
 	help.InValidBind(body)
 
 	pipe := c.Client.TypeConfig.Create()
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[typeconfig.FieldType] {
-		pipe.SetType(body.Payload.Type)
+		pipe.SetType(body.Type)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[typeconfig.FieldTitle] {
+		pipe.SetTitle(body.Title)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[typeconfig.FieldConfig] {
-		pipe.SetConfig(body.Payload.Config)
+		pipe.SetConfig(body.Config)
 	}
 
 	if c.Filter.CreatePipe != nil {
@@ -496,9 +495,7 @@ func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 	}{}
 	help.InValidBindUri(&uri)
 
-	body := &struct {
-		Payload TypeConfig
-	}{}
+	body := &TypeConfig{}
 
 	item := c.Client.TypeConfig.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -506,10 +503,13 @@ func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 	} else {
 		pipe := item.Update()
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[typeconfig.FieldType] {
-			pipe.SetType(body.Payload.Type)
+			pipe.SetType(body.Type)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[typeconfig.FieldTitle] {
+			pipe.SetTitle(body.Title)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[typeconfig.FieldConfig] {
-			pipe.SetConfig(body.Payload.Config)
+			pipe.SetConfig(body.Config)
 		}
 
 		if c.Filter.UpdatePipe != nil {
@@ -592,35 +592,33 @@ func (c *ViewApi) Delete(help *contact.GinHelp) {
 }
 
 func (c *ViewApi) Create(help *contact.GinHelp) {
-	body := &struct {
-		Payload View
-	}{}
+	body := &View{}
 	help.InValidBind(body)
 
 	pipe := c.Client.View.Create()
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[view.FieldDesc] {
-		pipe.SetDesc(body.Payload.Desc)
+		pipe.SetDesc(body.Desc)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[view.FieldConfig] {
-		pipe.SetConfig(body.Payload.Config)
+		pipe.SetConfig(body.Config)
 	}
 	if !c.SkipCreateAutoEdge {
-		if body.Payload.Edges.Bg != nil {
-			pipe.SetBg(body.Payload.Edges.Bg)
+		if body.Edges.Bg != nil {
+			pipe.SetBg(body.Edges.Bg)
 		}
-		if body.Payload.Edges.Blocks != nil {
-			pipe.AddBlocks(body.Payload.Edges.Blocks...)
+		if body.Edges.Blocks != nil {
+			pipe.AddBlocks(body.Edges.Blocks...)
 		}
 	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+		c.Filter.CreatePipe(help, pipe, body.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+		c.Filter.CreateAfter(help, item, body.Edges)
 	}
 
 	help.Resource(item)
@@ -632,9 +630,7 @@ func (c *ViewApi) Update(help *contact.GinHelp) {
 	}{}
 	help.InValidBindUri(&uri)
 
-	body := &struct {
-		Payload View
-	}{}
+	body := &View{}
 
 	item := c.Client.View.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -642,26 +638,26 @@ func (c *ViewApi) Update(help *contact.GinHelp) {
 	} else {
 		pipe := item.Update()
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[view.FieldDesc] {
-			pipe.SetDesc(body.Payload.Desc)
+			pipe.SetDesc(body.Desc)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[view.FieldConfig] {
-			pipe.SetConfig(body.Payload.Config)
+			pipe.SetConfig(body.Config)
 		}
 		if !c.SkipUpdateAutoEdge {
-			if body.Payload.Edges.Bg != nil {
-				pipe.SetBg(body.Payload.Edges.Bg)
+			if body.Edges.Bg != nil {
+				pipe.SetBg(body.Edges.Bg)
 			}
-			if body.Payload.Edges.Blocks != nil {
-				pipe.AddBlocks(body.Payload.Edges.Blocks...)
+			if body.Edges.Blocks != nil {
+				pipe.AddBlocks(body.Edges.Blocks...)
 			}
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+			c.Filter.UpdatePipe(help, pipe, body.Edges)
 		}
 		item = pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+			c.Filter.UpdateAfter(help, item, body.Edges)
 		}
 	}
 	help.Resource(item)
@@ -736,35 +732,33 @@ func (c *ViewBlockApi) Delete(help *contact.GinHelp) {
 }
 
 func (c *ViewBlockApi) Create(help *contact.GinHelp) {
-	body := &struct {
-		Payload ViewBlock
-	}{}
+	body := &ViewBlock{}
 	help.InValidBind(body)
 
 	pipe := c.Client.ViewBlock.Create()
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[viewblock.FieldType] {
-		pipe.SetType(body.Payload.Type)
+		pipe.SetType(body.Type)
 	}
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[viewblock.FieldConfig] {
-		pipe.SetConfig(body.Payload.Config)
+		pipe.SetConfig(body.Config)
 	}
 	if !c.SkipCreateAutoEdge {
-		if body.Payload.Edges.View != nil {
-			pipe.SetView(body.Payload.Edges.View)
+		if body.Edges.View != nil {
+			pipe.SetView(body.Edges.View)
 		}
-		if body.Payload.Edges.Dataset != nil {
-			pipe.AddDataset(body.Payload.Edges.Dataset...)
+		if body.Edges.Dataset != nil {
+			pipe.AddDataset(body.Edges.Dataset...)
 		}
 	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe, body.Payload.Edges)
+		c.Filter.CreatePipe(help, pipe, body.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item, body.Payload.Edges)
+		c.Filter.CreateAfter(help, item, body.Edges)
 	}
 
 	help.Resource(item)
@@ -776,9 +770,7 @@ func (c *ViewBlockApi) Update(help *contact.GinHelp) {
 	}{}
 	help.InValidBindUri(&uri)
 
-	body := &struct {
-		Payload ViewBlock
-	}{}
+	body := &ViewBlock{}
 
 	item := c.Client.ViewBlock.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -786,26 +778,26 @@ func (c *ViewBlockApi) Update(help *contact.GinHelp) {
 	} else {
 		pipe := item.Update()
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[viewblock.FieldType] {
-			pipe.SetType(body.Payload.Type)
+			pipe.SetType(body.Type)
 		}
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[viewblock.FieldConfig] {
-			pipe.SetConfig(body.Payload.Config)
+			pipe.SetConfig(body.Config)
 		}
 		if !c.SkipUpdateAutoEdge {
-			if body.Payload.Edges.View != nil {
-				pipe.SetView(body.Payload.Edges.View)
+			if body.Edges.View != nil {
+				pipe.SetView(body.Edges.View)
 			}
-			if body.Payload.Edges.Dataset != nil {
-				pipe.AddDataset(body.Payload.Edges.Dataset...)
+			if body.Edges.Dataset != nil {
+				pipe.AddDataset(body.Edges.Dataset...)
 			}
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Payload.Edges)
+			c.Filter.UpdatePipe(help, pipe, body.Edges)
 		}
 		item = pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Payload.Edges)
+			c.Filter.UpdateAfter(help, item, body.Edges)
 		}
 	}
 	help.Resource(item)

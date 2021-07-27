@@ -45,6 +45,10 @@ export default {
 
             return inputs
         },
+        // data is dirty, so can't use old id to fetch data on block in design model
+        hookDataToTmpEchoModel(index) {
+            this.cfg.input[index].id = ""
+        },
         onChange() {
             try {
                 const config = JSON.parse(this.currentConfigBlockConfig)
@@ -72,7 +76,7 @@ export default {
                             left: () => '刷新时间'
                         }}>
                             <a-input-number formatter={v => `${v}秒`} size="small" vModel={[this.cfg.refresh, 'value']} onChange={this.onChange}/>
-                        </ysz-list-item>,
+                        </ysz-list-item>
                         <more initCount={this.cfg.input.length} onAdd={payload => {
                             this.cfg.input[payload.count] = ViewBLockTypeCommonInputItem()
                             this.onChange()
@@ -87,6 +91,7 @@ export default {
                                 <inputConfigComponent onChange={payload => {
                                     this.cfg.input[index].type = payload.type
                                     this.cfg.input[index].config = payload.config
+                                    this.hookDataToTmpEchoModel(index)
                                     this.onChange()
                                 }} currentType={this.cfg.input[index].type}/>,
                                 {cm ? [
@@ -96,7 +101,10 @@ export default {
                                     }}>
                                         <a-input size="small" vModel={[this.cfg.input[index].title, 'value']} onChange={this.onChange}/>
                                     </ysz-list-item>,
-                                    <cm vModel={[this.cfg.input[index].config, 'config']} onChange={this.onChange}/>
+                                    <cm vModel={[this.cfg.input[index].config, 'config']} onChange={() => {
+                                        this.hookDataToTmpEchoModel(index)
+                                        this.onChange()
+                                    }}/>
                                 ] : null}
                             </div>
                         }}/>

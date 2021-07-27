@@ -7,15 +7,27 @@ import (
 )
 
 func init() {
+	Apis = append(Apis, newApi(http.MethodGet, "tc/example/http", ExampleHttp))
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/static", StaticKind))
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/sql", MysqlKind))
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/http", HttpKind))
 	Apis = append(Apis, newApi(http.MethodGet, "tc/kind", Kind))
-	//Apis = append(Apis, newApi(http.MethodGet, "tc", Static))
-	//Apis = append(Apis, newApi(http.MethodPost, "tc", Static))
-	//Apis = append(Apis, newApi(http.MethodGet, "tc/:id", Static))
-	//Apis = append(Apis, newApi(http.MethodPatch, "tc/:id", Static))
-	//Apis = append(Apis, newApi(http.MethodDelete, "tc/:id", Static))
+}
+
+type exampleHttpItem struct {
+	Year  int `json:"year"`
+	Value int `json:"value"`
+}
+
+func ExampleHttp(c *contact.GinHelp) {
+	c.Resource([]*exampleHttpItem{
+		{Year: 2000, Value: 5},
+		{Year: 2001, Value: 30},
+		{Year: 2002, Value: 10},
+		{Year: 2003, Value: 15},
+		{Year: 2004, Value: 9},
+		{Year: 2005, Value: 31},
+	})
 }
 
 func StaticKind(c *contact.GinHelp) {

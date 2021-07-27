@@ -7,33 +7,34 @@ export default {
     components: {
         move
     },
-    emits: ['mousedown'],
+    emits: ['mousedown', 'config'],
     render(){
         let context = this.$slots.default()
         let moveAttrs = {
             class: ['ext-wrap', ...this.$attrs.class.split(' ')],
         }
 
-        let help = this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help">
+        let help = this.edit && this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help">
             {this.helps.map(help => {
                 const Component = help.component()
                 return <Component
-                    onMousedown={e => e.stopPropagation()}
-                    onClick={e => this.onHelpComponentClick(e, help)}/>
+                    onMousedown={e => this.onHelpComponentClick(e, help, 'mousedown')}
+                    onClick={e => this.onHelpComponentClick(e, help, 'click')}/>
             })}
         </div> : null
 
         return <move
             {...moveAttrs}
             onMousedown={this.onMouseDown}
-            enable={this.app_mixin.focus.in}
+            onPosition={this.onPosition}
+            enable={this.edit && this.app_mixin.focus.in}
         >
             {help}
             <div class="content">{context}</div>
         </move>
     },
     data() {
-        return {}
+        return {cfg: {}}
     },
     computed: {
         ...mapGetters('view', {
@@ -47,21 +48,41 @@ export default {
         }
     },
     props: {
-        blockKey: {type: String}
+        blockKey: {type: String},
+        config: String,
+        edit: {
+            type: Boolean,
+            default: true
+        }
     },
     created() {
         this.mixinInitFocus()
+        // TODO: design model add ctrl+z / ctrl shift z
     },
     methods: {
+        onPosition(position) {
+            try {
+                const config = JSON.parse(this.config)
+                config.common.position = position
+                this.$emit('config', JSON.stringify(config))
+            }catch (e) {
+                console.log('block-wrap onPosition error', e)
+            }
+        },
         onMouseDown(e) {
+            if(!this.edit) {
+                return
+            }
+
             this.mixinDoFocus()
             this.$emit('mousedown', e)
         },
-        onHelpComponentClick(e, help) {
+        onHelpComponentClick(e, help, typ) {
             e.stopPropagation()
             help.cb({
                 e,
-                blockKey: this.blockKey
+                blockKey: this.blockKey,
+                type: typ,
             })
         }
     }
