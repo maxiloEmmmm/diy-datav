@@ -4,6 +4,8 @@ export const ViewList = "ViewList"
 export const ViewGet = "ViewGet"
 export const ViewDelete = "ViewDelete"
 export const ViewUploadBG = 'ViewUploadBG'
+export const ViewBGAssets = 'ViewBGAssets'
+export const AssetsTypeList = 'AssetsTypeList'
 
 export const Data = 'Data'
 export const TmpEchoData = 'TmpEchoData'

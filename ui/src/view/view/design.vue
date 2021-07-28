@@ -18,10 +18,23 @@ export default {
             {this.isDesign ?
                 [
                     <a-button onClick={this.newBlock}>添加块</a-button>,
-                    <a-button onClick={this.save}>保存</a-button>
+                    <a-button onClick={() => this.saveModal = true}>保存</a-button>
                 ] : null}
             <a-button>全屏</a-button>
         </div>
+
+        let preSaveModal = this.isDesign ? <a-modal vModel={[this.saveModal, 'visible']} title="保存" onOk={this.save}>
+            <ysz-list-item v-slots={{
+                left: () => '描述'
+            }}>
+                <a-textarea vModel={[this.view.desc, 'value']}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '背景'
+            }}>
+                <bg-pick vModel={[this.view.bgAssetsId, 'value']}/>
+            </ysz-list-item>
+        </a-modal> : null
 
         // TODO: 考虑要不要加个预览在配置旁边
         // let configView = this.configShow ? <div id='config-view'>
@@ -40,11 +53,13 @@ export default {
             {blocks}
 
             {configBar}
+            {preSaveModal}
         </div>
     },
     data() {
         return {
             view: ViewType(),
+            saveModal: false,
             bg: {
                 w: 1,
                 h: 1,
@@ -215,18 +230,15 @@ export default {
             }
         },
         save() {
-            this.$confirm({
-                title: '描述',
-                content: <a-textarea vModel={this.view.desc}/>,
-                onOk() {
-                    this.$api[this.$apiType.ViewStore](this.view)
-                        .then(response => {
-                            this.$message.info(response.data.code)
-                        })
-                },
-                onCancel() {},
-            })
+            if(this.view.bgAssetsId === 0) {
+                this.$message.info('背景必选')
+                return
+            }
 
+            this.$api[this.$apiType.ViewStore](this.view)
+                .then(response => {
+                    this.$message.info(response.data.code)
+                })
         }
     }
 }

@@ -46,6 +46,12 @@ export default function() {
             block.config = JSON.stringify(block.config)
             return {code: 'ok', msg: '', data: view}
         }),
+        [apiType.ViewBGAssets]: mock('view-bg-assets', 'get', function(request) {
+            return {code: 'ok', msg: '', data: []}
+        }),
+        [apiType.AssetsTypeList]: mock('assets-type-assets', 'get', function(request) {
+            return {code: 'ok', msg: '', data: []}
+        }),
         [apiType.Data]: mockReg('data/[^/]+$', 'get', function(request) {
             return {code: 'ok', msg: '', data: [
                 { year: '1991', value: 0.19 },

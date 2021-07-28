@@ -39,6 +39,6 @@ func main() {
 			_ = dataset.RemoveConnect(item.ID)
 		}
 	}
-	curd.Route("/", apiGroup, []string{model.TypeTypeConfig})
+	curd.Route("/", apiGroup, []string{model.TypeTypeConfig, model.TypeAssets})
 	engine.Run(":8000")
 }

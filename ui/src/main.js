@@ -29,7 +29,8 @@ app.use(createRouter({
         {path: '/view/show/:id', component: () => import('./view/view/design.vue'), meta: {model: designModel.View}},
         {path: '/test/antv', component: () => import('./view/test/antv.vue')},
         {path: '/sys/tc', component: () => import('./view/sys/tc.vue')},
-        {path: '/sys/view', component: () => import('./view/sys/view.vue')}
+        {path: '/sys/view', component: () => import('./view/sys/view.vue')},
+        {path: '/sys/assets', component: () => import('./view/sys/assets.vue')}
     ]
 }))
 

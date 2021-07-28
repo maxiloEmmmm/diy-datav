@@ -3,17 +3,17 @@ package types
 import "github.com/maxiloEmmmm/diy-datav/pkg/model"
 
 type View struct {
-	Id         int
-	Desc       string
-	Config     string
-	BgAssetsID int
-	Blocks     []*ViewBlock
+	Id         int          `json:"id"`
+	Desc       string       `json:"desc"`
+	Config     string       `json:"config"`
+	BgAssetsID int          `json:"bgAssetsID"`
+	Blocks     []*ViewBlock `json:"blocks"`
 }
 
 type ViewBlock struct {
-	Id     int
-	Type   string
-	Config string
+	Id     int    `json:"id"`
+	Type   string `json:"type"`
+	Config string `json:"config"`
 }
 
 type ViewBlockConfig struct {

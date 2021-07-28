@@ -80,7 +80,7 @@ export const ViewBlockType = function() {
         getKey() {
             return blockKey
         },
-        id: '',
+        id: 0,
         type: ViewBLockTypeType(),
         config: JSON.stringify(ViewBlockTypeConfig())
     }
@@ -95,10 +95,10 @@ export const ViewBlockTypeConfig = function() {
 
 export const ViewType = function() {
     return {
-        id: '',
+        id: 0,
         desc: '',
         config: '',
-        bgAssetsId: '',
+        bgAssetsId: 0,
         blocks: [],
         newBlock() {
             return ViewBlockType()

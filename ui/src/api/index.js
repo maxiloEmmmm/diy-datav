@@ -20,8 +20,14 @@ export const api = {
     [apiType.ViewStore](view) {
         return http.put('view', view)
     },
-    [apiType.ViewUploadBG](file) {
-        return http.post('view/bg/upload')
+    [apiType.ViewUploadBG](type, file) {
+        return http.post(`view/bg/upload?type=${type}`, file, {'Content-Type': 'multipart/form-data'})
+    },
+    [apiType.ViewBGAssets]() {
+        return http.get('view-bg-assets')
+    },
+    [apiType.AssetsTypeList]() {
+        return http.get('assets-type-assets')
     },
     [apiType.Data](id) {
         return http.get(`data/${id}`)

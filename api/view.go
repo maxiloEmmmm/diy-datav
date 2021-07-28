@@ -21,6 +21,7 @@ func init() {
 		newApi(http.MethodGet, "view", ViewList),
 		newApi(http.MethodDelete, "view/:id", ViewDelete),
 		newApi(http.MethodPost, "view/bg/upload", ViewUploadBg),
+		newApi(http.MethodGet, "view-bg-assets", ViewBgAssets),
 		newApi(http.MethodGet, "view/:id/bg", ViewBg),
 	)
 }
@@ -37,11 +38,12 @@ func ViewList(c *contact.GinHelp) {
 
 func ViewGet(c *contact.GinHelp) {
 	uri := &struct {
-		Id int `json:"id"`
+		Id int `uri:"id"`
 	}{}
 	c.InValidBindUri(uri)
 
-	c.Resource(app.Db.View.Query().Where(view.ID(uri.Id)).FirstX(c.AppContext))
+	// TODO: make view struct
+	c.Resource(app.Db.View.Query().WithBg().Where(view.ID(uri.Id)).FirstX(c.AppContext))
 }
 
 func ViewDelete(c *contact.GinHelp) {
@@ -69,8 +71,12 @@ func ViewStore(c *contact.GinHelp) {
 	c.Resource(view)
 }
 
+func ViewBgAssets(c *contact.GinHelp) {
+	c.Resource(app.Db.Assets.Query().AllX(c.AppContext))
+}
+
 func ViewUploadBg(c *contact.GinHelp) {
-	fileHeader, err := c.FormFile("bg")
+	fileHeader, err := c.FormFile("file")
 	c.AssetsInValid("form.file", err)
 
 	bgUpload := &types.UploadRequest{}
@@ -88,7 +94,7 @@ func ViewUploadBg(c *contact.GinHelp) {
 
 func ViewBg(c *contact.GinHelp) {
 	view := &types.BgRequest{}
-	c.InValidBind(view)
+	c.InValidBindUri(view)
 
 	err := service.NewViewService(c.AppContext).WebDownloadBG(view.Id, c.Writer, c.Request)
 	if err != nil {
