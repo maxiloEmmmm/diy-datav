@@ -2,7 +2,7 @@
 import {mapState} from "vuex";
 import configComponent from '@/components/types/config.js'
 import inputComponent from '@/components/input/config.js'
-import {ViewBLockTypeCommon, ViewBLockTypeCommonInputItem} from 'type'
+import {ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault} from 'type'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import inputConfigComponent from '@/components/input/type-config.vue'
 export default {
@@ -47,7 +47,7 @@ export default {
         },
         // data is dirty, so can't use old id to fetch data on block in design model
         hookDataToTmpEchoModel(index) {
-            this.cfg.input[index].id = ""
+            this.cfg.input[index].id = ViewBLockTypeCommonInputItemDefault.id()
         },
         onChange() {
             try {

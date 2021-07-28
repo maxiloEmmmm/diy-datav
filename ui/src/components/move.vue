@@ -1,6 +1,5 @@
 <script lang="tsx">
 import {Module as HelpModule} from '@/mixins/help'
-import { DragOutlined } from '@ant-design/icons-vue';
 import util from 'pkg/util'
 import {PositionType} from 'type'
 import {
@@ -51,6 +50,8 @@ export default {
         enable: {
             type: Boolean, default: false
         },
+        // don't need to watch position change
+        // just use once on init
         position: {
             default: () => PositionType(),
             type: Object
@@ -90,14 +91,14 @@ export default {
     watch: {
         'status.box': {
             deep: true,
-            handler() {
+            handler: util.debounce(function() {
                 this.$emit('position', {
                     left: this.status.box.left,
                     top: this.status.box.top,
                     width: this.status.box.width,
                     height: this.status.box.height
                 })
-            }
+            }, 100)
         }
     },
     created() {
@@ -134,8 +135,8 @@ export default {
                 x = x < 0 ? 0 : (x > document.body.clientWidth ? document.body.clientWidth : x)
                 y = y < 0 ? 0 : (y > document.body.clientHeight ? document.body.clientHeight : y)
 
-                this.status.box.left = `${(x / document.body.clientWidth).toFixed(3) * 100}`
-                this.status.box.top = `${(y / document.body.clientHeight).toFixed(3) * 100}`
+                this.status.box.left = parseFloat((x / document.body.clientWidth).toFixed(3)) * 100
+                this.status.box.top = parseFloat((y / document.body.clientHeight).toFixed(3)) * 100
                 this.status.mouse.move = true
             }
 
@@ -172,8 +173,8 @@ export default {
                 let maxHeight = document.body.clientHeight - this.status.mouse.oldPosition.domTop
                 height = height < 0 ? 0 : (height > maxHeight ? maxHeight : height)
 
-                this.status.box.width = `${(width / document.body.clientWidth).toFixed(3) * 100}`
-                this.status.box.height = `${(height / document.body.clientHeight).toFixed(3) * 100}`
+                this.status.box.width = parseFloat((width / document.body.clientWidth).toFixed(3)) * 100
+                this.status.box.height = parseFloat((height / document.body.clientHeight).toFixed(3)) * 100
                 this.status.barMouse.move = true
                 this.mixinDispatchWindowResize()
             }

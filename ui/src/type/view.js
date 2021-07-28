@@ -35,7 +35,7 @@ export const ViewBLockTypeCommonInputItem = () => {
             type: ViewBLockTypeCommonInputItemType(),
             title: '',
             key: ViewBLockTypeCommonInputItemDefault.key(),
-            id: ''
+            id: ViewBLockTypeCommonInputItemDefault.id()
         }
     }catch (e) {
         console.log('get ViewBLockTypeCommonInputItem err', e)
@@ -57,6 +57,9 @@ export const ViewBLockTypeCommonInputItemDefault = {
     },
     refresh() {
         return 10
+    },
+    id() {
+        return 0
     }
 }
 
@@ -98,7 +101,7 @@ export const ViewType = function() {
         id: 0,
         desc: '',
         config: '',
-        bgAssetsId: 0,
+        bgAssetsID: 0,
         blocks: [],
         newBlock() {
             return ViewBlockType()

@@ -48,7 +48,7 @@ func (v *ViewService) Upload(typ string, reader io.Reader, ext string) (*types.U
 	assertId := 0
 	err = app.WithTx(v.Context, func(tx *model.Tx) error {
 		// TODO: fill path
-		path, err = uploadUtil.Upload("", reader)
+		path, err = uploadUtil.Upload("assets", reader)
 		if err != nil {
 			return err
 		}

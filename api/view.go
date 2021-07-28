@@ -42,13 +42,29 @@ func ViewGet(c *contact.GinHelp) {
 	}{}
 	c.InValidBindUri(uri)
 
-	// TODO: make view struct
-	c.Resource(app.Db.View.Query().WithBg().Where(view.ID(uri.Id)).FirstX(c.AppContext))
+	v, err := app.Db.View.Query().WithBg().WithBlocks().Where(view.ID(uri.Id)).First(c.AppContext)
+	c.AssetsInValid("get", err)
+
+	vd := &types.View{}
+	vd.Id = v.ID
+	vd.BgAssetsID = v.Edges.Bg.ID
+	vd.Desc = v.Desc
+	vd.Blocks = make([]*types.ViewBlock, 0, len(v.Edges.Blocks))
+	for _, block := range v.Edges.Blocks {
+		// TODO: view model remove input config
+		vd.Blocks = append(vd.Blocks, &types.ViewBlock{
+			Id:     block.ID,
+			Type:   block.Type,
+			Config: block.Config,
+		})
+	}
+
+	c.Resource(vd)
 }
 
 func ViewDelete(c *contact.GinHelp) {
 	uri := &struct {
-		Id int `json:"id"`
+		Id int `uri:"id"`
 	}{}
 	c.InValidBindUri(uri)
 

@@ -13,7 +13,7 @@ export default {
                 <view-block type={block.type} config={block.config} />
             </block-wrap>
         })
-        let bg = this.bg.url ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
+        let bg = this._has_bg ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
         let util = <div id='diy-data-view_util'>
             {this.isDesign ?
                 [
@@ -32,7 +32,7 @@ export default {
             <ysz-list-item v-slots={{
                 left: () => '背景'
             }}>
-                <bg-pick vModel={[this.view.bgAssetsId, 'value']}/>
+                <bg-pick vModel={[this.view.bgAssetsID, 'value']}/>
             </ysz-list-item>
         </a-modal> : null
 
@@ -93,9 +93,15 @@ export default {
         _bg_style() {
             return {
                 // TODO: bg.url empty load loading
-                backgroundImage: `url(${bgAssetsDev})`,
+                backgroundImage: `url(${this._bg_url})`,
                 backgroundSize: '100% 100%'
             }
+        },
+        _bg_url() {
+            return this._has_bg ? `${this.$api_url}/assets-file/${this.view.bgAssetsID}` : bgAssetsDev
+        },
+        _has_bg() {
+            return !!this.view.bgAssetsID
         },
         dragBlockID() {
             return this.$store.state.view.dragBlockId
@@ -161,12 +167,11 @@ export default {
 
                         try {
                             // await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.id}/bg`)
-                            this.bg.url = `${this.$api_url}/view/${response.data.data.id}/bg`
 
                             this.view = {
                                 ...ViewType(),
-                                ...response.data.data,
-                                blocks: response.data.data.blocks.map(block => {
+                                ...response.data,
+                                blocks: response.data.blocks.map(block => {
                                     return {
                                         ...ViewBlockType(),
                                         ...block,
@@ -230,7 +235,7 @@ export default {
             }
         },
         save() {
-            if(this.view.bgAssetsId === 0) {
+            if(this.view.bgAssetsID === 0) {
                 this.$message.info('背景必选')
                 return
             }

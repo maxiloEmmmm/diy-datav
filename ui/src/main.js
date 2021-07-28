@@ -30,6 +30,7 @@ app.use(createRouter({
         {path: '/test/antv', component: () => import('./view/test/antv.vue')},
         {path: '/sys/tc', component: () => import('./view/sys/tc.vue')},
         {path: '/sys/view', component: () => import('./view/sys/view.vue')},
+        {path: '/', component: () => import('./view/sys/view.vue')},
         {path: '/sys/assets', component: () => import('./view/sys/assets.vue')}
     ]
 }))

@@ -2,6 +2,7 @@
 import move from './move.vue'
 import {mapGetters} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
+import {ViewBlockTypeConfig} from 'type'
 export default {
     name: 'block-wrap',
     components: {
@@ -28,13 +29,14 @@ export default {
             onMousedown={this.onMouseDown}
             onPosition={this.onPosition}
             enable={this.edit && this.app_mixin.focus.in}
+            position={this.cfg.common.position}
         >
             {help}
             <div class="content">{context}</div>
         </move>
     },
     data() {
-        return {cfg: {}}
+        return {cfg: ViewBlockTypeConfig()}
     },
     computed: {
         ...mapGetters('view', {
@@ -45,6 +47,12 @@ export default {
         },
         helps() {
             return this.appHelp[HelpModule.ViewBlock] || []
+        }
+    },
+    watch: {
+        config: {
+            immediate: true,
+            handler: 'transformTypeConfig'
         }
     },
     props: {
@@ -60,6 +68,9 @@ export default {
         // TODO: design model add ctrl+z / ctrl shift z
     },
     methods: {
+        transformTypeConfig() {
+            this.cfg = JSON.parse(this.config)
+        },
         onPosition(position) {
             try {
                 const config = JSON.parse(this.config)

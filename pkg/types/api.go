@@ -17,28 +17,28 @@ type ViewBlock struct {
 }
 
 type ViewBlockConfig struct {
-	Type   interface{}
-	Common ViewBlockCommonConfig
+	Type   interface{}           `json:"type"`
+	Common ViewBlockCommonConfig `json:"common"`
 }
 
 type ViewBlockCommonConfig struct {
-	Input    []*DataSet
-	Refresh  float64
-	Position *CommonPosition
+	Input    []*DataSet      `json:"input"`
+	Refresh  float64         `json:"refresh"`
+	Position *CommonPosition `json:"position"`
 }
 
 type CommonPosition struct {
-	Left   string
-	Top    string
-	Right  string
-	Bottom string
+	Left   float64 `json:"left"`
+	Top    float64 `json:"top"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
 }
 
 type DataSet struct {
-	Id     int
-	Type   string
-	Config string
-	Title  string
+	Id     int    `json:"id"`
+	Type   string `json:"type"`
+	Config string `json:"config"`
+	Title  string `json:"title"`
 }
 
 type UploadResource struct {

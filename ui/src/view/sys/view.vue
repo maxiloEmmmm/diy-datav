@@ -1,4 +1,5 @@
 <script lang="jsx">
+import util from 'pkg/util'
 export default {
     render() {
         return <tool-curd
@@ -7,6 +8,7 @@ export default {
             fetch-url="view"
             onView={this.onView}
             onDesign={this.onDesign}
+            onNew={this.onNew}
         />
     },
     data() {
@@ -21,16 +23,20 @@ export default {
             models: [
                 {title: '阅览', type: 'api', api: 'event', key: 'view'},
                 {title: '设计', type: 'api', api: 'event', key: 'design'},
-                {title: '删除', hide: '*', xhr: {method: 'delete'}}
+                {title: '删除', hide: '*', xhr: {method: 'delete'}},
+                {title: '新建', type: 'api', api: 'event', key: 'new', dispatchArea: 'topBar'}
             ]
         }
     },
     methods: {
-        onDesign() {
-            console.log(...arguments)
+        onDesign({item}) {
+            util.newPage(`/view/design/${item.id}`)
         },
-        onView() {
-            console.log(...arguments)
+        onView({item}) {
+            util.newPage(`/view/show/${item.id}`)
+        },
+        onNew() {
+            util.newPage(`/view/design`)
         }
     }
 }

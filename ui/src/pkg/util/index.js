@@ -170,6 +170,10 @@ const merge = function(dst, src) {
     return dst
 }
 
+const newPage = (hash) => {
+    window.open(`${window.location.origin}${window.location.pathname}${window.location.search}#${hash}`)
+}
+
 const util = {
     uuid,
     debounce,
@@ -183,7 +187,8 @@ const util = {
     isBoolean,
     isNumber,
     deepClone,
-    merge
+    merge,
+    newPage
 }
 
 export default {
