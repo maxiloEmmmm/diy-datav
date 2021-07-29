@@ -15,6 +15,9 @@ type DataSet func(*sql.Selector)
 // TypeConfig is the predicate function for typeconfig builders.
 type TypeConfig func(*sql.Selector)
 
+// User is the predicate function for user builders.
+type User func(*sql.Selector)
+
 // View is the predicate function for view builders.
 type View func(*sql.Selector)
 

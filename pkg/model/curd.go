@@ -10,6 +10,7 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 	go_tool "github.com/maxiloEmmmm/go-tool"
@@ -76,6 +77,7 @@ type CurdBuilder struct {
 		Assets     *AssetsApi
 		DataSet    *DataSetApi
 		TypeConfig *TypeConfigApi
+		User       *UserApi
 		View       *ViewApi
 		ViewBlock  *ViewBlockApi
 	}
@@ -86,6 +88,7 @@ func NewCurdBuilder(client *Client) *CurdBuilder {
 	cb.Apis.Assets = NewAssetsApi(client, nil)
 	cb.Apis.DataSet = NewDataSetApi(client, nil)
 	cb.Apis.TypeConfig = NewTypeConfigApi(client, nil)
+	cb.Apis.User = NewUserApi(client, nil)
 	cb.Apis.View = NewViewApi(client, nil)
 	cb.Apis.ViewBlock = NewViewBlockApi(client, nil)
 	return cb
@@ -106,6 +109,9 @@ func (cb *CurdBuilder) Route(prefix string, r gin.IRouter, pick []string) *gin.R
 	}
 	if !hasPick || go_tool.InArray(pick, TypeTypeConfig) {
 		cb.Group(g, "typeconfig", cb.Apis.TypeConfig)
+	}
+	if !hasPick || go_tool.InArray(pick, TypeUser) {
+		cb.Group(g, "user", cb.Apis.User)
 	}
 	if !hasPick || go_tool.InArray(pick, TypeView) {
 		cb.Group(g, "view", cb.Apis.View)
@@ -136,12 +142,13 @@ type AssetsApi struct {
 type AssetsApiFilter struct {
 	CreatePipe   func(help *contact.GinHelp, createPipe *AssetsCreate, edges AssetsEdges)
 	CreateAfter  func(help *contact.GinHelp, item *Assets, edges AssetsEdges)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *AssetsUpdateOne, edges AssetsEdges)
-	UpdateAfter  func(help *contact.GinHelp, item *Assets, edges AssetsEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *Assets, updatePipe *AssetsUpdateOne, edges AssetsEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *Assets, item *Assets, edges AssetsEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *AssetsQuery)
 	ListData     func(help *contact.GinHelp, items []*Assets) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *Assets)
 	GetPipe      func(help *contact.GinHelp, getPipe *AssetsQuery)
+	GetData      func(help *contact.GinHelp, item *Assets) *Assets
 }
 
 func NewAssetsApi(client *Client, opt *ApiOption) *AssetsApi {
@@ -221,6 +228,7 @@ func (c *AssetsApi) Update(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	body := &Assets{}
+	help.InValidBind(body)
 
 	item := c.Client.Assets.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -243,12 +251,14 @@ func (c *AssetsApi) Update(help *contact.GinHelp) {
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Edges)
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
 		}
-		item = pipe.SaveX(help.AppContext)
+		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Edges)
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
 		}
+
+		item = currentItem
 	}
 	help.Resource(item)
 }
@@ -263,7 +273,13 @@ func (c *AssetsApi) Get(help *contact.GinHelp) {
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}
-	help.Resource(pipe.FirstX(help.AppContext))
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
 }
 
 type DataSetApi struct {
@@ -276,12 +292,13 @@ type DataSetApi struct {
 type DataSetApiFilter struct {
 	CreatePipe   func(help *contact.GinHelp, createPipe *DataSetCreate, edges DataSetEdges)
 	CreateAfter  func(help *contact.GinHelp, item *DataSet, edges DataSetEdges)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *DataSetUpdateOne, edges DataSetEdges)
-	UpdateAfter  func(help *contact.GinHelp, item *DataSet, edges DataSetEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *DataSet, updatePipe *DataSetUpdateOne, edges DataSetEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *DataSet, item *DataSet, edges DataSetEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *DataSetQuery)
 	ListData     func(help *contact.GinHelp, items []*DataSet) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *DataSet)
 	GetPipe      func(help *contact.GinHelp, getPipe *DataSetQuery)
+	GetData      func(help *contact.GinHelp, item *DataSet) *DataSet
 }
 
 func NewDataSetApi(client *Client, opt *ApiOption) *DataSetApi {
@@ -361,6 +378,7 @@ func (c *DataSetApi) Update(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	body := &DataSet{}
+	help.InValidBind(body)
 
 	item := c.Client.DataSet.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -383,12 +401,14 @@ func (c *DataSetApi) Update(help *contact.GinHelp) {
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Edges)
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
 		}
-		item = pipe.SaveX(help.AppContext)
+		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Edges)
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
 		}
+
+		item = currentItem
 	}
 	help.Resource(item)
 }
@@ -403,7 +423,13 @@ func (c *DataSetApi) Get(help *contact.GinHelp) {
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}
-	help.Resource(pipe.FirstX(help.AppContext))
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
 }
 
 type TypeConfigApi struct {
@@ -416,12 +442,13 @@ type TypeConfigApi struct {
 type TypeConfigApiFilter struct {
 	CreatePipe   func(help *contact.GinHelp, createPipe *TypeConfigCreate)
 	CreateAfter  func(help *contact.GinHelp, item *TypeConfig)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *TypeConfigUpdateOne)
-	UpdateAfter  func(help *contact.GinHelp, item *TypeConfig)
+	UpdatePipe   func(help *contact.GinHelp, old *TypeConfig, updatePipe *TypeConfigUpdateOne)
+	UpdateAfter  func(help *contact.GinHelp, old *TypeConfig, item *TypeConfig)
 	ListPipe     func(help *contact.GinHelp, listPipe *TypeConfigQuery)
 	ListData     func(help *contact.GinHelp, items []*TypeConfig) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *TypeConfig)
 	GetPipe      func(help *contact.GinHelp, getPipe *TypeConfigQuery)
+	GetData      func(help *contact.GinHelp, item *TypeConfig) *TypeConfig
 }
 
 func NewTypeConfigApi(client *Client, opt *ApiOption) *TypeConfigApi {
@@ -496,6 +523,7 @@ func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	body := &TypeConfig{}
+	help.InValidBind(body)
 
 	item := c.Client.TypeConfig.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -513,12 +541,14 @@ func (c *TypeConfigApi) Update(help *contact.GinHelp) {
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe)
+			c.Filter.UpdatePipe(help, item, pipe)
 		}
-		item = pipe.SaveX(help.AppContext)
+		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item)
+			c.Filter.UpdateAfter(help, item, currentItem)
 		}
+
+		item = currentItem
 	}
 	help.Resource(item)
 }
@@ -533,7 +563,153 @@ func (c *TypeConfigApi) Get(help *contact.GinHelp) {
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}
-	help.Resource(pipe.FirstX(help.AppContext))
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
+}
+
+type UserApi struct {
+	*Api
+	Filter             UserApiFilter
+	SkipCreateAutoEdge bool
+	SkipUpdateAutoEdge bool
+}
+
+type UserApiFilter struct {
+	CreatePipe   func(help *contact.GinHelp, createPipe *UserCreate)
+	CreateAfter  func(help *contact.GinHelp, item *User)
+	UpdatePipe   func(help *contact.GinHelp, old *User, updatePipe *UserUpdateOne)
+	UpdateAfter  func(help *contact.GinHelp, old *User, item *User)
+	ListPipe     func(help *contact.GinHelp, listPipe *UserQuery)
+	ListData     func(help *contact.GinHelp, items []*User) interface{}
+	DeleteBefore func(help *contact.GinHelp, item *User)
+	GetPipe      func(help *contact.GinHelp, getPipe *UserQuery)
+	GetData      func(help *contact.GinHelp, item *User) *User
+}
+
+func NewUserApi(client *Client, opt *ApiOption) *UserApi {
+	return &UserApi{Api: newApi(client, opt)}
+}
+
+func (c *UserApi) List(help *contact.GinHelp) {
+	help.ResourcePage(func(start int, size int) (interface{}, int) {
+		pipe := c.Client.User.Query()
+		if c.Filter.ListPipe != nil {
+			c.Filter.ListPipe(help, pipe)
+		}
+		clonePipe := pipe.Clone()
+
+		pipe = pipe.Offset(start).Limit(size)
+		items := pipe.AllX(help.AppContext)
+
+		var data interface{} = items
+		if c.Filter.ListData != nil {
+			data = c.Filter.ListData(help, items)
+		}
+		return data, clonePipe.CountX(help.AppContext)
+	})
+}
+
+func (c *UserApi) Delete(help *contact.GinHelp) {
+	uri := &struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(uri)
+
+	item := c.Client.User.GetX(help.AppContext, uri.Id)
+	if c.Filter.DeleteBefore != nil {
+		c.Filter.DeleteBefore(help, item)
+	}
+	c.Client.User.DeleteOne(item).ExecX(help.AppContext)
+	help.ResourceDelete()
+}
+
+func (c *UserApi) Create(help *contact.GinHelp) {
+	body := &User{}
+	help.InValidBind(body)
+
+	pipe := c.Client.User.Create()
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[user.FieldUsername] {
+		pipe.SetUsername(body.Username)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[user.FieldPassword] {
+		pipe.SetPassword(body.Password)
+	}
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[user.FieldEnable] {
+		pipe.SetEnable(body.Enable)
+	}
+
+	if c.Filter.CreatePipe != nil {
+		c.Filter.CreatePipe(help, pipe)
+	}
+
+	item := pipe.SaveX(help.AppContext)
+
+	if c.Filter.CreateAfter != nil {
+		c.Filter.CreateAfter(help, item)
+	}
+
+	help.Resource(item)
+}
+
+func (c *UserApi) Update(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	body := &User{}
+	help.InValidBind(body)
+
+	item := c.Client.User.GetX(help.AppContext, uri.Id)
+	if item == nil {
+		help.InValid("resource", "not found")
+	} else {
+		pipe := item.Update()
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[user.FieldUsername] {
+			pipe.SetUsername(body.Username)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[user.FieldPassword] {
+			pipe.SetPassword(body.Password)
+		}
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[user.FieldEnable] {
+			pipe.SetEnable(body.Enable)
+		}
+
+		if c.Filter.UpdatePipe != nil {
+			c.Filter.UpdatePipe(help, item, pipe)
+		}
+		currentItem := pipe.SaveX(help.AppContext)
+		if c.Filter.UpdateAfter != nil {
+			c.Filter.UpdateAfter(help, item, currentItem)
+		}
+
+		item = currentItem
+	}
+	help.Resource(item)
+}
+
+func (c *UserApi) Get(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	pipe := c.Client.User.Query().Where(user.ID(uri.Id))
+	if c.Filter.GetPipe != nil {
+		c.Filter.GetPipe(help, pipe)
+	}
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
 }
 
 type ViewApi struct {
@@ -546,12 +722,13 @@ type ViewApi struct {
 type ViewApiFilter struct {
 	CreatePipe   func(help *contact.GinHelp, createPipe *ViewCreate, edges ViewEdges)
 	CreateAfter  func(help *contact.GinHelp, item *View, edges ViewEdges)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *ViewUpdateOne, edges ViewEdges)
-	UpdateAfter  func(help *contact.GinHelp, item *View, edges ViewEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *View, updatePipe *ViewUpdateOne, edges ViewEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *View, item *View, edges ViewEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *ViewQuery)
 	ListData     func(help *contact.GinHelp, items []*View) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *View)
 	GetPipe      func(help *contact.GinHelp, getPipe *ViewQuery)
+	GetData      func(help *contact.GinHelp, item *View) *View
 }
 
 func NewViewApi(client *Client, opt *ApiOption) *ViewApi {
@@ -631,6 +808,7 @@ func (c *ViewApi) Update(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	body := &View{}
+	help.InValidBind(body)
 
 	item := c.Client.View.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -653,12 +831,14 @@ func (c *ViewApi) Update(help *contact.GinHelp) {
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Edges)
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
 		}
-		item = pipe.SaveX(help.AppContext)
+		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Edges)
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
 		}
+
+		item = currentItem
 	}
 	help.Resource(item)
 }
@@ -673,7 +853,13 @@ func (c *ViewApi) Get(help *contact.GinHelp) {
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}
-	help.Resource(pipe.FirstX(help.AppContext))
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
 }
 
 type ViewBlockApi struct {
@@ -686,12 +872,13 @@ type ViewBlockApi struct {
 type ViewBlockApiFilter struct {
 	CreatePipe   func(help *contact.GinHelp, createPipe *ViewBlockCreate, edges ViewBlockEdges)
 	CreateAfter  func(help *contact.GinHelp, item *ViewBlock, edges ViewBlockEdges)
-	UpdatePipe   func(help *contact.GinHelp, updatePipe *ViewBlockUpdateOne, edges ViewBlockEdges)
-	UpdateAfter  func(help *contact.GinHelp, item *ViewBlock, edges ViewBlockEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *ViewBlock, updatePipe *ViewBlockUpdateOne, edges ViewBlockEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *ViewBlock, item *ViewBlock, edges ViewBlockEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *ViewBlockQuery)
 	ListData     func(help *contact.GinHelp, items []*ViewBlock) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *ViewBlock)
 	GetPipe      func(help *contact.GinHelp, getPipe *ViewBlockQuery)
+	GetData      func(help *contact.GinHelp, item *ViewBlock) *ViewBlock
 }
 
 func NewViewBlockApi(client *Client, opt *ApiOption) *ViewBlockApi {
@@ -771,6 +958,7 @@ func (c *ViewBlockApi) Update(help *contact.GinHelp) {
 	help.InValidBindUri(&uri)
 
 	body := &ViewBlock{}
+	help.InValidBind(body)
 
 	item := c.Client.ViewBlock.GetX(help.AppContext, uri.Id)
 	if item == nil {
@@ -793,12 +981,14 @@ func (c *ViewBlockApi) Update(help *contact.GinHelp) {
 		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, pipe, body.Edges)
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
 		}
-		item = pipe.SaveX(help.AppContext)
+		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, body.Edges)
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
 		}
+
+		item = currentItem
 	}
 	help.Resource(item)
 }
@@ -813,5 +1003,11 @@ func (c *ViewBlockApi) Get(help *contact.GinHelp) {
 	if c.Filter.GetPipe != nil {
 		c.Filter.GetPipe(help, pipe)
 	}
-	help.Resource(pipe.FirstX(help.AppContext))
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
 }

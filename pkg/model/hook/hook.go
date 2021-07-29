@@ -48,6 +48,19 @@ func (f TypeConfigFunc) Mutate(ctx context.Context, m model.Mutation) (model.Val
 	return f(ctx, mv)
 }
 
+// The UserFunc type is an adapter to allow the use of ordinary
+// function as User mutator.
+type UserFunc func(context.Context, *model.UserMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.UserMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.UserMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The ViewFunc type is an adapter to allow the use of ordinary
 // function as View mutator.
 type ViewFunc func(context.Context, *model.ViewMutation) (model.Value, error)

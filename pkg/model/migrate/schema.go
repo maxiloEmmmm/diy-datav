@@ -58,6 +58,20 @@ var (
 		PrimaryKey:  []*schema.Column{TypeConfigsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
 	}
+	// UsersColumns holds the columns for the "users" table.
+	UsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "username", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "password", Type: field.TypeString, Size: 255},
+		{Name: "enable", Type: field.TypeInt8},
+	}
+	// UsersTable holds the schema information for the "users" table.
+	UsersTable = &schema.Table{
+		Name:        "users",
+		Columns:     UsersColumns,
+		PrimaryKey:  []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// ViewsColumns holds the columns for the "views" table.
 	ViewsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -105,6 +119,7 @@ var (
 		AssetsTable,
 		DataSetsTable,
 		TypeConfigsTable,
+		UsersTable,
 		ViewsTable,
 		ViewBlocksTable,
 	}
