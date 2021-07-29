@@ -35,6 +35,19 @@ func (f DataSetFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value,
 	return f(ctx, mv)
 }
 
+// The MenuFunc type is an adapter to allow the use of ordinary
+// function as Menu mutator.
+type MenuFunc func(context.Context, *model.MenuMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MenuFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.MenuMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.MenuMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The TypeConfigFunc type is an adapter to allow the use of ordinary
 // function as TypeConfig mutator.
 type TypeConfigFunc func(context.Context, *model.TypeConfigMutation) (model.Value, error)
@@ -44,6 +57,19 @@ func (f TypeConfigFunc) Mutate(ctx context.Context, m model.Mutation) (model.Val
 	mv, ok := m.(*model.TypeConfigMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.TypeConfigMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The UserFunc type is an adapter to allow the use of ordinary
+// function as User mutator.
+type UserFunc func(context.Context, *model.UserMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.UserMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.UserMutation", m)
 	}
 	return f(ctx, mv)
 }

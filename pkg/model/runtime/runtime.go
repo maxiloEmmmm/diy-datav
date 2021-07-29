@@ -5,6 +5,6 @@ package runtime
 // The schema-stitching logic is generated in github.com/maxiloEmmmm/diy-datav/pkg/model/runtime.go
 
 const (
-	Version = "v0.0.19-beta19"                                  // Version of ent codegen.
-	Sum     = "h1:K5F0ybfBc78ethrYxtO+6LLI36zhuFodKCdo9fDZL7k=" // Sum of ent codegen.
+	Version = "v0.0.19-beta27"                                  // Version of ent codegen.
+	Sum     = "h1:dtfMV0FvE/FaGmN+wAn2FvTzNOj5qIBlfSUU13pDFx8=" // Sum of ent codegen.
 )

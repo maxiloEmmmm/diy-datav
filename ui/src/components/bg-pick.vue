@@ -13,7 +13,7 @@ export default {
                         <no-scroll style="width:400px;height: 200px">
                             <ysz-list row group={4}>
                                 {this.bgs.map(bg => <div
-                                    style={`width:180px; height: 180px; background-size: 100% 100%;background-image:url(${this.$api_url}/assets-file/${bg.id})`}
+                                    style={`width:180px; height: 180px; background-size: 100% 100%;background-image:url(${this.$api_url}/assets-file/${bg.id}?token=${this.$store.state.auth.token})`}
                                     onClick={() => this.onClick(bg)}
                                     className={`bg-pick ${bg.id === this.value ? "active" : ""}`}/>)}
                             </ysz-list>

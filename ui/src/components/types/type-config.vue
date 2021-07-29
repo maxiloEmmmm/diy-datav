@@ -34,11 +34,11 @@ export default {
         },
         onAntVTypeClick() {
             if(this.currentType === componentType.AntV) return
-            this.onChange(componentType.AntV, JSON.stringify(AntVConfig()))
+            this.onChange(componentType.AntV, AntVConfig())
         },
         onTextTypeClick() {
             if(this.currentType === componentType.Text) return
-            this.onChange(componentType.Text, JSON.stringify(TextConfig()))
+            this.onChange(componentType.Text, TextConfig())
         },
     }
 }

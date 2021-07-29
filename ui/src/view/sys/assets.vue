@@ -87,6 +87,7 @@ export default {
                 this.loading = false
                 this.$message.success("ok~")
                 this.$refs.curd.refresh()
+                this.inUpload = false
             })
             return false
         }

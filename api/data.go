@@ -8,9 +8,9 @@ import (
 )
 
 func init() {
-	Apis = append(Apis, newApi(http.MethodGet, "data/:id", Data))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "data/:id", Data))
 	//data-tmp-echo
-	Apis = append(Apis, newApi(http.MethodPost, "data-tmp-echo", TmpEchoData))
+	Apis = append(Apis, newAuthApi(http.MethodPost, "data-tmp-echo", TmpEchoData))
 }
 
 func Data(c *contact.GinHelp) {

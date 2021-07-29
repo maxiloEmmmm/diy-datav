@@ -18,14 +18,14 @@ export default {
                 top: `${this.status.box.top}%`,
                 height: `${this.status.box.height}%`,
                 width: `${this.status.box.width}%`,
-                border: '1px red dashed'
+                border: this.edit ? '1px red dashed' : 'unset'
             }
         }
 
         // bar view in body or current move?
         // move must e.stopPropagation
 
-        let moveMiniBar = this.enable ? <div style="position:absolute; inset: 0;">
+        let moveMiniBar = this.edit && this.enable ? <div style="position:absolute; inset: 0;">
             <UpCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
             <DownCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
             <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
@@ -47,7 +47,11 @@ export default {
         </div>
     },
     props: {
+        blockKey: {type: String},
         enable: {
+            type: Boolean, default: false
+        },
+        edit: {
             type: Boolean, default: false
         },
         // don't need to watch position change
@@ -103,7 +107,7 @@ export default {
     },
     created() {
         this.mixinAddHelp(HelpModule.ViewBlock, [
-            {key: "resize", component() {
+            {key: `resize-${this.blockKey}`, component() {
                     return <RadiusBottomrightOutlined twoToneColor="red"/>
                 }, cb: (payload) => {
                     if(payload.type !== 'mousedown') {

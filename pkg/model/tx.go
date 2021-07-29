@@ -16,8 +16,12 @@ type Tx struct {
 	Assets *AssetsClient
 	// DataSet is the client for interacting with the DataSet builders.
 	DataSet *DataSetClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
 	// TypeConfig is the client for interacting with the TypeConfig builders.
 	TypeConfig *TypeConfigClient
+	// User is the client for interacting with the User builders.
+	User *UserClient
 	// View is the client for interacting with the View builders.
 	View *ViewClient
 	// ViewBlock is the client for interacting with the ViewBlock builders.
@@ -159,7 +163,9 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Assets = NewAssetsClient(tx.config)
 	tx.DataSet = NewDataSetClient(tx.config)
+	tx.Menu = NewMenuClient(tx.config)
 	tx.TypeConfig = NewTypeConfigClient(tx.config)
+	tx.User = NewUserClient(tx.config)
 	tx.View = NewViewClient(tx.config)
 	tx.ViewBlock = NewViewBlockClient(tx.config)
 }

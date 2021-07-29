@@ -79,6 +79,9 @@ const mutations = {
     loadData(state, payload = {input: {key: String}, refresh: 10, cb: Function}) {
         state.dataSet[payload.input.key] = payload
     },
+    clearLoadData(state) {
+        state.dataSet = {}
+    },
     addClock(state) {
         if (state.clock === clockStop) {
             return
@@ -104,8 +107,13 @@ const mutations = {
 let fetchHandler = null
 
 // TODO: support view config engine, websocket or xhr
-let fetchEngine = api[apiType.Data]
-let fetchTmpEchoEngine = api[apiType.TmpEchoData]
+let fetchEngine = null
+
+export const SetFetchEngine = t => fetchEngine = t
+
+let fetchTmpEchoEngine = null
+
+export const SetFetchTmpEchoEngine = t => fetchTmpEchoEngine = t
 
 const actions = {
     addFocusItem({state}, cb) {

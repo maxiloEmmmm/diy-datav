@@ -1,10 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
+	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
 	"github.com/maxiloEmmmm/diy-datav/pkg/service"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
 	"github.com/maxiloEmmmm/go-web/contact"
@@ -16,13 +19,13 @@ import (
 
 func init() {
 	Apis = append(Apis,
-		newApi(http.MethodPut, "view", ViewStore),
-		newApi(http.MethodGet, "view/:id", ViewGet),
-		newApi(http.MethodGet, "view", ViewList),
-		newApi(http.MethodDelete, "view/:id", ViewDelete),
-		newApi(http.MethodPost, "view/bg/upload", ViewUploadBg),
-		newApi(http.MethodGet, "view-bg-assets", ViewBgAssets),
-		newApi(http.MethodGet, "view/:id/bg", ViewBg),
+		newAuthApi(http.MethodPut, "view", ViewStore),
+		newAuthApi(http.MethodGet, "view/:id", ViewGet),
+		newAuthApi(http.MethodGet, "view", ViewList),
+		newAuthApi(http.MethodDelete, "view/:id", ViewDelete),
+		newAuthApi(http.MethodPost, "view/bg/upload", ViewUploadBg),
+		newAuthApi(http.MethodGet, "view-bg-assets", ViewBgAssets),
+		newAuthApi(http.MethodGet, "view/:id/bg", ViewBg),
 	)
 }
 
@@ -42,24 +45,62 @@ func ViewGet(c *contact.GinHelp) {
 	}{}
 	c.InValidBindUri(uri)
 
+	query := &struct {
+		Type string `form:"type"`
+	}{}
+	c.InValidBindQuery(query)
+
+	isFull := query.Type == "full"
+
 	v, err := app.Db.View.Query().WithBg().WithBlocks().Where(view.ID(uri.Id)).First(c.AppContext)
 	c.AssetsInValid("get", err)
 
+	if !permission.Pass(app.User(c), &permission.PRView{v}, permission.GetInfoAction) {
+		c.InValid("403", "")
+	}
+
+	vd, err := NewView(v, isFull)
+	c.AssetsInValid("new", err)
+
+	c.Resource(vd)
+}
+
+func NewView(v *model.View, isFull bool) (*types.View, error) {
 	vd := &types.View{}
 	vd.Id = v.ID
 	vd.BgAssetsID = v.Edges.Bg.ID
 	vd.Desc = v.Desc
 	vd.Blocks = make([]*types.ViewBlock, 0, len(v.Edges.Blocks))
 	for _, block := range v.Edges.Blocks {
-		// TODO: view model remove input config
-		vd.Blocks = append(vd.Blocks, &types.ViewBlock{
+		b := &types.ViewBlock{
 			Id:     block.ID,
 			Type:   block.Type,
 			Config: block.Config,
-		})
+		}
+
+		if !isFull {
+			vbci := &types.ViewBlockConfig{}
+			err := json.Unmarshal([]byte(b.Config), vbci)
+			if err != nil {
+				return nil, err
+			}
+			for _, input := range vbci.Common.Input {
+				input = &types.DataSet{
+					Id: input.Id,
+				}
+			}
+
+			res, err := json.Marshal(vbci)
+			if err != nil {
+				return nil, err
+			}
+			b.Config = string(res)
+		}
+
+		vd.Blocks = append(vd.Blocks, b)
 	}
 
-	c.Resource(vd)
+	return vd, nil
 }
 
 func ViewDelete(c *contact.GinHelp) {
@@ -81,10 +122,10 @@ func ViewStore(c *contact.GinHelp) {
 	view := &types.View{}
 	c.InValidBind(view)
 
-	view, err := service.NewViewService(c.AppContext).Store(view)
+	v, err := service.NewViewService(c.AppContext).Store(view)
 	c.AssetsInValid("store", err)
 
-	c.Resource(view)
+	c.Resource(v)
 }
 
 func ViewBgAssets(c *contact.GinHelp) {

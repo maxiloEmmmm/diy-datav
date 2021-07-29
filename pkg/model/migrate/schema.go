@@ -44,6 +44,29 @@ var (
 			},
 		},
 	}
+	// MenusColumns holds the columns for the "menus" table.
+	MenusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "menu_children", Type: field.TypeInt, Nullable: true},
+	}
+	// MenusTable holds the schema information for the "menus" table.
+	MenusTable = &schema.Table{
+		Name:       "menus",
+		Columns:    MenusColumns,
+		PrimaryKey: []*schema.Column{MenusColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menus_menus_children",
+				Columns:    []*schema.Column{MenusColumns[5]},
+				RefColumns: []*schema.Column{MenusColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// TypeConfigsColumns holds the columns for the "type_configs" table.
 	TypeConfigsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -56,6 +79,20 @@ var (
 		Name:        "type_configs",
 		Columns:     TypeConfigsColumns,
 		PrimaryKey:  []*schema.Column{TypeConfigsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
+	// UsersColumns holds the columns for the "users" table.
+	UsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "username", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "password", Type: field.TypeString, Size: 255},
+		{Name: "enable", Type: field.TypeInt8},
+	}
+	// UsersTable holds the schema information for the "users" table.
+	UsersTable = &schema.Table{
+		Name:        "users",
+		Columns:     UsersColumns,
+		PrimaryKey:  []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// ViewsColumns holds the columns for the "views" table.
@@ -104,7 +141,9 @@ var (
 	Tables = []*schema.Table{
 		AssetsTable,
 		DataSetsTable,
+		MenusTable,
 		TypeConfigsTable,
+		UsersTable,
 		ViewsTable,
 		ViewBlocksTable,
 	}
@@ -112,6 +151,7 @@ var (
 
 func init() {
 	DataSetsTable.ForeignKeys[0].RefTable = ViewBlocksTable
+	MenusTable.ForeignKeys[0].RefTable = MenusTable
 	ViewsTable.ForeignKeys[0].RefTable = AssetsTable
 	ViewBlocksTable.ForeignKeys[0].RefTable = ViewsTable
 }

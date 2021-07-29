@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	Apis = append(Apis, newApi(http.MethodGet, "assets-type-assets", AssetsType))
-	Apis = append(Apis, newApi(http.MethodGet, "assets-file/:id", AssetsFile))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "assets-type-assets", AssetsType))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "assets-file/:id", AssetsFile))
 }
 
 func AssetsType(c *contact.GinHelp) {

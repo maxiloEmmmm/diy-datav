@@ -78,3 +78,26 @@ type TmpEcho struct {
 	Type   string `json:"type"`
 	Config string `json:"config"`
 }
+
+type Permission struct {
+	Add    []string `json:"add"`
+	Remove []string `json:"remove"`
+}
+
+type MenuPermission struct {
+	Id    string             `json:"id"`
+	Url   string             `json:"url"`
+	Title string             `json:"title"`
+	Eft   bool               `json:"eft"`
+	Edges MenuPermissionEdge `json:"edges"`
+}
+
+type MenuPermissionEdge struct {
+	Children []*MenuPermission `json:"children"`
+}
+
+type ViewPermission struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	Eft   bool   `json:"eft"`
+}

@@ -11,7 +11,9 @@ import (
 
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/menu"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 
@@ -29,8 +31,12 @@ type Client struct {
 	Assets *AssetsClient
 	// DataSet is the client for interacting with the DataSet builders.
 	DataSet *DataSetClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
 	// TypeConfig is the client for interacting with the TypeConfig builders.
 	TypeConfig *TypeConfigClient
+	// User is the client for interacting with the User builders.
+	User *UserClient
 	// View is the client for interacting with the View builders.
 	View *ViewClient
 	// ViewBlock is the client for interacting with the ViewBlock builders.
@@ -50,7 +56,9 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Assets = NewAssetsClient(c.config)
 	c.DataSet = NewDataSetClient(c.config)
+	c.Menu = NewMenuClient(c.config)
 	c.TypeConfig = NewTypeConfigClient(c.config)
+	c.User = NewUserClient(c.config)
 	c.View = NewViewClient(c.config)
 	c.ViewBlock = NewViewBlockClient(c.config)
 }
@@ -88,7 +96,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:     cfg,
 		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
+		Menu:       NewMenuClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
+		User:       NewUserClient(cfg),
 		View:       NewViewClient(cfg),
 		ViewBlock:  NewViewBlockClient(cfg),
 	}, nil
@@ -111,7 +121,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:     cfg,
 		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
+		Menu:       NewMenuClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
+		User:       NewUserClient(cfg),
 		View:       NewViewClient(cfg),
 		ViewBlock:  NewViewBlockClient(cfg),
 	}, nil
@@ -145,7 +157,9 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Assets.Use(hooks...)
 	c.DataSet.Use(hooks...)
+	c.Menu.Use(hooks...)
 	c.TypeConfig.Use(hooks...)
+	c.User.Use(hooks...)
 	c.View.Use(hooks...)
 	c.ViewBlock.Use(hooks...)
 }
@@ -362,6 +376,128 @@ func (c *DataSetClient) Hooks() []Hook {
 	return c.hooks.DataSet
 }
 
+// MenuClient is a client for the Menu schema.
+type MenuClient struct {
+	config
+}
+
+// NewMenuClient returns a client for the Menu from the given config.
+func NewMenuClient(c config) *MenuClient {
+	return &MenuClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menu.Hooks(f(g(h())))`.
+func (c *MenuClient) Use(hooks ...Hook) {
+	c.hooks.Menu = append(c.hooks.Menu, hooks...)
+}
+
+// Create returns a create builder for Menu.
+func (c *MenuClient) Create() *MenuCreate {
+	mutation := newMenuMutation(c.config, OpCreate)
+	return &MenuCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Menu entities.
+func (c *MenuClient) CreateBulk(builders ...*MenuCreate) *MenuCreateBulk {
+	return &MenuCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Menu.
+func (c *MenuClient) Update() *MenuUpdate {
+	mutation := newMenuMutation(c.config, OpUpdate)
+	return &MenuUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuClient) UpdateOne(m *Menu) *MenuUpdateOne {
+	mutation := newMenuMutation(c.config, OpUpdateOne, withMenu(m))
+	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuClient) UpdateOneID(id int) *MenuUpdateOne {
+	mutation := newMenuMutation(c.config, OpUpdateOne, withMenuID(id))
+	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Menu.
+func (c *MenuClient) Delete() *MenuDelete {
+	mutation := newMenuMutation(c.config, OpDelete)
+	return &MenuDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *MenuClient) DeleteOne(m *Menu) *MenuDeleteOne {
+	return c.DeleteOneID(m.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *MenuClient) DeleteOneID(id int) *MenuDeleteOne {
+	builder := c.Delete().Where(menu.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuDeleteOne{builder}
+}
+
+// Query returns a query builder for Menu.
+func (c *MenuClient) Query() *MenuQuery {
+	return &MenuQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Menu entity by its id.
+func (c *MenuClient) Get(ctx context.Context, id int) (*Menu, error) {
+	return c.Query().Where(menu.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuClient) GetX(ctx context.Context, id int) *Menu {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryParent queries the parent edge of a Menu.
+func (c *MenuClient) QueryParent(m *Menu) *MenuQuery {
+	query := &MenuQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menu.Table, menu.FieldID, id),
+			sqlgraph.To(menu.Table, menu.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menu.ParentTable, menu.ParentColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChildren queries the children edge of a Menu.
+func (c *MenuClient) QueryChildren(m *Menu) *MenuQuery {
+	query := &MenuQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menu.Table, menu.FieldID, id),
+			sqlgraph.To(menu.Table, menu.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menu.ChildrenTable, menu.ChildrenColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuClient) Hooks() []Hook {
+	return c.hooks.Menu
+}
+
 // TypeConfigClient is a client for the TypeConfig schema.
 type TypeConfigClient struct {
 	config
@@ -450,6 +586,96 @@ func (c *TypeConfigClient) GetX(ctx context.Context, id int) *TypeConfig {
 // Hooks returns the client hooks.
 func (c *TypeConfigClient) Hooks() []Hook {
 	return c.hooks.TypeConfig
+}
+
+// UserClient is a client for the User schema.
+type UserClient struct {
+	config
+}
+
+// NewUserClient returns a client for the User from the given config.
+func NewUserClient(c config) *UserClient {
+	return &UserClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `user.Hooks(f(g(h())))`.
+func (c *UserClient) Use(hooks ...Hook) {
+	c.hooks.User = append(c.hooks.User, hooks...)
+}
+
+// Create returns a create builder for User.
+func (c *UserClient) Create() *UserCreate {
+	mutation := newUserMutation(c.config, OpCreate)
+	return &UserCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of User entities.
+func (c *UserClient) CreateBulk(builders ...*UserCreate) *UserCreateBulk {
+	return &UserCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for User.
+func (c *UserClient) Update() *UserUpdate {
+	mutation := newUserMutation(c.config, OpUpdate)
+	return &UserUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
+	mutation := newUserMutation(c.config, OpUpdateOne, withUser(u))
+	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
+	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for User.
+func (c *UserClient) Delete() *UserDelete {
+	mutation := newUserMutation(c.config, OpDelete)
+	return &UserDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
+	return c.DeleteOneID(u.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+	builder := c.Delete().Where(user.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserDeleteOne{builder}
+}
+
+// Query returns a query builder for User.
+func (c *UserClient) Query() *UserQuery {
+	return &UserQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a User entity by its id.
+func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+	return c.Query().Where(user.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserClient) GetX(ctx context.Context, id int) *User {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UserClient) Hooks() []Hook {
+	return c.hooks.User
 }
 
 // ViewClient is a client for the View schema.

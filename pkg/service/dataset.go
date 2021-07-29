@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
 	datasetUtil "github.com/maxiloEmmmm/diy-datav/pkg/dataset"
+	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
 )
 
@@ -24,6 +26,11 @@ func (d *DataSetService) Load(sdId int) (interface{}, error) {
 	dataset, err := app.Db.DataSet.Get(d.Context, sdId)
 	if err != nil {
 		return nil, err
+	}
+
+	view := dataset.QueryBlock().QueryView().FirstX(d.Context)
+	if !permission.Pass(app.User(d.Context), &permission.PRView{view}, permission.GetInfoAction) {
+		return nil, errors.New("403")
 	}
 
 	datasetEngine, err := datasetUtil.NewDataSet(dataset.Type)

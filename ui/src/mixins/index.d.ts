@@ -1,7 +1,7 @@
 import { ComponentCustomProperties } from 'vue'
 
 interface Help {
-    // 唯一标识, typ内唯一
+    // 组标识, typ内唯一
     key: string
     // 图标
     component?()

@@ -98,7 +98,7 @@ export default {
             }
         },
         _bg_url() {
-            return this._has_bg ? `${this.$api_url}/assets-file/${this.view.bgAssetsID}` : bgAssetsDev
+            return this._has_bg ? `${this.$api_url}/assets-file/${this.view.bgAssetsID}?token=${this.$store.state.auth.token}` : bgAssetsDev
         },
         _has_bg() {
             return !!this.view.bgAssetsID
@@ -159,7 +159,7 @@ export default {
         },
         fetch() {
             if(this.id) {
-                this.$api[this.$apiType.ViewInfo](this.id)
+                this.$api[this.$apiType.ViewInfo](this.id, this.isDesign ? 'full' : 'show')
                     .then(async response => {
                         // store radio
                         // e = cb/ad
@@ -168,16 +168,7 @@ export default {
                         try {
                             // await this.loadBGRadio(`${this.$api_url}/view/${response.data.data.id}/bg`)
 
-                            this.view = {
-                                ...ViewType(),
-                                ...response.data,
-                                blocks: response.data.blocks.map(block => {
-                                    return {
-                                        ...ViewBlockType(),
-                                        ...block,
-                                    }
-                                })
-                            }
+                            this.mergeView(response.data)
                         }catch (e) {
                             // load bg failed or dispatch err
                             console.log('design init err', e)
@@ -187,6 +178,18 @@ export default {
                 this.view = ViewType()
             }
             this.$store.dispatch('view/fetchData')
+        },
+        mergeView(data) {
+            this.view = {
+                ...ViewType(),
+                ...data,
+                blocks: data.blocks.map(block => {
+                    return {
+                        ...ViewBlockType(),
+                        ...block,
+                    }
+                })
+            }
         },
         newBlock() {
             this.view.newBlockAndStore()
@@ -242,8 +245,11 @@ export default {
 
             this.$api[this.$apiType.ViewStore](this.view)
                 .then(response => {
-                    this.$message.info(response.data.code)
+                    this.$store.commit("view/clearLoadData")
+                    this.mergeView(response.data)
+                    this.$message.info("ok")
                 })
+            this.saveModal = false
         }
     }
 }

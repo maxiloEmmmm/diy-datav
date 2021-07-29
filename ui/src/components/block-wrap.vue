@@ -13,6 +13,7 @@ export default {
         let context = this.$slots.default()
         let moveAttrs = {
             class: ['ext-wrap', ...this.$attrs.class.split(' ')],
+            blockKey: this.blockKey
         }
 
         let help = this.edit && this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help">
@@ -28,7 +29,8 @@ export default {
             {...moveAttrs}
             onMousedown={this.onMouseDown}
             onPosition={this.onPosition}
-            enable={this.edit && this.app_mixin.focus.in}
+            enable={this.app_mixin.focus.in}
+            edit={this.edit}
             position={this.cfg.common.position}
         >
             {help}
@@ -46,7 +48,7 @@ export default {
             return this.helps.length > 0
         },
         helps() {
-            return this.appHelp[HelpModule.ViewBlock] || []
+            return this.appHelp[HelpModule.ViewBlock].filter(help => !help.key.startsWith("resize-") || help.key === `resize-${this.blockKey}`) || []
         }
     },
     watch: {

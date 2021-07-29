@@ -1,44 +1,50 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	appApi "github.com/maxiloEmmmm/diy-datav/api"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
-	"github.com/maxiloEmmmm/diy-datav/pkg/dataset"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model"
-	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
+	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
 	"github.com/maxiloEmmmm/go-web/contact"
 )
 
 func main() {
-	contact.InitLog()
+	ctx := context.Background()
 
-	defer app.Db.Close()
+	app.Init(ctx)
+	defer app.Close()
 
 	engine := gin.Default()
 	engine.Use(contact.GinCors())
 
 	apiGroup := engine.Group("/api")
 
+	auth := apiGroup.Group("")
+	auth.Use(contact.GinRouteAuth())
+	auth.Use()
+	auth.Use(contact.GinCasbin(contact.GinCasbinOption{
+		Sub: func(c *gin.Context) string {
+			return app.User(c)
+		},
+		Obj: func(context *gin.Context) string {
+			return (&permission.PRRouter{Path: context.Request.URL.Path}).Key()
+		},
+		Act: func(context *gin.Context) string {
+			return context.Request.Method
+		},
+	}))
+
 	for _, api := range appApi.Apis {
-		api.Handle(apiGroup)
+		if api.ShouldAuth() {
+			api.Handle(auth)
+		} else {
+			api.Handle(apiGroup)
+		}
 	}
 
-	curd := model.NewCurdBuilder(app.Db)
-	curd.Apis.TypeConfig.Filter.ListPipe = func(help *contact.GinHelp, listPipe *model.TypeConfigQuery) {
-		if val, exist := help.GetQuery("type"); exist && val != "" {
-			listPipe.Where(typeconfig.Type(val))
-		}
+	app.Engine = engine
+	app.InitPermission(ctx, engine)
 
-		if val, exist := help.GetQuery("title"); exist && val != "" {
-			listPipe.Where(typeconfig.TitleContains(val))
-		}
-	}
-	curd.Apis.TypeConfig.Filter.UpdateAfter = func(help *contact.GinHelp, item *model.TypeConfig) {
-		if item.Type == dataset.Sql {
-			_ = dataset.RemoveConnect(item.ID)
-		}
-	}
-	curd.Route("/", apiGroup, []string{model.TypeTypeConfig, model.TypeAssets})
 	engine.Run(":8000")
 }

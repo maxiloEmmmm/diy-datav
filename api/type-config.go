@@ -8,10 +8,10 @@ import (
 
 func init() {
 	Apis = append(Apis, newApi(http.MethodGet, "tc/example/http", ExampleHttp))
-	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/static", StaticKind))
-	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/sql", MysqlKind))
-	Apis = append(Apis, newApi(http.MethodGet, "tc/kind/http", HttpKind))
-	Apis = append(Apis, newApi(http.MethodGet, "tc/kind", Kind))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "tc/kind/static", StaticKind))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "tc/kind/sql", MysqlKind))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "tc/kind/http", HttpKind))
+	Apis = append(Apis, newAuthApi(http.MethodGet, "tc/kind", Kind))
 }
 
 type exampleHttpItem struct {

@@ -1,0 +1,7 @@
+db:
+  type: sqlite3
+  source: file:./ent.db?cache=shared&mode=rwc&_fk=1
+permission:
+  admin: admin
+  password: 123123
+  role: role_admin

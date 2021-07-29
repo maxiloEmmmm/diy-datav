@@ -8,7 +8,8 @@ import colorPick from './color-pick.vue'
 import configBar from './config-bar.vue'
 import antdTool from 'pkg/antd-tool'
 import bgPick from './bg-pick.vue'
-
+import permission from './permission.vue'
+import roleUser from './role_user.vue'
 export default {
     install(app) {
         app.use(antdTool)
@@ -20,5 +21,7 @@ export default {
         app.component(colorPick.name, colorPick)
         app.component(configBar.name, configBar)
         app.component(bgPick.name, bgPick)
+        app.component(permission.name, permission)
+        app.component(roleUser.name, roleUser)
     }
 }

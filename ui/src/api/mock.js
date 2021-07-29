@@ -105,5 +105,8 @@ export default function() {
                 {type: inputType.Http, config: '{"url": "www.baidu.com"}', id: 2, title: 'http1'},
             ]}
         }),
+        [apiType.AuthLogin]: mock('auth/login', function() {
+            return {code: 'ok', msg: '', data: {token: 'token'}}
+        })
     }
 }

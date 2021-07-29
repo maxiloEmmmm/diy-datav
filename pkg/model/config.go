@@ -26,7 +26,9 @@ type config struct {
 type hooks struct {
 	Assets     []ent.Hook
 	DataSet    []ent.Hook
+	Menu       []ent.Hook
 	TypeConfig []ent.Hook
+	User       []ent.Hook
 	View       []ent.Hook
 	ViewBlock  []ent.Hook
 }
