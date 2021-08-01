@@ -204,7 +204,7 @@ export const AntVConfigFilter = {
     },
     dataIndex(t) {
         let index = parseInt(t)
-        if(index < 0) {
+        if(!util.isNumber(index) || index < -1) {
             return AntVConfigDefault.dataIndex()
         }
         return index

@@ -115,7 +115,7 @@ const typeEQ = function (o, o2) {
 const isObject = o => getType(o) === 'Object'
 const isArray = o => getType(o) === 'Array'
 const isString = o => getType(o) === 'String'
-const isNumber = o => getType(o) === 'Number'
+const isNumber = o => getType(o) === 'Number' && !isNaN(o)
 const isBoolean = o => getType(o) === 'Boolean'
 const get = function (obj, path, d = null) {
     let value = has(obj, path, true)

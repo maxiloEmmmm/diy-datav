@@ -17,7 +17,9 @@ function SizeRange(end, step) {
     return rs
 }
 
+import inputChoose from './input-choose.vue'
 export default {
+    components: {inputChoose},
     mixins: [configMixin],
     data() {
         return {
@@ -83,6 +85,16 @@ export default {
                 left: () => '大小'
             }}>
                 <a-select style="width:200px" options={this.store.size} size="small" vModel={[this.cfg.type.size, 'value']} onChange={this.onChange}/>
+            </ysz-list-item>
+            <ysz-list-item v-slots={{
+                left: () => '动态数据'
+            }}>
+                <inputChoose inputs={this.cfg.common.input}
+                             value={this.cfg.type.dataIndex}
+                             onChange={value => {
+                                 this.cfg.type.dataIndex = value
+                                 this.onChange()
+                             }} />
             </ysz-list-item>
         </div>
     },

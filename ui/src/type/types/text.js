@@ -1,4 +1,5 @@
 import util from 'pkg/util'
+import {AntVConfigDefault} from "./antv";
 
 export const TextVerticalAlignOptions = [
     {label: '默认', value: 'stretch'},
@@ -14,7 +15,6 @@ export const TextHorizontalAlignOptions = [
     {label: '均匀', value: 'space-between'},
     {label: '均匀(两边留白)', value: 'space-around'},
 ]
-
 export const TextConfigFilter = {
     text: t => util.isString(t) ? t : TextConfigDefault.text(),
     align(t) {
@@ -53,7 +53,14 @@ export const TextConfigFilter = {
     },
     size(t) {
         return util.isNumber(t) ? t : TextConfigDefault.size()
-    }
+    },
+    dataIndex(t) {
+        let index = parseInt(t)
+        if(!util.isNumber(index) || index < -1) {
+            return TextConfigDefault.dataIndex()
+        }
+        return index
+    },
 }
 
 export const TextConfigDefault = {
@@ -90,7 +97,10 @@ export const TextConfigDefault = {
     },
     size() {
         return 1
-    }
+    },
+    dataIndex() {
+        return -1
+    },
 }
 
 export const TextConfigParse = (config) => {
@@ -104,6 +114,7 @@ export const TextConfigParse = (config) => {
     cfg.sub = TextConfigFilter.sub(config.sub)
     cfg.color = TextConfigFilter.color(config.color)
     cfg.size = TextConfigFilter.size(config.size)
+    cfg.dataIndex = TextConfigFilter.dataIndex(config.dataIndex)
     return cfg
 }
 
@@ -118,5 +129,6 @@ export const TextConfig = function(){
         sub: TextConfigDefault.sub(),
         color: TextConfigDefault.color(),
         size: TextConfigDefault.size(),
+        dataIndex: TextConfigDefault.dataIndex()
     }
 }

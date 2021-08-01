@@ -1,5 +1,6 @@
 <script lang="jsx">
 import {TextConfig, TextConfigParse} from 'type'
+import util from 'pkg/util'
 export default {
     props: {
         config: {
@@ -33,9 +34,9 @@ export default {
         s.fontSize = `${this.cfg.size}rem`
 
         let items = []
-        const itemLength = this.cfg.text.length
+        const itemLength = this._text.length
         for (let i = 0; i < itemLength; i++) {
-            items.push(<span>{this.cfg.text[i]}{i === itemLength - 1 ? [sup, sub] : []}</span>)
+            items.push(<span>{this._text[i]}{i === itemLength - 1 ? [sup, sub] : []}</span>)
         }
 
         return <div class={c} style={s}>
@@ -44,7 +45,13 @@ export default {
     },
     data() {
         return {
+            remoteData: '',
             cfg: TextConfig()
+        }
+    },
+    computed: {
+        _text() {
+            return this.remoteData ? this.remoteData : this.cfg.text
         }
     },
     watch: {
@@ -54,9 +61,34 @@ export default {
             handler() {
                 this.parse()
             }
-        }
+        },
+        data: {
+            deep: true,
+            immediate: true,
+            handler(val) {
+                this.getData()
+            }
+        },
     },
     methods: {
+        getData() {
+            let data = []
+            if(util.isArray(this.data)) {
+                data = this.data[this.cfg.dataIndex]
+            }
+
+            let t = ""
+
+            if(util.isObject(data)) {
+                t = data.text || ''
+            }
+
+            if(util.isString(data)) {
+                t = data
+            }
+
+            this.remoteData = t
+        },
         parse() {
             try {
                 this.cfg = TextConfigParse(this.config)
