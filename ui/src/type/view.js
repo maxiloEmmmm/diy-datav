@@ -139,8 +139,23 @@ export const ViewType = function() {
         newBlockAndStore() {
             let block = this.newBlock()
             let zIndex = 1
-            this.blocks.forEach(block => block.zIndex > zIndex && (zIndex = block.zIndex))
-            block = ++zIndex
+            this.blocks.forEach(block => {
+                try {
+                    let b = JSON.parse(block.config)
+                    b.common.zIndex > zIndex && (zIndex = b.common)
+                }catch (e) {
+                    console.log('parse block config err', e)
+                }
+            })
+
+            try {
+                let b = JSON.parse(block.config)
+                b.common.zIndex = zIndex
+                block.config = JSON.stringify(b)
+            }catch (e) {
+                console.log('parse block config err', e)
+            }
+
             this.blocks.push(block)
             return block
         },
