@@ -130,7 +130,14 @@ export default {
         },
         maxZIndex() {
             let zIndex = 1
-            this.view.blocks.forEach(block => block => block.zIndex > zIndex && (zIndex = block.zIndex))
+            this.view.blocks.forEach(block => {
+                try {
+                    let b = JSON.parse(block.config)
+                    b.common.zIndex > zIndex && (zIndex = b.common)
+                }catch (e) {
+                    console.log('parse block config err', e)
+                }
+            })
             return zIndex
         }
     },
