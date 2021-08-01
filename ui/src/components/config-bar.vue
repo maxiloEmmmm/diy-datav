@@ -2,7 +2,7 @@
 import {mapState} from "vuex";
 import configComponent from '@/components/types/config.js'
 import inputComponent from '@/components/input/config.js'
-import {ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault} from 'type'
+import {ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault, ViewBLockTypeCommonParse} from 'type'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import inputConfigComponent from '@/components/input/type-config.vue'
 export default {
@@ -11,6 +11,12 @@ export default {
         inputConfigComponent
     },
     name: 'config-bar',
+    props: {
+        maxZIndex: {
+            type: Number,
+            default: 1
+        }
+    },
     computed: {
         ...mapState('config', {
             currentConfigBlockType: state => state.block.type,
@@ -33,7 +39,7 @@ export default {
             try {
                 const config = JSON.parse(this.currentConfigBlockConfig)
                 config.common.input = this.normalInput(config.common.input)
-                this.cfg = config.common
+                this.cfg = ViewBLockTypeCommonParse(config.common)
             }catch (e) {
                 console.log('config-bar parse config err', e)
             }
@@ -53,12 +59,20 @@ export default {
             try {
                 const config = JSON.parse(this.currentConfigBlockConfig)
                 this.mixinSetConfigConfig(JSON.stringify({
-                    common: this.cfg,
+                    common: ViewBLockTypeCommonParse(this.cfg),
                     type: config.type
                 }))
             }catch(e) {
                 console.log('config change json parse err', e, this.cfg)
             }
+        },
+        onBottomZIndex() {
+            this.cfg.zIndex = 1
+            this.onChange()
+        },
+        onTopZIndex() {
+            this.cfg.zIndex = this.maxZIndex + 1
+            this.onChange()
         }
     },
     render() {
@@ -71,6 +85,17 @@ export default {
             </a-tab-pane>
             <a-tab-pane key="common" tab="通用">
                 <a-tabs class='common-config' size="small" tab-position="left">
+                    <a-tab-pane key="position" tab="布局">
+                        <ysz-list-item-top v-slots={{
+                            top: () => '层叠位置'
+                        }}>
+                            <ysz-list row group={3}>
+                                <a-input-number size="small" vModel={[this.cfg.zIndex, 'value']} onChange={this.onChange}/>
+                                <a-button size="small" onClick={this.onBottomZIndex}>最下面</a-button>
+                                <a-button size="small" onClick={this.onTopZIndex}>最上面</a-button>
+                            </ysz-list>
+                        </ysz-list-item-top>
+                    </a-tab-pane>
                     <a-tab-pane key="type" tab="数据">
                         <ysz-list-item v-slots={{
                             left: () => '刷新时间'

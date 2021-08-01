@@ -69,11 +69,41 @@ export const ViewBLockTypeCommonInputItemParse = (t) => {
     return t
 }
 
+export const ViewBLockTypeCommonFilter = {
+    input(t) {
+        return util.isArray(t) ? t : ViewBLockTypeCommonDefault.input()
+    },
+    zIndex(t) {
+        return util.isNumber(t) && t >= 1 ? t : ViewBLockTypeCommonDefault.zIndex()
+    }
+}
+
+export const ViewBLockTypeCommonDefault = {
+    input() {
+        return []
+    },
+    zIndex() {
+        return 1
+    }
+}
+
+export const ViewBLockTypeCommonParse = (t) => {
+    let cfg = {
+        ...ViewBLockTypeCommon(),
+        // TODO: format other field
+        ...t
+    }
+    cfg.input = ViewBLockTypeCommonFilter.input(t.input)
+    cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(t.zIndex)
+    return cfg
+}
+
 export const ViewBLockTypeCommon = () => {
     return {
         position: common.PositionType(),
         input: [],
         refresh: 10,
+        zIndex: 1,
     }
 }
 
@@ -108,6 +138,9 @@ export const ViewType = function() {
         },
         newBlockAndStore() {
             let block = this.newBlock()
+            let zIndex = 1
+            this.blocks.forEach(block => block.zIndex > zIndex && (zIndex = block.zIndex))
+            block = ++zIndex
             this.blocks.push(block)
             return block
         },

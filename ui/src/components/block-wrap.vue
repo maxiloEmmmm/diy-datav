@@ -2,7 +2,7 @@
 import move from './move.vue'
 import {mapGetters} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
-import {ViewBlockTypeConfig} from 'type'
+import {ViewBlockTypeConfig, ViewBLockTypeCommonParse} from 'type'
 export default {
     name: 'block-wrap',
     components: {
@@ -13,6 +13,9 @@ export default {
         let context = this.$slots.default()
         let moveAttrs = {
             class: ['ext-wrap', ...this.$attrs.class.split(' ')],
+            style: {
+                zIndex: this.cfg.common.zIndex
+            },
             blockKey: this.blockKey
         }
 
@@ -25,6 +28,8 @@ export default {
             })}
         </div> : null
 
+        let extIndex = this.edit ? <span class="ext-index">层叠位置: {this.cfg.common.zIndex}</span> : null
+
         return <move
             {...moveAttrs}
             onMousedown={this.onMouseDown}
@@ -33,6 +38,7 @@ export default {
             edit={this.edit}
             position={this.cfg.common.position}
         >
+            {extIndex}
             {help}
             <div class="content">{context}</div>
         </move>
@@ -49,7 +55,7 @@ export default {
         },
         helps() {
             return this.appHelp[HelpModule.ViewBlock].filter(help => !help.key.startsWith("resize-") || help.key === `resize-${this.blockKey}`) || []
-        }
+        },
     },
     watch: {
         config: {
@@ -71,7 +77,9 @@ export default {
     },
     methods: {
         transformTypeConfig() {
-            this.cfg = JSON.parse(this.config)
+            let cfg = JSON.parse(this.config)
+            cfg.common = ViewBLockTypeCommonParse(cfg.common)
+            this.cfg = cfg
         },
         onPosition(position) {
             try {
@@ -112,6 +120,10 @@ export default {
     .content {
         position: absolute; z-index: 2;
         left: 0; right: 0; top: 0; bottom: 0;
+    }
+    .ext-index {
+        position: absolute; z-index: 3;
+        left: 0.5rem; top: -1.5rem; color: pink
     }
 }
 </style>

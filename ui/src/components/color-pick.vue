@@ -16,7 +16,7 @@ export default {
     props: {
         value: String
     },
-    watch: {value(val){
+    watch: {value(val, oldvar){
             this.color = this.init(val)
         }},
     data(){return {color: this.init(this.$props.value), visible: false}},

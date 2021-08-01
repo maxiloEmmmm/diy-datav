@@ -41,8 +41,11 @@ export default {
         //     <view-block type={this.currentConfigBlockType} config={this.currentConfigBlockConfig} />
         // </div> : null
 
+        const configBarProps = {
+            maxZIndex: this.maxZIndex
+        }
         let configBar = this.isDesign ? <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
-            <config-bar></config-bar>
+            <config-bar {...configBarProps}></config-bar>
         </a-drawer> : null
 
         return <div id='diy-datav-view'
@@ -124,6 +127,11 @@ export default {
         },
         isView() {
             return this.model === designModel.View
+        },
+        maxZIndex() {
+            let zIndex = 1
+            this.view.blocks.forEach(block => block => block.zIndex > zIndex && (zIndex = block.zIndex))
+            return zIndex
         }
     },
     watch: {

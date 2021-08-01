@@ -125,6 +125,14 @@ export default {
             })
         },
         viewSet(view, fields) {
+            if(this.cfg.legend.enable) {
+                view.legend({
+                    ...this.cfg.legend
+                })
+            }else {
+                view.legend(false)
+            }
+
             this.cfg.layers.forEach(layer => {
                 const geometry = view[layer.type]()
                     .position({

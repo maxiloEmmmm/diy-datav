@@ -25,6 +25,7 @@ type ViewBlockCommonConfig struct {
 	Input    []*DataSet      `json:"input"`
 	Refresh  float64         `json:"refresh"`
 	Position *CommonPosition `json:"position"`
+	ZIndex   int             `json:"zIndex"`
 }
 
 type CommonPosition struct {

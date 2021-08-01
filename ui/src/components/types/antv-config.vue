@@ -2,7 +2,7 @@
 import {
     AntVConfig, AntVConfigParse, AntVConfigDefault, ViewBlockType,
     AntVAdjustType, AntVCoordinateAxis, AntVScaleTypeType, AntVFacetType,
-    AntVIsPolarCoordinate
+    AntVIsPolarCoordinate, AntVLegendPosition, AntVLegendLayout
 } from 'type/index.js'
 import configMixin from '../config-mixin'
 import easyExample from './antv-config-easy-example'
@@ -99,8 +99,10 @@ export default {
                         {label: 'vhv', value: 'vhv'},
                         {label: 'smooth', value: 'smooth'},
                         {label: 'arc', value: 'arc'},
-                    ]
-                }
+                    ],
+                },
+                legendPosition: AntVLegendPosition,
+                legendLayout: AntVLegendLayout
             },
             optionActiveKey: 'coordinate',
             easyModel: false
@@ -196,6 +198,18 @@ export default {
                     }}>
                         <a-select style="width:200px" options={this.store.facetTypeOptions} size="small" vModel={[this.cfg.type.facet.type, 'value']} onChange={this.onChange}/>
                     </ysz-list-item>
+                </a-tab-pane>
+                <a-tab-pane key="legend" tab="图例">
+                    <a-divider orientation="left">开启</a-divider>
+                    <a-switch size="small" vModel={[this.cfg.type.legend.enable, 'checked']} onChange={this.onChange}/>
+                    <a-divider orientation="left">位置</a-divider>
+                    <a-select size="small" style="width: 200px" options={this.store.legendPosition} vModel={[this.cfg.type.legend.position, 'value']} onChange={this.onChange}/>
+                    <a-divider orientation="left">布局方式</a-divider>
+                    <a-select size="small" options={this.store.legendLayout} vModel={[this.cfg.type.legend.layout, 'value']} onChange={this.onChange}/>
+                    <a-divider orientation="left">是否分页 | 分页触发数量</a-divider>
+                    <a-switch size="small" vModel={[this.cfg.type.legend.flipPage, 'checked']} onChange={this.onChange}/>
+                    <a-divider type="vertical"/>
+                    <a-input-number size="small" vModel={[this.cfg.type.legend.maxRow, 'value']} onChange={this.onChange}/>
                 </a-tab-pane>
                 <a-tab-pane key="layers" tab="层">
                     <more initCount={this.cfg.type.layers.length} onAdd={payload => {

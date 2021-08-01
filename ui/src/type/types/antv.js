@@ -18,6 +18,24 @@ export const AntVScaleTypeType = [
 export const AntVIsPolarCoordinate = (t) => {
     return ['polar', 'theta'].includes(t)
 }
+export const AntVLegendLayout = [
+    {label: '垂直', value: 'vertical'},
+    {label: '水平', value: 'horizontal'},
+]
+export const AntVLegendPosition = [
+    {label: 'left', value: 'left'},
+    {label: 'left-top', value: 'left-top'},
+    {label: 'left-bottom', value: 'left-bottom'},
+    {label: 'right', value: 'right'},
+    {label: 'right-top', value: 'right-top'},
+    {label: 'right-bottom', value: 'right-bottom'},
+    {label: 'top', value: 'top'},
+    {label: 'top-left', value: 'top-left'},
+    {label: 'top-right', value: 'top-right'},
+    {label: 'bottom', value: 'bottom'},
+    {label: 'bottom-left', value: 'bottom-left'},
+    {label: 'bottom-right', value: 'bottom-right'}
+]
 export const AntVCoordinateAxis = (coordinate, transpose) => {
     coordinate = AntVConfigFilter.coordinateType(coordinate)
     let base = [AntVScaleFields[0]]
@@ -115,7 +133,8 @@ export const AntVConfigFilter = {
         }
     },
     layerCatColorEnum(t) {
-        if(util.isArray(t)) {
+        // at least one
+        if(util.isArray(t) && t.length >= 1) {
             return t.filter(AntVConfigFilter.layerCatColorEnumItem)
         }
 
@@ -227,6 +246,32 @@ export const AntVConfigFilter = {
         }
 
         return lt
+    },
+    legend(legend) {
+        let cfg = AntVConfigDefault.legend()
+        if (util.isObject(legend)) {
+            cfg.enable = AntVConfigFilter.legendEnable(legend.enable)
+            cfg.position = AntVConfigFilter.legendPosition(legend.position)
+            cfg.layout = AntVConfigFilter.legendLayout(legend.layout)
+            cfg.flipPage = AntVConfigFilter.legendFlipPage(legend.flipPage)
+            cfg.maxRow = AntVConfigFilter.legendMaxRow(legend.maxRow)
+        }
+        return cfg
+    },
+    legendEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.legendEnable()
+    },
+    legendPosition(t) {
+        return AntVLegendPosition.some(p => p.value === t) ? t : AntVConfigDefault.legendPosition()
+    },
+    legendLayout(t) {
+        return AntVLegendLayout.some(p => p.value === t) ? t : AntVConfigDefault.legendLayout()
+    },
+    legendFlipPage(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.legendFlipPage()
+    },
+    legendMaxRow(t) {
+        return util.isNumber(t) && t > 0 ? t : AntVConfigDefault.legendMaxRow()
     },
     layers(t) {
         if (!util.isArray(t)) {
@@ -377,7 +422,8 @@ export const AntVConfigDefault = {
         return []
     },
     layerCatColorEnum() {
-        return []
+        // at least one
+        return [AntVConfigDefault.layerCatColorDefault()]
     },
     layerCatSizeEnum() {
         return [1, 10]
@@ -459,6 +505,30 @@ export const AntVConfigDefault = {
             },
             type: AntVConfigDefault.scaleType()
         }
+    },
+    legend() {
+        return {
+            enable: AntVConfigDefault.legendEnable(),
+            position: AntVConfigDefault.legendPosition(),
+            layout: AntVConfigDefault.legendLayout(),
+            flipPage: AntVConfigDefault.legendFlipPage(),
+            maxRow: AntVConfigDefault.legendMaxRow(),
+        }
+    },
+    legendEnable() {
+        return false
+    },
+    legendPosition() {
+        return AntVLegendPosition[0].value
+    },
+    legendLayout() {
+        return AntVLegendLayout[0].value
+    },
+    legendMaxRow() {
+        return 5
+    },
+    legendFlipPage() {
+        return true
     }
 }
 
@@ -468,6 +538,7 @@ export const AntVConfigParse = function(config) {
     cfg.coordinate = AntVConfigFilter.coordinate(config?.coordinate)
     cfg.scale = AntVConfigFilter.scale(config?.scale)
     cfg.layers = AntVConfigFilter.layers(config?.layers)
+    cfg.legend = AntVConfigFilter.legend(config?.legend)
     cfg.facet = AntVConfigFilter.facet(config?.facet)
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
 
