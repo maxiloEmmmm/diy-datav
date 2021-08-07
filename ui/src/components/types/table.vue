@@ -17,11 +17,26 @@ export default {
         },
     },
     render() {
-        return <tool-curd preview columns={this.fields} ref="table"/>
+        return <no-scroll style="height: 100%" scroll-top={20} ref="scroll">
+            <table style="width: 100%">
+                <thead>
+                    <tr>
+                        {this.fields.map(field => <th>{field.title}</th>)}
+                    </tr>
+                </thead>
+                <tbody>
+                {this.d.map(row => <tr>
+                    {this.fields.map(field => <td>{row[field.field]}</td>)}
+                </tr>)}
+                {!this.has ? <a-empty/> : null}
+                </tbody>
+            </table>
+        </no-scroll>
     },
     data() {
         return {
             fields: [],
+            d: [],
             cfg: TableConfig(),
         }
     },
@@ -37,13 +52,19 @@ export default {
             deep: true,
             immediate: true,
             handler(val) {
-                console.log(val)
                 this.getData()
             }
         },
     },
+    computed: {
+        has() {
+            return this.d.length !== 0
+        }
+    },
     methods: {
         getData() {
+            this.d = []
+
             let data = []
             if(util.isArray(this.data)) {
                 data = this.data[this.cfg.dataIndex]
@@ -67,19 +88,9 @@ export default {
                 }
             }
             this.fields = fields
-
+            this.d = t
             this.$nextTick(() => {
-                this.$refs.table.render({
-                    status: 200,
-                    data: {
-                        data: t,
-                        total: t.length
-                    }
-                })
-                this.$refs.table.pageRender({
-                    current: 1,
-                    pageSize: t.length
-                }, {})
+                this.$refs.scroll.reScrollTop()
             })
         },
         parse() {

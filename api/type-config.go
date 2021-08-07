@@ -15,18 +15,27 @@ func init() {
 }
 
 type exampleHttpItem struct {
-	Year  int `json:"year"`
-	Value int `json:"value"`
+	Year  int  `json:"year"`
+	Value int  `json:"value"`
+	Num   int  `json:"num"`
+	Sex   bool `json:"sex"`
+	Age   int  `json:"age"`
 }
 
 func ExampleHttp(c *contact.GinHelp) {
 	c.Resource([]*exampleHttpItem{
-		{Year: 2000, Value: 5},
-		{Year: 2001, Value: 30},
-		{Year: 2002, Value: 10},
-		{Year: 2003, Value: 15},
-		{Year: 2004, Value: 9},
-		{Year: 2005, Value: 31},
+		{Year: 2000, Value: 4, Sex: true, Age: 18},
+		{Year: 2001, Value: 15, Sex: true, Age: 21},
+		{Year: 2002, Value: 8, Sex: false, Age: 12},
+		{Year: 2003, Value: 15, Sex: false, Age: 25},
+		{Year: 2004, Value: 9, Sex: false, Age: 1},
+		{Year: 2005, Value: 15, Sex: true, Age: 12},
+		{Year: 2006, Value: 3, Sex: false, Age: 16},
+		{Year: 2007, Value: 19, Sex: true, Age: 44},
+		{Year: 2008, Value: 1, Sex: true, Age: 55},
+		{Year: 2009, Value: 2, Sex: true, Age: 60},
+		{Year: 2010, Value: 3, Sex: false, Age: 78},
+		{Year: 2011, Value: 16, Sex: false, Age: 100},
 	})
 }
 
