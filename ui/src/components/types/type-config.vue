@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { BarChartOutlined, ReadOutlined } from '@ant-design/icons-vue';
 import * as componentType from '@/components/types/type.js'
-import {AntVConfig, ViewBlockType, TextConfig} from 'type'
+import {AntVConfig, ViewBlockType, TextConfig, TableConfig} from 'type'
 import {mapState} from "vuex";
 import SelectItem from "../select-item.vue";
 
@@ -12,6 +12,7 @@ export default {
         return <a-row gutter={[16,16]}>
             <a-col span={4}><select-item active={this.currentType === componentType.AntV} onClick={this.onAntVTypeClick} icon={() => <BarChartOutlined style="font-size:1.4rem"/>}>图表</select-item></a-col>
             <a-col span={4}><select-item active={this.currentType === componentType.Text} onClick={this.onTextTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>静态文本</select-item></a-col>
+            <a-col span={4}><select-item active={this.currentType === componentType.Table} onClick={this.onTableTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>表格</select-item></a-col>
         </a-row>
     },
     computed: {
@@ -40,6 +41,10 @@ export default {
             if(this.currentType === componentType.Text) return
             this.onChange(componentType.Text, TextConfig())
         },
+        onTableTypeClick() {
+            if(this.currentType === componentType.Table) return
+            this.onChange(componentType.Table, TableConfig())
+        }
     }
 }
 </script>

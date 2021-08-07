@@ -8,7 +8,13 @@ export default {
             default() {
                 return TextConfig()
             }
-        }
+        },
+        data: {
+            type: Array,
+            default() {
+                return []
+            }
+        },
     },
     render() {
         let c = {

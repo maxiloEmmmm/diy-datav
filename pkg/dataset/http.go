@@ -30,6 +30,10 @@ func (h *http) Load(ctx context.Context, config string) (interface{}, error) {
 		return EmptyData{}, err
 	}
 
+	if hc.Url == "" && hc.Ref == 0 {
+		return EmptyData{}, nil
+	}
+
 	if hc.Ref != 0 {
 		ref, err := app.Db.TypeConfig.Query().Where(typeconfig.ID(hc.Ref)).First(ctx)
 		if err != nil {
