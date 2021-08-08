@@ -17,9 +17,9 @@ export default {
         },
     },
     render() {
-        return <no-scroll style="height: 100%" scroll-top={20} ref="scroll">
+        return <no-scroll style="height: 100%" scroll-top={this.st} ref="scroll" onScrollTop={this.onScrollTop}>
             <table style="width: 100%">
-                <thead>
+                <thead style={{transform: `translateY(${this.stNumber}px)`}}>
                     <tr>
                         {this.fields.map(field => <th>{field.title}</th>)}
                     </tr>
@@ -38,6 +38,9 @@ export default {
             fields: [],
             d: [],
             cfg: TableConfig(),
+            st: 0,
+            stNumber: 0,
+            sth: null
         }
     },
     watch: {
@@ -56,12 +59,25 @@ export default {
             }
         },
     },
+    created() {
+        this.sth = setInterval(() => {
+            if(this.st === 100) {
+                this.st = 0
+                return
+            }
+
+            this.st += 10
+        }, 10 * 1000)
+    },
     computed: {
         has() {
             return this.d.length !== 0
         }
     },
     methods: {
+        onScrollTop(val) {
+            this.stNumber = val
+        },
         getData() {
             this.d = []
 
