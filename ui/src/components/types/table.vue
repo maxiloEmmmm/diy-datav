@@ -19,7 +19,7 @@ export default {
     render() {
         return <no-scroll style="height: 100%" scroll-top={this.st} ref="scroll" onScrollTop={this.onScrollTop}>
             <table style="width: 100%">
-                <thead style={{transform: `translateY(${this.stNumber}px)`}}>
+                <thead style={{transform: `translateY(${this.stNumber}px)`, backgroundColor: this.cfg.headerBGC, color: this.cfg.headerC}}>
                     <tr>
                         {this.fields.map(field => <th>{field.title}</th>)}
                     </tr>
@@ -49,6 +49,7 @@ export default {
             deep: true,
             handler() {
                 this.parse()
+                this.launchScroll()
             }
         },
         data: {
@@ -59,22 +60,26 @@ export default {
             }
         },
     },
-    created() {
-        this.sth = setInterval(() => {
-            if(this.st === 100) {
-                this.st = 0
-                return
-            }
-
-            this.st += 10
-        }, 10 * 1000)
-    },
     computed: {
         has() {
             return this.d.length !== 0
         }
     },
     methods: {
+        launchScroll() {
+            if(this.sth !== null) {
+                clearInterval(this.sth)
+            }
+
+            this.sth = setInterval(() => {
+                if(this.st >= 100) {
+                    this.st = 0
+                    return
+                }
+
+                this.st += this.cfg.scrollPrecentOnce
+            }, this.cfg.scrollCycle * 1000)
+        },
         onScrollTop(val) {
             this.stNumber = val
         },
