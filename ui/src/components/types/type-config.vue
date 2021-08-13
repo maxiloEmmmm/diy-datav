@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { BarChartOutlined, ReadOutlined } from '@ant-design/icons-vue';
 import * as componentType from '@/components/types/type.js'
-import {AntVConfig, ViewBlockType, TextConfig, TableConfig} from 'type'
+import {AntVConfig, ViewBlockType, TextConfig, TableConfig, GridConfig} from 'type'
 import {mapState} from "vuex";
 import SelectItem from "../select-item.vue";
 
@@ -13,6 +13,7 @@ export default {
             <a-col span={4}><select-item active={this.currentType === componentType.AntV} onClick={this.onAntVTypeClick} icon={() => <BarChartOutlined style="font-size:1.4rem"/>}>图表</select-item></a-col>
             <a-col span={4}><select-item active={this.currentType === componentType.Text} onClick={this.onTextTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>静态文本</select-item></a-col>
             <a-col span={4}><select-item active={this.currentType === componentType.Table} onClick={this.onTableTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>表格</select-item></a-col>
+            <a-col span={4}><select-item active={this.currentType === componentType.Grid} onClick={this.onGridTypeClick} icon={() => <ReadOutlined style="font-size:1.4rem"/>}>分栏</select-item></a-col>
         </a-row>
     },
     computed: {
@@ -44,6 +45,10 @@ export default {
         onTableTypeClick() {
             if(this.currentType === componentType.Table) return
             this.onChange(componentType.Table, TableConfig())
+        },
+        onGridTypeClick() {
+            if(this.currentType === componentType.Grid) return
+            this.onChange(componentType.Grid, GridConfig())
         }
     }
 }

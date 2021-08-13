@@ -9,7 +9,8 @@ import router from '@/router'
 import {notification} from "ant-design-vue"
 
 let rp = null
-const refreshURL = "/auth/refresh_token"
+const refreshURL = "auth/refresh_token"
+const loginURL = "auth/login"
 http.interceptors.request.use(config => {
     if (config.url === refreshURL) {
         return config
@@ -20,7 +21,7 @@ http.interceptors.request.use(config => {
         })
     }else {
         let token = store.state.auth.token
-        if(token) {
+        if(token && config.url !== loginURL) {
             try {
                 let exp = JSON.parse(window.atob(token.split(".")[1])).exp
                 let cur = Date.parse(new Date) / 1000
@@ -89,10 +90,10 @@ http.defaults.baseURL = /^http/.test(import.meta.env.VITE_API)
 
 export const api = {
     [apiType.AuthLogin](data) {
-        return http.post(`auth/login`, data)
+        return http.post(loginURL, data)
     },
     [apiType.AuthRefresh]() {
-        return http.get(this.AuthRefresh())
+        return http.get(refreshURL)
     },
     [apiType.ViewInfo](id, type) {
         return http.get(`view/${id}?type=${type}`)
