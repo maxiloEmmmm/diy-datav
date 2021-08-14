@@ -1,6 +1,5 @@
 import util from 'pkg/util'
-import {AntVConfigDefault} from "./antv";
-
+import {PaddingParse, Padding} from '../common.js'
 export const GridConfigFilter = {
     rows(t) {
         if(!util.isArray(t)) {
@@ -16,9 +15,12 @@ export const GridConfigFilter = {
 
         return {
             height: GridConfigFilter.rowHeight(t.height),
-            rowCols: GridConfigFilter.rowCols(t.rowCols)
+            rowCols: GridConfigFilter.rowCols(t.rowCols),
+            padding: GridConfigFilter.rowPadding(t.padding)
         }
     },
+    rowPadding: PaddingParse,
+    rowColPadding: PaddingParse,
     rowHeight(t) {
         return !util.isNumber(t) || t > 1 || t < 0 ? GridConfigDefault.rowHeight() : t
     },
@@ -35,7 +37,8 @@ export const GridConfigFilter = {
         }
 
         return {
-            width: GridConfigFilter.rowColWidth(t.width)
+            width: GridConfigFilter.rowColWidth(t.width),
+            padding: GridConfigFilter.rowColPadding(t.padding)
         }
     },
     rowColWidth(t) {
@@ -49,10 +52,13 @@ export const GridConfigDefault = {
     },
     row() {
         return {
-            height: 1,
-            rowCols: []
+            height: GridConfigDefault.rowHeight(),
+            padding: GridConfigDefault.rowPadding(),
+            rowCols: GridConfigDefault.rowCols()
         }
     },
+    rowPadding: Padding,
+    rowColPadding: Padding,
     rowHeight() {
         return 1
     },
@@ -61,7 +67,8 @@ export const GridConfigDefault = {
     },
     rowCol() {
         return {
-            width: GridConfigDefault.rowColWidth()
+            width: GridConfigDefault.rowColWidth(),
+            padding: GridConfigDefault.rowColPadding(),
         }
     },
     rowColWidth() {

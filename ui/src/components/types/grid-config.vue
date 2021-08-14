@@ -30,9 +30,39 @@ export default {
                 >
                     <a-input-number size="small" vModel={[this.cfg.type.rows[index].height, 'value']} onChange={this.onChange}/>
                 </ysz-list-item-top>
+                <ysz-list row group={2}>
+                    <ysz-list-item-top
+                        v-slots={{
+                            top: () => '内间距 - top'
+                        }}
+                    >
+                        <a-input-number size="small" vModel={[this.cfg.type.rows[index].padding.top, 'value']} onChange={this.onChange}/>
+                    </ysz-list-item-top>
+                    <ysz-list-item-top
+                        v-slots={{
+                            top: () => '内间距 - bottom'
+                        }}
+                    >
+                        <a-input-number size="small" vModel={[this.cfg.type.rows[index].padding.bottom, 'value']} onChange={this.onChange}/>
+                    </ysz-list-item-top>
+                    <ysz-list-item-top
+                        v-slots={{
+                            top: () => '内间距 - left'
+                        }}
+                    >
+                        <a-input-number size="small" vModel={[this.cfg.type.rows[index].padding.left, 'value']} onChange={this.onChange}/>
+                    </ysz-list-item-top>
+                    <ysz-list-item-top
+                        v-slots={{
+                            top: () => '内间距 - right'
+                        }}
+                    >
+                        <a-input-number size="small" vModel={[this.cfg.type.rows[index].padding.right, 'value']} onChange={this.onChange}/>
+                    </ysz-list-item-top>
+                </ysz-list>
                 <ysz-list-item-top
                     v-slots={{
-                        top: () => '行配置'
+                        top: () => '列配置'
                     }}
                 >
                     <more onAdd={payload => {
@@ -44,13 +74,43 @@ export default {
                         this.onChange()
                         payload.done()
                     }} component={rowColIndex => {
-                        return <ysz-list-item-top
-                            v-slots={{
-                                top: () => '宽百分比'
-                            }}
-                        >
-                            <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].width, 'value']} onChange={this.onChange}/>
-                        </ysz-list-item-top>
+                        return <ysz-list row group={2}>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => '内间距 - top'
+                                }}
+                            >
+                                <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].padding.top, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item-top>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => '内间距 - bottom'
+                                }}
+                            >
+                                <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].padding.bottom, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item-top>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => '内间距 - left'
+                                }}
+                            >
+                                <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].padding.left, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item-top>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => '内间距 - right'
+                                }}
+                            >
+                                <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].padding.right, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item-top>
+                            <ysz-list-item-top
+                                v-slots={{
+                                    top: () => '宽百分比'
+                                }}
+                            >
+                                <a-input-number size="small" vModel={[this.cfg.type.rows[index].rowCols[rowColIndex].width, 'value']} onChange={this.onChange}/>
+                            </ysz-list-item-top>
+                        </ysz-list>
                     }}/>
                 </ysz-list-item-top>
             </a-tab-pane>)}
