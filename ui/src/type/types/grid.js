@@ -19,10 +19,11 @@ export const GridConfigFilter = {
             padding: GridConfigFilter.rowPadding(t.padding)
         }
     },
+    padding: PaddingParse,
     rowPadding: PaddingParse,
     rowColPadding: PaddingParse,
     rowHeight(t) {
-        return !util.isNumber(t) || t > 1 || t < 0 ? GridConfigDefault.rowHeight() : t
+        return !util.isNumber(t) || t > 100 || t < 0 ? GridConfigDefault.rowHeight() : t
     },
     rowCols(t) {
         if(!util.isArray(t)) {
@@ -42,7 +43,7 @@ export const GridConfigFilter = {
         }
     },
     rowColWidth(t) {
-        return !util.isNumber(t) || t > 1 || t < 0 ? GridConfigDefault.rowColWidth() : t
+        return !util.isNumber(t) || t > 100 || t < 0 ? GridConfigDefault.rowColWidth() : t
     }
 }
 
@@ -57,6 +58,7 @@ export const GridConfigDefault = {
             rowCols: GridConfigDefault.rowCols()
         }
     },
+    padding: Padding,
     rowPadding: Padding,
     rowColPadding: Padding,
     rowHeight() {
@@ -79,11 +81,13 @@ export const GridConfigDefault = {
 export const GridConfigParse = (config) => {
     let cfg = GridConfig()
     cfg.rows = GridConfigFilter.rows(config.rows)
+    cfg.padding = GridConfigFilter.padding(config.padding)
     return cfg
 }
 
 export const GridConfig = function(){
     return {
-        rows: GridConfigDefault.rows()
+        rows: GridConfigDefault.rows(),
+        padding: GridConfigDefault.padding()
     }
 }

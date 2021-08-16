@@ -16,7 +16,13 @@ export default {
         },
     },
     render() {
-        return <div/>
+        return <div style={{display: 'flex', flexDirection: 'column', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
+            {this.cfg.rows.map(row => <div style={{display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
+                {row.rowCols.map(col => <div style={{flex: `0 0 ${col.width}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
+                    ???
+                </div>)}
+            </div>)}
+        </div>
     },
     data() {
         return {
