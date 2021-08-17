@@ -14,11 +14,16 @@ export default {
                 return []
             }
         },
+        edit: {
+            type: Boolean,
+            default: false
+        }
     },
     render() {
-        return <div style={{display: 'flex', flexDirection: 'column', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
-            {this.cfg.rows.map(row => <div style={{display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
-                {row.rowCols.map(col => <div style={{flex: `0 0 ${col.width}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
+        const editBorder = this.edit ? row => `1px ${row ? 'dashed' : 'solid'} red` : () => 'unset'
+        return <div style={{display: 'flex', flexDirection: 'column', height: '100%', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
+            {this.cfg.rows.map(row => <div style={{border: editBorder(true), display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
+                {row.rowCols.map(col => <div style={{border: editBorder(false), flex: `0 0 ${col.width}%`, padding: `${col.padding.top}% ${col.padding.right}% ${col.padding.bottom}% ${col.padding.left}%`}}>
                     ???
                 </div>)}
             </div>)}

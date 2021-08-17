@@ -54,6 +54,24 @@ export default {
                     </ysz-list-item-top>
                 </ysz-list>
             </ysz-list-item-top>
+            <ysz-list-item
+                v-slots={{
+                    left: () => '工具'
+                }}
+            >
+                <a-button size="small" onClick={() => {
+                    const len = this.cfg.type.rows.length
+
+                    if(len === 0) {
+                        return
+                    }
+                    const h = parseFloat((100 / len).toFixed(6))
+                    this.cfg.type.rows.forEach((row, rowIndex) => {
+                        this.cfg.type.rows[rowIndex].height = h
+                    })
+                    this.onChange()
+                }}>行等高</a-button>
+            </ysz-list-item>
             <ysz-list-item-top
                 v-slots={{
                     top: () => '布局'
@@ -102,6 +120,24 @@ export default {
                                 <a-input-number size="small" vModel={[this.cfg.type.rows[index].padding.right, 'value']} onChange={this.onChange}/>
                             </ysz-list-item-top>
                         </ysz-list>
+                        <ysz-list-item
+                            v-slots={{
+                                left: () => '工具'
+                            }}
+                        >
+                            <a-button size="small" onClick={() => {
+                                const len = this.cfg.type.rows[index].rowCols.length
+
+                                if(len === 0) {
+                                    return
+                                }
+                                const w = parseFloat((100 / len).toFixed(6))
+                                this.cfg.type.rows[index].rowCols.forEach((col, colIndex) => {
+                                    this.cfg.type.rows[index].rowCols[colIndex].width = w
+                                })
+                                this.onChange()
+                            }}>列等宽</a-button>
+                        </ysz-list-item>
                         <ysz-list-item-top
                             v-slots={{
                                 top: () => '列配置'
@@ -112,7 +148,7 @@ export default {
                                 this.onChange()
                                 payload.done()
                             }} onRemove={payload => {
-                                this.cfg.type.rows[index].rowCols = this.cfg.rows[index].rowCols.filter((v, i) => i !== payload.index)
+                                this.cfg.type.rows[index].rowCols = this.cfg.type.rows[index].rowCols.filter((v, i) => i !== payload.index)
                                 this.onChange()
                                 payload.done()
                             }} component={rowColIndex => {

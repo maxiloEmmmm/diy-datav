@@ -58,7 +58,11 @@ export const GridConfigDefault = {
             rowCols: GridConfigDefault.rowCols()
         }
     },
-    padding: Padding,
+    padding: () => {
+        const p = Padding()
+        p.left = p.bottom = p.right = p.top = 1
+        return p
+    },
     rowPadding: Padding,
     rowColPadding: Padding,
     rowHeight() {

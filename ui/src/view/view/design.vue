@@ -10,7 +10,7 @@ export default {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
             return <block-wrap class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
-                <view-block type={block.type} config={block.config} />
+                <view-block type={block.type} config={block.config} edit={this.isDesign}/>
             </block-wrap>
         })
         let bg = this._has_bg ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>

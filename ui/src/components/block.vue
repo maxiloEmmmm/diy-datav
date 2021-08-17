@@ -9,7 +9,7 @@ export default {
 
         return !Component
             ? <div>unknown block type: {this.type}</div>
-            : <Component config={this.cfg.type} data={this.data}/>
+            : <Component config={this.cfg.type} data={this.data} edit={this.edit}/>
     },
     data() {
         return {
@@ -27,6 +27,10 @@ export default {
             default() {
                 return ""
             },
+        },
+        edit: {
+            type: Boolean,
+            default: false
         }
     },
     watch: {
