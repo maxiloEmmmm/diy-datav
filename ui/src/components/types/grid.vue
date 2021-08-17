@@ -20,11 +20,15 @@ export default {
         }
     },
     render() {
+        // if block dragend and grid col is mark (when block is close to grid col, col will be mark)
+        // resize and move block to grid col
+
+        // if grid resize and move end
+        // same resize and move block
         const editBorder = this.edit ? row => `1px ${row ? 'dashed' : 'solid'} red` : () => 'unset'
         return <div style={{display: 'flex', flexDirection: 'column', height: '100%', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
             {this.cfg.rows.map(row => <div style={{border: editBorder(true), display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
                 {row.rowCols.map(col => <div style={{border: editBorder(false), flex: `0 0 ${col.width}%`, padding: `${col.padding.top}% ${col.padding.right}% ${col.padding.bottom}% ${col.padding.left}%`}}>
-                    ???
                 </div>)}
             </div>)}
         </div>
