@@ -11,7 +11,16 @@ const state = {
         map: {}
     },
     help: {},
-
+    adsorption: {
+        design: {
+            lineIndex: 0
+        },
+        grid: {
+            blockKey: '',
+            row: 0,
+            col: 0
+        }
+    },
     dataSet: {},
     clock: -1,
 }
@@ -37,6 +46,14 @@ function normalHelp(help) {
 }
 
 const mutations = {
+    setAdsorptionDesign(state, lineIndex) {
+        state.adsorption.design.lineIndex = lineIndex
+    },
+    setAdsorptionGrid(state, payload = {blockKey: "", row: 0, col: 0}) {
+        state.adsorption.grid.blockKey = payload.blockKey
+        state.adsorption.grid.row = payload.row
+        state.adsorption.grid.col = payload.col
+    },
     addHelp(state, payload = {typ: "", helps: []}) {
         if(!state.help[payload.typ]) {
             state.help[payload.typ] = []

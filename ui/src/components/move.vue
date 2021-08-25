@@ -184,6 +184,7 @@ export default {
             }
 
             let upCb = () => {
+                // TODO: try to find adsorption info and change position with adsorption info
                 this.status.barMouse.down = false
                 this.status.barMouse.move = false
                 document.removeEventListener('mouseup', upCb)

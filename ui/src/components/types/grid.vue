@@ -27,8 +27,10 @@ export default {
         // same resize and move block
         const editBorder = this.edit ? row => `1px ${row ? 'dashed' : 'solid'} red` : () => 'unset'
         return <div style={{display: 'flex', flexDirection: 'column', height: '100%', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
-            {this.cfg.rows.map(row => <div style={{border: editBorder(true), display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
-                {row.rowCols.map(col => <div style={{border: editBorder(false), flex: `0 0 ${col.width}%`, padding: `${col.padding.top}% ${col.padding.right}% ${col.padding.bottom}% ${col.padding.left}%`}}>
+            {this.cfg.rows.map((row, ri) => <div style={{border: editBorder(true), display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
+                {row.rowCols.map((col, ci) => <div style={{border: editBorder(false), flex: `0 0 ${col.width}%`, padding: `${col.padding.top}% ${col.padding.right}% ${col.padding.bottom}% ${col.padding.left}%`}}
+                    onMousemove={() => this.onColMousemove(ri, ci)}
+                >
                 </div>)}
             </div>)}
         </div>
@@ -61,6 +63,10 @@ export default {
                 console.log('grid config parse failed', e, this.config)
             }
         },
+        onColMousemove(ri, ci) {
+            console.log(ri, ci)
+        // TODO: record grid row/col info to view adsorption store
+        }
     }
 }
 </script>

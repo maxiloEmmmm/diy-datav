@@ -6,7 +6,7 @@ import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined } from '@ant-design/icons-vue';
 import * as designModel from './model'
 export default {
-    render() {
+  render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
             return <block-wrap class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
@@ -17,6 +17,7 @@ export default {
         let util = <div id='diy-data-view_util'>
             {this.isDesign ?
                 [
+                    <ysz-list-item v-slots={{left: () => '布局线'}}><a-switch vModel={[this.adsorptionEnable, 'checked']}/></ysz-list-item>,
                     <a-button onClick={this.newBlock}>添加块</a-button>,
                     <a-button onClick={() => this.saveModal = true}>保存</a-button>
                 ] : null}
@@ -35,6 +36,15 @@ export default {
                 <bg-pick vModel={[this.view.bgAssetsID, 'value']}/>
             </ysz-list-item>
         </a-modal> : null
+
+      let adsorptionLines = (this.adsorptionEnable ? this.defaultAdsorptionLines : []).map((line, lineIndex) => <div style={{
+        position: 'absolute', left: `${line[0]}%`, top: `${line[1]}%`, zIndex: 4,
+        right: `${Math.abs((line[2] === line[0] ? line[2] + 0.5 : line[2]) - 100)}%`,
+        bottom: `${Math.abs((line[3] === line[1] ? line[3] + 0.5 : line[3]) - 100)}%`,
+        backgroundColor: '#000'
+      }} onMousemove={() => {
+        this.$store.commit("view/setAdsorptionDesign", lineIndex)
+      }}/>)
 
         // TODO: 考虑要不要加个预览在配置旁边
         // let configView = this.configShow ? <div id='config-view'>
@@ -55,6 +65,7 @@ export default {
             {util}
             {blocks}
 
+            {adsorptionLines}
             {configBar}
             {preSaveModal}
         </div>
@@ -68,7 +79,20 @@ export default {
                 h: 1,
                 url: '',
                 resize: false
-            }
+            },
+            adsorptionEnable: false,
+            defaultAdsorptionLines: [
+                [0, 50, 100, 50, 'green'],
+                [50, 0, 50, 100],
+                [0, 25, 100, 25],
+                [25, 0, 25, 100],
+                [0, 75, 100, 75],
+                [75, 0, 75, 100],
+                [0, 33.3333, 100, 33.3333],
+                [33.3333, 0, 33.3333, 100],
+                [0, 66.6666, 100, 66.6666],
+                [66.6666, 0, 66.6666, 100],
+            ]
         }
     },
     created() {
