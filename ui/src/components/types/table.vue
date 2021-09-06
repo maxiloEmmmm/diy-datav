@@ -1,7 +1,9 @@
 <script lang="jsx">
 import {TableConfig, TableConfigParse} from 'type'
 import util from 'pkg/util'
+import componentCommon from './component-common'
 export default {
+    mixins: [componentCommon],
     props: {
         config: {
             type: Object,
@@ -17,7 +19,7 @@ export default {
         },
     },
     render() {
-        return <no-scroll style="height: 100%" scroll-top={this.st} ref="scroll" onScrollTop={this.onScrollTop}>
+        return <no-scroll style="height: 100%" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}} scroll-top={this.st} ref="scroll" onScrollTop={this.onScrollTop}>
             <table style="width: 100%">
                 <thead style={{transform: `translateY(${this.stNumber}px)`, backgroundColor: this.cfg.headerBGC, color: this.cfg.headerC}}>
                     <tr>

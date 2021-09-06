@@ -3,6 +3,7 @@ import move from './move.vue'
 import {mapGetters} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
 import {ViewBlockTypeConfig, ViewBLockTypeCommonParse} from 'type'
+import {provide, toRefs} from "vue";
 export default {
     name: 'block-wrap',
     components: {
@@ -14,12 +15,14 @@ export default {
         let moveAttrs = {
             class: ['ext-wrap', ...this.$attrs.class.split(' ')],
             style: {
-                zIndex: this.cfg.common.zIndex
+                zIndex: this.cfg.common.zIndex,
+                // TODO: parent style will merge `move` style
+                pointerEvents: this.pointerEventsNone ? 'none' : 'all',
             },
             blockKey: this.blockKey
         }
 
-        let help = this.edit && this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help">
+        let help = this.edit && this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>
             {this.helps.map(help => {
                 const Component = help.component()
                 return <Component
@@ -28,7 +31,7 @@ export default {
             })}
         </div> : null
 
-        let extIndex = this.edit ? <span class="ext-index">层叠位置: {this.cfg.common.zIndex}</span> : null
+        let extIndex = this.edit ? <span class="ext-index" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>层叠位置: {this.cfg.common.zIndex}</span> : null
 
         return <move
             {...moveAttrs}
@@ -40,7 +43,7 @@ export default {
         >
             {extIndex}
             {help}
-            <div class="content">{context}</div>
+            <div class="content" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>{context}</div>
         </move>
     },
     data() {
@@ -63,12 +66,21 @@ export default {
             handler: 'transformTypeConfig'
         }
     },
+    setup(props) {
+        let {pointerEventsNone} = toRefs(props)
+        provide('pointerEventsNone', pointerEventsNone)
+        provide('blockKey', props.blockKey)
+    },
     props: {
         blockKey: {type: String},
         config: String,
         edit: {
             type: Boolean,
             default: true
+        },
+        pointerEventsNone: {
+            type: Boolean,
+            default: false
         }
     },
     created() {

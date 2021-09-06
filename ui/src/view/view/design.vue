@@ -1,5 +1,5 @@
 <script lang="jsx">
-import { ViewType, ViewBlockType } from 'type'
+import { ViewType, ViewBlockType, PositionType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
 import {Module as HelpModule} from '@/mixins/help'
@@ -9,8 +9,9 @@ export default {
   render() {
         let blocks = this.view.blocks.map(block => {
             let blockKey = block.getKey()
-            return <block-wrap class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
-                <view-block type={block.type} config={block.config} edit={this.isDesign}/>
+            let pen = this.blockMoving !== "" && this.blockMoving === blockKey
+            return <block-wrap pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
+                <view-block pointerEventsNone={pen} type={block.type} config={block.config} edit={this.isDesign}/>
             </block-wrap>
         })
         let bg = this._has_bg ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
@@ -41,10 +42,14 @@ export default {
         position: 'absolute', left: `${line[0]}%`, top: `${line[1]}%`, zIndex: 4,
         right: `${Math.abs((line[2] === line[0] ? line[2] + 0.5 : line[2]) - 100)}%`,
         bottom: `${Math.abs((line[3] === line[1] ? line[3] + 0.5 : line[3]) - 100)}%`,
-        backgroundColor: '#000'
+        backgroundColor: this.adsorption.design.lineIndex === lineIndex ? 'red' : '#000',
       }} onMousemove={() => {
-        this.$store.commit("view/setAdsorptionDesign", lineIndex)
-      }}/>)
+        this.$store.commit("view/setAdsorptionDesign", {lineIndex, pos: {
+                left: line[0], top: line[1],
+            }})
+      }} onMouseleave={() => {
+          this.$store.commit("view/setAdsorptionDesign", {lineIndex: -1, pos: PositionType()})
+        }}/>)
 
         // TODO: 考虑要不要加个预览在配置旁边
         // let configView = this.configShow ? <div id='config-view'>
@@ -133,7 +138,7 @@ export default {
         dragBlockID() {
             return this.$store.state.view.dragBlockId
         },
-        ...mapState('view', ['radio']),
+        ...mapState('view', ['radio', 'blockMoving', 'adsorption']),
         ...mapState('config', {
             configShow: 'show',
             currentConfigBlockType: state => state.block.type,

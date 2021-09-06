@@ -1,6 +1,6 @@
 import util from 'pkg/util'
 import {api, type as apiType} from '@/api'
-
+import {PositionType} from 'type'
 const clockStop = -1
 const clockStart = 0
 
@@ -11,14 +11,18 @@ const state = {
         map: {}
     },
     help: {},
+    blockMoving: "",
     adsorption: {
         design: {
-            lineIndex: 0
+            lineIndex: -1,
+            pos: PositionType()
         },
         grid: {
             blockKey: '',
             row: 0,
-            col: 0
+            col: 0,
+            cb: (blockKey) => {},
+            pos: PositionType()
         }
     },
     dataSet: {},
@@ -46,13 +50,20 @@ function normalHelp(help) {
 }
 
 const mutations = {
-    setAdsorptionDesign(state, lineIndex) {
-        state.adsorption.design.lineIndex = lineIndex
+    setBlockMoving(state, moving) {
+        // TODO: add getter to like bool
+        state.blockMoving = moving
     },
-    setAdsorptionGrid(state, payload = {blockKey: "", row: 0, col: 0}) {
+    setAdsorptionDesign(state, payload = {lineIndex: 0, pos: PositionType()}) {
+        state.adsorption.design.lineIndex = payload.lineIndex
+        state.adsorption.design.pos = payload.pos
+    },
+    setAdsorptionGrid(state, payload = {blockKey: "", row: 0, col: 0, blockOn: Function, pos: PositionType()}) {
         state.adsorption.grid.blockKey = payload.blockKey
         state.adsorption.grid.row = payload.row
         state.adsorption.grid.col = payload.col
+        state.adsorption.grid.cb = payload.blockOn
+        state.adsorption.grid.pos = payload.pos
     },
     addHelp(state, payload = {typ: "", helps: []}) {
         if(!state.help[payload.typ]) {

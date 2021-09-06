@@ -1,6 +1,7 @@
 <script lang="tsx">
 import components from './types/component.js'
 import util from 'pkg/util'
+import {toRefs, provide} from 'vue'
 import {ViewBLockTypeCommonInputItemParse, ViewBlockTypeConfig} from 'type'
 export default {
     name: 'view-block',
@@ -8,7 +9,7 @@ export default {
         let Component = components[this.type]
 
         return !Component
-            ? <div>unknown block type: {this.type}</div>
+            ? <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}}>unknown block type: {this.type}</div>
             : <Component config={this.cfg.type} data={this.data} edit={this.edit}/>
     },
     data() {
@@ -17,6 +18,7 @@ export default {
             data: []
         }
     },
+    inject: ['pointerEventsNone'],
     props: {
         type: {
             type: String,
@@ -31,7 +33,7 @@ export default {
         edit: {
             type: Boolean,
             default: false
-        }
+        },
     },
     watch: {
         config: {

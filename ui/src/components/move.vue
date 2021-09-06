@@ -2,6 +2,7 @@
 import {Module as HelpModule} from '@/mixins/help'
 import util from 'pkg/util'
 import {PositionType} from 'type'
+import {mapState} from "vuex";
 import {
     UpCircleOutlined, DownCircleOutlined, LeftCircleOutlined,
     RightCircleOutlined,
@@ -18,14 +19,14 @@ export default {
                 top: `${this.status.box.top}%`,
                 height: `${this.status.box.height}%`,
                 width: `${this.status.box.width}%`,
-                border: this.edit ? '1px red dashed' : 'unset'
+                border: this.edit ? '1px red dashed' : 'unset',
             }
         }
 
         // bar view in body or current move?
         // move must e.stopPropagation
 
-        let moveMiniBar = this.edit && this.enable ? <div style="position:absolute; inset: 0;">
+        let moveMiniBar = this.edit && this.enable ? <div style="position:absolute; inset: 0;" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>
             <UpCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('up')} style="position:absolute; left: 50%; top: -2rem; cursor: pointer"/>
             <DownCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('down')} style="position:absolute; left: 50%; bottom: -2rem; cursor: pointer"/>
             <LeftCircleOutlined onMousedown={e => e.stopPropagation()} onMouseup={() => this.onBarMove('left')} style="position:absolute; left: -2rem; top: 50%; cursor: pointer"/>
@@ -120,6 +121,16 @@ export default {
         ])
     },
     emits: ['mousedown', 'position'],
+    inject: ['pointerEventsNone'],
+    computed: {
+        ...mapState('view', ['adsorption']),
+        hasAdsorptionDesign() {
+            return this.adsorption.design.lineIndex >= 0
+        },
+        hasAdsorptionGrid() {
+            return this.adsorption.grid.blockKey !== ""
+        }
+    },
     methods: {
         onMouseDown(e) {
             e.preventDefault()
@@ -142,13 +153,32 @@ export default {
                 this.status.box.left = parseFloat((x / document.body.clientWidth).toFixed(3)) * 100
                 this.status.box.top = parseFloat((y / document.body.clientHeight).toFixed(3)) * 100
                 this.status.mouse.move = true
+                this.$store.commit("view/setBlockMoving", this.blockKey)
             }
 
             let upCb = () => {
                 this.status.mouse.down = false
                 this.status.mouse.move = false
+                this.$store.commit("view/setBlockMoving", "")
                 document.removeEventListener('mouseup', upCb)
                 document.removeEventListener('mousemove', moveCb)
+                if (this.hasAdsorptionDesign || this.hasAdsorptionGrid) {
+                    if(this.hasAdsorptionGrid) {
+                        this.status.box.left = this.adsorption.grid.pos.left
+                        this.status.box.top = this.adsorption.grid.pos.top
+                        this.status.box.width = this.adsorption.grid.pos.width
+                        this.status.box.height = this.adsorption.grid.pos.height
+                        this.$store.commit('view/setAdsorptionGrid', {
+                            blockKey: ""
+                        })
+                    }else {
+                        this.status.box.left = this.adsorption.design.pos.left
+                        this.status.box.top = this.adsorption.design.pos.top
+                        this.$store.commit('view/setAdsorptionDesign', {
+                            lineIndex: -1
+                        })
+                    }
+                }
             }
 
             document.addEventListener('mouseup', upCb)
@@ -179,12 +209,10 @@ export default {
 
                 this.status.box.width = parseFloat((width / document.body.clientWidth).toFixed(3)) * 100
                 this.status.box.height = parseFloat((height / document.body.clientHeight).toFixed(3)) * 100
-                this.status.barMouse.move = true
                 this.mixinDispatchWindowResize()
             }
 
             let upCb = () => {
-                // TODO: try to find adsorption info and change position with adsorption info
                 this.status.barMouse.down = false
                 this.status.barMouse.move = false
                 document.removeEventListener('mouseup', upCb)

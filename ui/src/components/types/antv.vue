@@ -2,7 +2,9 @@
 import { Chart } from '@antv/g2'
 import {AntVConfig, AntVConfigParse, AntVCoordinateAxis} from 'type/types/index.js'
 import util from 'pkg/util'
+import componentCommon from './component-common'
 export default {
+    mixins: [componentCommon],
     props: {
         data: {
             type: Array,
@@ -18,7 +20,7 @@ export default {
         }
     },
     render() {
-        return <div ref="chart" style="width: 100%; height: 100%"/>
+        return <div style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}} ref="chart" style="width: 100%; height: 100%"/>
     },
     data() {
         return {

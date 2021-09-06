@@ -1,7 +1,9 @@
 <script lang="jsx">
 import {TextConfig, TextConfigParse} from 'type'
 import util from 'pkg/util'
+import componentCommon from './component-common'
 export default {
+    mixins: [componentCommon],
     props: {
         config: {
             type: Object,
@@ -23,7 +25,9 @@ export default {
             'st-italic': this.cfg.italic,
             'st-underline': this.cfg.underline
         }
-        let s = {}
+        let s = {
+            pointerEvents: this.pointerEventsNone ? 'none' : 'all'
+        }
 
         let sup, sub = null
         if(this.cfg.sup) {
