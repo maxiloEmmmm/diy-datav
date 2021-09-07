@@ -16,7 +16,8 @@ const router = createRouter({
         {path: '/sys/assets', component: () => import('./view/sys/assets.vue')},
         {path: '/sys/role', component: () => import('./view/sys/role.vue')},
         {path: '/sys/menu', component: () => import('./view/sys/menu.vue')},
-        {path: '/auth/login', component: () => import('./view/sys/login.vue'), meta: {auth: false}}
+        {path: '/auth/login', component: () => import('./view/sys/login.vue'), meta: {auth: false}},
+        {path: '/test/animation', component: () => import('./view/test/animation.vue'), meta: {auth: false}}
     ]
 })
 
