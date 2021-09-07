@@ -40,8 +40,8 @@ export default {
 
       let adsorptionLines = (this.adsorptionEnable ? this.defaultAdsorptionLines : []).map((line, lineIndex) => <div style={{
         position: 'absolute', left: `${line[0]}%`, top: `${line[1]}%`, zIndex: 4,
-        right: `${Math.abs((line[2] === line[0] ? line[2] + 0.5 : line[2]) - 100)}%`,
-        bottom: `${Math.abs((line[3] === line[1] ? line[3] + 0.5 : line[3]) - 100)}%`,
+        right: `${Math.abs((line[2] === line[0] ? line[2] + 0.25 : line[2]) - 100)}%`,
+        bottom: `${Math.abs((line[3] === line[1] ? line[3] + 0.25 : line[3]) - 100)}%`,
         backgroundColor: this.adsorption.design.lineIndex === lineIndex ? 'red' : '#000',
       }} onMousemove={() => {
         this.$store.commit("view/setAdsorptionDesign", {lineIndex, pos: {
@@ -60,7 +60,7 @@ export default {
             maxZIndex: this.maxZIndex
         }
         let configBar = this.isDesign ? <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
-            <config-bar {...configBarProps}></config-bar>
+            <config-bar {...configBarProps}/>
         </a-drawer> : null
 
         return <div id='diy-datav-view'
@@ -243,7 +243,8 @@ export default {
         },
         onConfigBarClose() {
             this.mixinConfigHidden()
-            this.mixinClearConfig()
+            // 等关闭了再销毁配置
+            this.$nextTick(this.mixinClearConfig)
         },
         onTypeChange(typ) {
             const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]

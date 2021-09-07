@@ -96,7 +96,7 @@ export default {
             }
             this.$store.commit("view/setAdsorptionGrid", {
                 blockKey: this.blockKey, row: r, col: c, blockOn: function (bk) {
-                    this.cfg.rows[r].rowCols[c].keys.push(bk)
+                    this.cfg.rows[r].rowCols[c].key = bk
                 }, pos: {
                     left: parseFloat((l / document.body.clientWidth).toFixed(3)) * 100,
                     top: parseFloat((t / document.body.clientHeight).toFixed(3)) * 100,

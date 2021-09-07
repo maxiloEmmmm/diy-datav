@@ -172,8 +172,14 @@ export default {
                             blockKey: ""
                         })
                     }else {
-                        this.status.box.left = this.adsorption.design.pos.left
-                        this.status.box.top = this.adsorption.design.pos.top
+                        if (this.adsorption.design.pos.left !== 0) {
+                            this.status.box.left = this.adsorption.design.pos.left
+                        }
+
+                        if (this.adsorption.design.pos.top !== 0) {
+                            this.status.box.top = this.adsorption.design.pos.top
+                        }
+
                         this.$store.commit('view/setAdsorptionDesign', {
                             lineIndex: -1
                         })

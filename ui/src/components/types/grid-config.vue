@@ -14,6 +14,9 @@ export default {
                 ...ViewBlockType().config,
                 type: GridConfig()
             },
+            quick: {
+                row: 1, col: 1
+            }
         }
     },
     render() {
@@ -56,21 +59,42 @@ export default {
             </ysz-list-item-top>
             <ysz-list-item
                 v-slots={{
+                    left: () => '快速分割',
+                }}
+            >
+                <a-input size="small" vModel={[this.quick.row, 'value']}/>
+                <a-input size="small" vModel={[this.quick.col, 'value']}/>
+                <a-button size="small" onClick={() => {
+                    if(this.cfg.type.rows.length >= this.quick.row) {
+                        this.cfg.type.rows = this.cfg.type.rows.splice(0, this.quick.row)
+                    }
+                    for (let i = 0; i < this.quick.row; i++) {
+                        let row
+                        if(this.cfg.type.rows[i] === undefined) {
+                            row = GridConfigDefault.row()
+                            this.cfg.type.rows.push(row)
+                        }else {
+                            row = this.cfg.type.rows[i]
+                        }
+                        if(row.rowCols.length >= this.quick.col) {
+                            row.rowCols = row.rowCols.splice(0, this.quick.col)
+                        }
+                        for (let c = 0; c < this.quick.col; c++) {
+                            if(row.rowCols[c] === undefined) {
+                                row.rowCols[c] = GridConfigDefault.rowCol()
+                            }
+                            this.colWidthAvg(i)
+                        }
+                    }
+                    this.rowHeightAvg()
+                }}>分割</a-button>
+            </ysz-list-item>
+            <ysz-list-item
+                v-slots={{
                     left: () => '工具'
                 }}
             >
-                <a-button size="small" onClick={() => {
-                    const len = this.cfg.type.rows.length
-
-                    if(len === 0) {
-                        return
-                    }
-                    const h = parseFloat((100 / len).toFixed(6))
-                    this.cfg.type.rows.forEach((row, rowIndex) => {
-                        this.cfg.type.rows[rowIndex].height = h
-                    })
-                    this.onChange()
-                }}>行等高</a-button>
+                <a-button size="small" onClick={this.rowHeightAvg}>行等高</a-button>
             </ysz-list-item>
             <ysz-list-item-top
                 v-slots={{
@@ -125,18 +149,7 @@ export default {
                                 left: () => '工具'
                             }}
                         >
-                            <a-button size="small" onClick={() => {
-                                const len = this.cfg.type.rows[index].rowCols.length
-
-                                if(len === 0) {
-                                    return
-                                }
-                                const w = parseFloat((100 / len).toFixed(6))
-                                this.cfg.type.rows[index].rowCols.forEach((col, colIndex) => {
-                                    this.cfg.type.rows[index].rowCols[colIndex].width = w
-                                })
-                                this.onChange()
-                            }}>列等宽</a-button>
+                            <a-button size="small" onClick={() => this.colWidthAvg(index)}>列等宽</a-button>
                         </ysz-list-item>
                         <ysz-list-item-top
                             v-slots={{
@@ -214,6 +227,30 @@ export default {
                 console.log('grid config parse failed', e, this.config)
             }
         },
+        rowHeightAvg() {
+            const len = this.cfg.type.rows.length
+
+            if(len === 0) {
+                return
+            }
+            const h = parseFloat((100 / len).toFixed(6))
+            this.cfg.type.rows.forEach((row, rowIndex) => {
+                this.cfg.type.rows[rowIndex].height = h
+            })
+            this.onChange()
+        },
+        colWidthAvg(index) {
+            const len = this.cfg.type.rows[index].rowCols.length
+
+            if(len === 0) {
+                return
+            }
+            const w = parseFloat((100 / len).toFixed(6))
+            this.cfg.type.rows[index].rowCols.forEach((col, colIndex) => {
+                this.cfg.type.rows[index].rowCols[colIndex].width = w
+            })
+            this.onChange()
+        }
     }
 }
 </script>
