@@ -25,6 +25,7 @@ module.exports = {
             '/': rootSidebar()
         }
     },
+    base: '/diy-datav/',
     title: "自定义数据可视化",
     desc: "做自己的数据可视化!"
 }
