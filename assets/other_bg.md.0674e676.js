@@ -1,0 +1,1 @@
+import{o as t,c as e}from"./app.c22261ec.js";const r='{"title":"","description":"","frontmatter":{},"relativePath":"other/bg.md","lastUpdated":1631074117748}',a={};a.render=function(r,a,o,d,i,n){return t(),e("div")};export{r as __pageData,a as default};
