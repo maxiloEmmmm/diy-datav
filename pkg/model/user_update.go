@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/go-web/contact"
 )
@@ -46,9 +47,45 @@ func (uu *UserUpdate) SetEnable(cf *contact.BoolField) *UserUpdate {
 	return uu
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (uu *UserUpdate) AddShareIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddShareIDs(ids...)
+	return uu
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (uu *UserUpdate) AddShare(s ...*Share) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.AddShareIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearShare clears all "share" edges to the Share entity.
+func (uu *UserUpdate) ClearShare() *UserUpdate {
+	uu.mutation.ClearShare()
+	return uu
+}
+
+// RemoveShareIDs removes the "share" edge to Share entities by IDs.
+func (uu *UserUpdate) RemoveShareIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveShareIDs(ids...)
+	return uu
+}
+
+// RemoveShare removes "share" edges to Share entities.
+func (uu *UserUpdate) RemoveShare(s ...*Share) *UserUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uu.RemoveShareIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -162,6 +199,60 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldEnable,
 		})
 	}
+	if uu.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedShareIDs(); len(nodes) > 0 && !uu.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -200,9 +291,45 @@ func (uuo *UserUpdateOne) SetEnable(cf *contact.BoolField) *UserUpdateOne {
 	return uuo
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (uuo *UserUpdateOne) AddShareIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddShareIDs(ids...)
+	return uuo
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (uuo *UserUpdateOne) AddShare(s ...*Share) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.AddShareIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearShare clears all "share" edges to the Share entity.
+func (uuo *UserUpdateOne) ClearShare() *UserUpdateOne {
+	uuo.mutation.ClearShare()
+	return uuo
+}
+
+// RemoveShareIDs removes the "share" edge to Share entities by IDs.
+func (uuo *UserUpdateOne) RemoveShareIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveShareIDs(ids...)
+	return uuo
+}
+
+// RemoveShare removes "share" edges to Share entities.
+func (uuo *UserUpdateOne) RemoveShare(s ...*Share) *UserUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uuo.RemoveShareIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -339,6 +466,60 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Value:  value,
 			Column: user.FieldEnable,
 		})
+	}
+	if uuo.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedShareIDs(); len(nodes) > 0 && !uuo.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

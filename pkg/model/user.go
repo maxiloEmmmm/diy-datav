@@ -22,6 +22,27 @@ type User struct {
 	Password string `json:"password,omitempty"`
 	// Enable holds the value of the "enable" field.
 	Enable *contact.BoolField `json:"enable,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges UserEdges `json:"edges"`
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Share holds the value of the share edge.
+	Share []*Share `json:"share,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ShareOrErr returns the Share value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ShareOrErr() ([]*Share, error) {
+	if e.loadedTypes[0] {
+		return e.Share, nil
+	}
+	return nil, &NotLoadedError{edge: "share"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -77,6 +98,11 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryShare queries the "share" edge of the User entity.
+func (u *User) QueryShare() *ShareQuery {
+	return (&UserClient{config: u.config}).QueryShare(u)
 }
 
 // Update returns a builder for updating this User.

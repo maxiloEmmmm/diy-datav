@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/go-web/contact"
 )
@@ -36,6 +37,21 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 func (uc *UserCreate) SetEnable(cf *contact.BoolField) *UserCreate {
 	uc.mutation.SetEnable(cf)
 	return uc
+}
+
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (uc *UserCreate) AddShareIDs(ids ...int) *UserCreate {
+	uc.mutation.AddShareIDs(ids...)
+	return uc
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (uc *UserCreate) AddShare(s ...*Share) *UserCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return uc.AddShareIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -158,6 +174,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldEnable,
 		})
 		_node.Enable = value
+	}
+	if nodes := uc.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ShareTable,
+			Columns: []string{user.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

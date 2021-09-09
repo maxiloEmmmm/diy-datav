@@ -32,9 +32,11 @@ type ViewEdges struct {
 	Bg *Assets `json:"bg,omitempty"`
 	// Blocks holds the value of the blocks edge.
 	Blocks []*ViewBlock `json:"blocks,omitempty"`
+	// Share holds the value of the share edge.
+	Share []*Share `json:"share,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // BgOrErr returns the Bg value or an error if the edge
@@ -58,6 +60,15 @@ func (e ViewEdges) BlocksOrErr() ([]*ViewBlock, error) {
 		return e.Blocks, nil
 	}
 	return nil, &NotLoadedError{edge: "blocks"}
+}
+
+// ShareOrErr returns the Share value or an error if the edge
+// was not loaded in eager-loading.
+func (e ViewEdges) ShareOrErr() ([]*Share, error) {
+	if e.loadedTypes[2] {
+		return e.Share, nil
+	}
+	return nil, &NotLoadedError{edge: "share"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -124,6 +135,11 @@ func (v *View) QueryBg() *AssetsQuery {
 // QueryBlocks queries the "blocks" edge of the View entity.
 func (v *View) QueryBlocks() *ViewBlockQuery {
 	return (&ViewClient{config: v.config}).QueryBlocks(v)
+}
+
+// QueryShare queries the "share" edge of the View entity.
+func (v *View) QueryShare() *ShareQuery {
+	return (&ViewClient{config: v.config}).QueryShare(v)
 }
 
 // Update returns a builder for updating this View.

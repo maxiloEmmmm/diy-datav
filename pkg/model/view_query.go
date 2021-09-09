@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
@@ -30,6 +31,7 @@ type ViewQuery struct {
 	// eager-loading edges.
 	withBg     *AssetsQuery
 	withBlocks *ViewBlockQuery
+	withShare  *ShareQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -104,6 +106,28 @@ func (vq *ViewQuery) QueryBlocks() *ViewBlockQuery {
 			sqlgraph.From(view.Table, view.FieldID, selector),
 			sqlgraph.To(viewblock.Table, viewblock.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, view.BlocksTable, view.BlocksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(vq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryShare chains the current query on the "share" edge.
+func (vq *ViewQuery) QueryShare() *ShareQuery {
+	query := &ShareQuery{config: vq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := vq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := vq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(view.Table, view.FieldID, selector),
+			sqlgraph.To(share.Table, share.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, view.ShareTable, view.ShareColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(vq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,6 +318,7 @@ func (vq *ViewQuery) Clone() *ViewQuery {
 		predicates: append([]predicate.View{}, vq.predicates...),
 		withBg:     vq.withBg.Clone(),
 		withBlocks: vq.withBlocks.Clone(),
+		withShare:  vq.withShare.Clone(),
 		// clone intermediate query.
 		sql:  vq.sql.Clone(),
 		path: vq.path,
@@ -319,6 +344,17 @@ func (vq *ViewQuery) WithBlocks(opts ...func(*ViewBlockQuery)) *ViewQuery {
 		opt(query)
 	}
 	vq.withBlocks = query
+	return vq
+}
+
+// WithShare tells the query-builder to eager-load the nodes that are connected to
+// the "share" edge. The optional arguments are used to configure the query builder of the edge.
+func (vq *ViewQuery) WithShare(opts ...func(*ShareQuery)) *ViewQuery {
+	query := &ShareQuery{config: vq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	vq.withShare = query
 	return vq
 }
 
@@ -388,9 +424,10 @@ func (vq *ViewQuery) sqlAll(ctx context.Context) ([]*View, error) {
 		nodes       = []*View{}
 		withFKs     = vq.withFKs
 		_spec       = vq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			vq.withBg != nil,
 			vq.withBlocks != nil,
+			vq.withShare != nil,
 		}
 	)
 	if vq.withBg != nil {
@@ -474,6 +511,35 @@ func (vq *ViewQuery) sqlAll(ctx context.Context) ([]*View, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "view_blocks" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Blocks = append(node.Edges.Blocks, n)
+		}
+	}
+
+	if query := vq.withShare; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*View)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Share = []*Share{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Share(func(s *sql.Selector) {
+			s.Where(sql.InValues(view.ShareColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.view_share
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "view_share" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "view_share" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Share = append(node.Edges.Share, n)
 		}
 	}
 

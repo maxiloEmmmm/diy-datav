@@ -24,5 +24,6 @@ func (View) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("bg", Assets.Type).Ref("view").Unique(),
 		edge.To("blocks", ViewBlock.Type),
+		edge.To("share", Share.Type),
 	}
 }

@@ -18,6 +18,8 @@ type Tx struct {
 	DataSet *DataSetClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
+	// Share is the client for interacting with the Share builders.
+	Share *ShareClient
 	// TypeConfig is the client for interacting with the TypeConfig builders.
 	TypeConfig *TypeConfigClient
 	// User is the client for interacting with the User builders.
@@ -164,6 +166,7 @@ func (tx *Tx) init() {
 	tx.Assets = NewAssetsClient(tx.config)
 	tx.DataSet = NewDataSetClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
+	tx.Share = NewShareClient(tx.config)
 	tx.TypeConfig = NewTypeConfigClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.View = NewViewClient(tx.config)

@@ -12,6 +12,7 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/menu"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
@@ -33,6 +34,7 @@ const (
 	TypeAssets     = "Assets"
 	TypeDataSet    = "DataSet"
 	TypeMenu       = "Menu"
+	TypeShare      = "Share"
 	TypeTypeConfig = "TypeConfig"
 	TypeUser       = "User"
 	TypeView       = "View"
@@ -1590,6 +1592,421 @@ func (m *MenuMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Menu edge %s", name)
 }
 
+// ShareMutation represents an operation that mutates the Share nodes in the graph.
+type ShareMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	end_at         *time.Time
+	clearedFields  map[string]struct{}
+	view           *int
+	clearedview    bool
+	creator        *int
+	clearedcreator bool
+	done           bool
+	oldValue       func(context.Context) (*Share, error)
+	predicates     []predicate.Share
+}
+
+var _ ent.Mutation = (*ShareMutation)(nil)
+
+// shareOption allows management of the mutation configuration using functional options.
+type shareOption func(*ShareMutation)
+
+// newShareMutation creates new mutation for the Share entity.
+func newShareMutation(c config, op Op, opts ...shareOption) *ShareMutation {
+	m := &ShareMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeShare,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withShareID sets the ID field of the mutation.
+func withShareID(id int) shareOption {
+	return func(m *ShareMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Share
+		)
+		m.oldValue = func(ctx context.Context) (*Share, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Share.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withShare sets the old Share of the mutation.
+func withShare(node *Share) shareOption {
+	return func(m *ShareMutation) {
+		m.oldValue = func(context.Context) (*Share, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ShareMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ShareMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("model: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *ShareMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetEndAt sets the "end_at" field.
+func (m *ShareMutation) SetEndAt(t time.Time) {
+	m.end_at = &t
+}
+
+// EndAt returns the value of the "end_at" field in the mutation.
+func (m *ShareMutation) EndAt() (r time.Time, exists bool) {
+	v := m.end_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndAt returns the old "end_at" field's value of the Share entity.
+// If the Share object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ShareMutation) OldEndAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldEndAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldEndAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndAt: %w", err)
+	}
+	return oldValue.EndAt, nil
+}
+
+// ResetEndAt resets all changes to the "end_at" field.
+func (m *ShareMutation) ResetEndAt() {
+	m.end_at = nil
+}
+
+// SetViewID sets the "view" edge to the View entity by id.
+func (m *ShareMutation) SetViewID(id int) {
+	m.view = &id
+}
+
+// ClearView clears the "view" edge to the View entity.
+func (m *ShareMutation) ClearView() {
+	m.clearedview = true
+}
+
+// ViewCleared reports if the "view" edge to the View entity was cleared.
+func (m *ShareMutation) ViewCleared() bool {
+	return m.clearedview
+}
+
+// ViewID returns the "view" edge ID in the mutation.
+func (m *ShareMutation) ViewID() (id int, exists bool) {
+	if m.view != nil {
+		return *m.view, true
+	}
+	return
+}
+
+// ViewIDs returns the "view" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ViewID instead. It exists only for internal usage by the builders.
+func (m *ShareMutation) ViewIDs() (ids []int) {
+	if id := m.view; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetView resets all changes to the "view" edge.
+func (m *ShareMutation) ResetView() {
+	m.view = nil
+	m.clearedview = false
+}
+
+// SetCreatorID sets the "creator" edge to the User entity by id.
+func (m *ShareMutation) SetCreatorID(id int) {
+	m.creator = &id
+}
+
+// ClearCreator clears the "creator" edge to the User entity.
+func (m *ShareMutation) ClearCreator() {
+	m.clearedcreator = true
+}
+
+// CreatorCleared reports if the "creator" edge to the User entity was cleared.
+func (m *ShareMutation) CreatorCleared() bool {
+	return m.clearedcreator
+}
+
+// CreatorID returns the "creator" edge ID in the mutation.
+func (m *ShareMutation) CreatorID() (id int, exists bool) {
+	if m.creator != nil {
+		return *m.creator, true
+	}
+	return
+}
+
+// CreatorIDs returns the "creator" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CreatorID instead. It exists only for internal usage by the builders.
+func (m *ShareMutation) CreatorIDs() (ids []int) {
+	if id := m.creator; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCreator resets all changes to the "creator" edge.
+func (m *ShareMutation) ResetCreator() {
+	m.creator = nil
+	m.clearedcreator = false
+}
+
+// Op returns the operation name.
+func (m *ShareMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Share).
+func (m *ShareMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ShareMutation) Fields() []string {
+	fields := make([]string, 0, 1)
+	if m.end_at != nil {
+		fields = append(fields, share.FieldEndAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ShareMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case share.FieldEndAt:
+		return m.EndAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ShareMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case share.FieldEndAt:
+		return m.OldEndAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Share field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ShareMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case share.FieldEndAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Share field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ShareMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ShareMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ShareMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Share numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ShareMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ShareMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ShareMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Share nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ShareMutation) ResetField(name string) error {
+	switch name {
+	case share.FieldEndAt:
+		m.ResetEndAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Share field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ShareMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.view != nil {
+		edges = append(edges, share.EdgeView)
+	}
+	if m.creator != nil {
+		edges = append(edges, share.EdgeCreator)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ShareMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case share.EdgeView:
+		if id := m.view; id != nil {
+			return []ent.Value{*id}
+		}
+	case share.EdgeCreator:
+		if id := m.creator; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ShareMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ShareMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ShareMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedview {
+		edges = append(edges, share.EdgeView)
+	}
+	if m.clearedcreator {
+		edges = append(edges, share.EdgeCreator)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ShareMutation) EdgeCleared(name string) bool {
+	switch name {
+	case share.EdgeView:
+		return m.clearedview
+	case share.EdgeCreator:
+		return m.clearedcreator
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ShareMutation) ClearEdge(name string) error {
+	switch name {
+	case share.EdgeView:
+		m.ClearView()
+		return nil
+	case share.EdgeCreator:
+		m.ClearCreator()
+		return nil
+	}
+	return fmt.Errorf("unknown Share unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ShareMutation) ResetEdge(name string) error {
+	switch name {
+	case share.EdgeView:
+		m.ResetView()
+		return nil
+	case share.EdgeCreator:
+		m.ResetCreator()
+		return nil
+	}
+	return fmt.Errorf("unknown Share edge %s", name)
+}
+
 // TypeConfigMutation represents an operation that mutates the TypeConfig nodes in the graph.
 type TypeConfigMutation struct {
 	config
@@ -2001,6 +2418,9 @@ type UserMutation struct {
 	password      *string
 	enable        **contact.BoolField
 	clearedFields map[string]struct{}
+	share         map[int]struct{}
+	removedshare  map[int]struct{}
+	clearedshare  bool
 	done          bool
 	oldValue      func(context.Context) (*User, error)
 	predicates    []predicate.User
@@ -2193,6 +2613,59 @@ func (m *UserMutation) ResetEnable() {
 	m.enable = nil
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by ids.
+func (m *UserMutation) AddShareIDs(ids ...int) {
+	if m.share == nil {
+		m.share = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.share[ids[i]] = struct{}{}
+	}
+}
+
+// ClearShare clears the "share" edge to the Share entity.
+func (m *UserMutation) ClearShare() {
+	m.clearedshare = true
+}
+
+// ShareCleared reports if the "share" edge to the Share entity was cleared.
+func (m *UserMutation) ShareCleared() bool {
+	return m.clearedshare
+}
+
+// RemoveShareIDs removes the "share" edge to the Share entity by IDs.
+func (m *UserMutation) RemoveShareIDs(ids ...int) {
+	if m.removedshare == nil {
+		m.removedshare = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedshare[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedShare returns the removed IDs of the "share" edge to the Share entity.
+func (m *UserMutation) RemovedShareIDs() (ids []int) {
+	for id := range m.removedshare {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ShareIDs returns the "share" edge IDs in the mutation.
+func (m *UserMutation) ShareIDs() (ids []int) {
+	for id := range m.share {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetShare resets all changes to the "share" edge.
+func (m *UserMutation) ResetShare() {
+	m.share = nil
+	m.clearedshare = false
+	m.removedshare = nil
+}
+
 // Op returns the operation name.
 func (m *UserMutation) Op() Op {
 	return m.op
@@ -2343,49 +2816,85 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.share != nil {
+		edges = append(edges, user.EdgeShare)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeShare:
+		ids := make([]ent.Value, 0, len(m.share))
+		for id := range m.share {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedshare != nil {
+		edges = append(edges, user.EdgeShare)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *UserMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeShare:
+		ids := make([]ent.Value, 0, len(m.removedshare))
+		for id := range m.removedshare {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedshare {
+		edges = append(edges, user.EdgeShare)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case user.EdgeShare:
+		return m.clearedshare
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
+	switch name {
+	case user.EdgeShare:
+		m.ResetShare()
+		return nil
+	}
 	return fmt.Errorf("unknown User edge %s", name)
 }
 
@@ -2403,6 +2912,9 @@ type ViewMutation struct {
 	blocks        map[int]struct{}
 	removedblocks map[int]struct{}
 	clearedblocks bool
+	share         map[int]struct{}
+	removedshare  map[int]struct{}
+	clearedshare  bool
 	done          bool
 	oldValue      func(context.Context) (*View, error)
 	predicates    []predicate.View
@@ -2651,6 +3163,59 @@ func (m *ViewMutation) ResetBlocks() {
 	m.removedblocks = nil
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by ids.
+func (m *ViewMutation) AddShareIDs(ids ...int) {
+	if m.share == nil {
+		m.share = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.share[ids[i]] = struct{}{}
+	}
+}
+
+// ClearShare clears the "share" edge to the Share entity.
+func (m *ViewMutation) ClearShare() {
+	m.clearedshare = true
+}
+
+// ShareCleared reports if the "share" edge to the Share entity was cleared.
+func (m *ViewMutation) ShareCleared() bool {
+	return m.clearedshare
+}
+
+// RemoveShareIDs removes the "share" edge to the Share entity by IDs.
+func (m *ViewMutation) RemoveShareIDs(ids ...int) {
+	if m.removedshare == nil {
+		m.removedshare = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedshare[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedShare returns the removed IDs of the "share" edge to the Share entity.
+func (m *ViewMutation) RemovedShareIDs() (ids []int) {
+	for id := range m.removedshare {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ShareIDs returns the "share" edge IDs in the mutation.
+func (m *ViewMutation) ShareIDs() (ids []int) {
+	for id := range m.share {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetShare resets all changes to the "share" edge.
+func (m *ViewMutation) ResetShare() {
+	m.share = nil
+	m.clearedshare = false
+	m.removedshare = nil
+}
+
 // Op returns the operation name.
 func (m *ViewMutation) Op() Op {
 	return m.op
@@ -2781,12 +3346,15 @@ func (m *ViewMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ViewMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.bg != nil {
 		edges = append(edges, view.EdgeBg)
 	}
 	if m.blocks != nil {
 		edges = append(edges, view.EdgeBlocks)
+	}
+	if m.share != nil {
+		edges = append(edges, view.EdgeShare)
 	}
 	return edges
 }
@@ -2805,15 +3373,24 @@ func (m *ViewMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case view.EdgeShare:
+		ids := make([]ent.Value, 0, len(m.share))
+		for id := range m.share {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ViewMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedblocks != nil {
 		edges = append(edges, view.EdgeBlocks)
+	}
+	if m.removedshare != nil {
+		edges = append(edges, view.EdgeShare)
 	}
 	return edges
 }
@@ -2828,18 +3405,27 @@ func (m *ViewMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case view.EdgeShare:
+		ids := make([]ent.Value, 0, len(m.removedshare))
+		for id := range m.removedshare {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ViewMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedbg {
 		edges = append(edges, view.EdgeBg)
 	}
 	if m.clearedblocks {
 		edges = append(edges, view.EdgeBlocks)
+	}
+	if m.clearedshare {
+		edges = append(edges, view.EdgeShare)
 	}
 	return edges
 }
@@ -2852,6 +3438,8 @@ func (m *ViewMutation) EdgeCleared(name string) bool {
 		return m.clearedbg
 	case view.EdgeBlocks:
 		return m.clearedblocks
+	case view.EdgeShare:
+		return m.clearedshare
 	}
 	return false
 }
@@ -2876,6 +3464,9 @@ func (m *ViewMutation) ResetEdge(name string) error {
 		return nil
 	case view.EdgeBlocks:
 		m.ResetBlocks()
+		return nil
+	case view.EdgeShare:
+		m.ResetShare()
 		return nil
 	}
 	return fmt.Errorf("unknown View edge %s", name)

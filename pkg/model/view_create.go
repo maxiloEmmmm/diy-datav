@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
@@ -65,6 +66,21 @@ func (vc *ViewCreate) AddBlocks(v ...*ViewBlock) *ViewCreate {
 		ids[i] = v[i].ID
 	}
 	return vc.AddBlockIDs(ids...)
+}
+
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (vc *ViewCreate) AddShareIDs(ids ...int) *ViewCreate {
+	vc.mutation.AddShareIDs(ids...)
+	return vc
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (vc *ViewCreate) AddShare(s ...*Share) *ViewCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return vc.AddShareIDs(ids...)
 }
 
 // Mutation returns the ViewMutation object of the builder.
@@ -203,6 +219,25 @@ func (vc *ViewCreate) createSpec() (*View, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: viewblock.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := vc.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
 				},
 			},
 		}

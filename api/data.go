@@ -1,6 +1,9 @@
 package api
 
 import (
+	"github.com/maxiloEmmmm/diy-datav/pkg/app"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model"
+	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
 	"github.com/maxiloEmmmm/diy-datav/pkg/service"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
 	"github.com/maxiloEmmmm/go-web/contact"
@@ -19,7 +22,9 @@ func Data(c *contact.GinHelp) {
 	}{}
 	c.InValidBindUri(uri)
 
-	data, err := service.NewDataSetService(c.AppContext).Load(uri.Id)
+	data, err := service.NewDataSetService(c.AppContext).Load(uri.Id, func(view *model.View) bool {
+		return permission.Pass(app.User(c.AppContext), &permission.PRView{View: view}, permission.GetInfoAction)
+	})
 	c.AssetsInValid("load", err)
 	c.Resource(data)
 }

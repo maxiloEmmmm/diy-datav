@@ -27,6 +27,7 @@ const state = {
     },
     dataSet: {},
     clock: -1,
+    share: false
 }
 
 const getters = {
@@ -50,6 +51,9 @@ function normalHelp(help) {
 }
 
 const mutations = {
+    setShare(state, share) {
+        state.share = share
+    },
     setBlockMoving(state, moving) {
         // TODO: add getter to like bool
         state.blockMoving = moving

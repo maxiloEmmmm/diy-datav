@@ -12,12 +12,13 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
 	go_tool "github.com/maxiloEmmmm/go-tool"
 	"github.com/maxiloEmmmm/go-web/contact"
+	"strconv"
 )
 
 func init() {
 	Apis = append(Apis, newAuthFuncApi(func(route gin.IRouter) {
 		curd := model.NewCurdBuilder(app.Db)
-		curd.Apis.User.Filter.CreatePipe = func(help *contact.GinHelp, createPipe *model.UserCreate) {
+		curd.Apis.User.Filter.CreatePipe = func(help *contact.GinHelp, createPipe *model.UserCreate, edges model.UserEdges) {
 			username, _ := createPipe.Mutation().Username()
 			if app.Db.User.Query().Where(user.Username(username)).ExistX(help.AppContext) {
 				help.InValid("username", "dup")
@@ -26,7 +27,7 @@ func init() {
 			password, _ := createPipe.Mutation().Password()
 			createPipe.SetPassword(go_tool.Md5(password))
 		}
-		curd.Apis.User.Filter.UpdatePipe = func(help *contact.GinHelp, old *model.User, updatePipe *model.UserUpdateOne) {
+		curd.Apis.User.Filter.UpdatePipe = func(help *contact.GinHelp, old *model.User, updatePipe *model.UserUpdateOne, edges model.UserEdges) {
 			password, _ := updatePipe.Mutation().Password()
 			if password == "" {
 				updatePipe.SetPassword(old.Password)
@@ -80,7 +81,17 @@ func init() {
 			app.Db.Menu.Delete().Where(menu.HasParentWith(menu.ID(item.ID))).ExecX(help.AppContext)
 			app.RemoveAdminPolicy(&permission.PRMenu{Menu: item}, permission.AccessMenuAction)
 		}
-		curd.Route("/", route, []string{model.TypeTypeConfig, model.TypeAssets, model.TypeUser, model.TypeMenu})
+		curd.Apis.Share.Filter.CreatePipe = func(help *contact.GinHelp, createPipe *model.ShareCreate, edges model.ShareEdges) {
+			uid, err := strconv.Atoi(app.User(help.AppContext))
+			help.AssetsInValid("user.id.invalid", err)
+			u, err := app.Db.User.Get(help.AppContext, uid)
+			help.AssetsInValid("user.not.exist", err)
+			createPipe.SetCreator(u)
+		}
+		curd.Apis.Share.Filter.ListPipe = func(help *contact.GinHelp, listPipe *model.ShareQuery) {
+			listPipe.WithView().WithCreator()
+		}
+		curd.Route("/", route, []string{model.TypeTypeConfig, model.TypeAssets, model.TypeUser, model.TypeMenu, model.TypeShare})
 	}))
 }
 

@@ -5,10 +5,13 @@ export const ViewGet = "ViewGet"
 export const ViewDelete = "ViewDelete"
 export const ViewUploadBG = 'ViewUploadBG'
 export const ViewBGAssets = 'ViewBGAssets'
+export const ViewShare = "ViewShare"
 export const AssetsTypeList = 'AssetsTypeList'
 
 export const Data = 'Data'
 export const TmpEchoData = 'TmpEchoData'
+export const ShareData = 'ShareData'
+export const ShareTmpEchoData = 'ShareTmpEchoData'
 export const StaticList = "StaticList"
 export const SqlList = "SqlList"
 export const HttpList = "HttpList"

@@ -10,6 +10,7 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/menu"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
@@ -78,6 +79,7 @@ type CurdBuilder struct {
 		Assets     *AssetsApi
 		DataSet    *DataSetApi
 		Menu       *MenuApi
+		Share      *ShareApi
 		TypeConfig *TypeConfigApi
 		User       *UserApi
 		View       *ViewApi
@@ -90,6 +92,7 @@ func NewCurdBuilder(client *Client) *CurdBuilder {
 	cb.Apis.Assets = NewAssetsApi(client, nil)
 	cb.Apis.DataSet = NewDataSetApi(client, nil)
 	cb.Apis.Menu = NewMenuApi(client, nil)
+	cb.Apis.Share = NewShareApi(client, nil)
 	cb.Apis.TypeConfig = NewTypeConfigApi(client, nil)
 	cb.Apis.User = NewUserApi(client, nil)
 	cb.Apis.View = NewViewApi(client, nil)
@@ -112,6 +115,9 @@ func (cb *CurdBuilder) Route(prefix string, r gin.IRouter, pick []string) *gin.R
 	}
 	if !hasPick || go_tool.InArray(pick, TypeMenu) {
 		cb.Group(g, "menu", cb.Apis.Menu)
+	}
+	if !hasPick || go_tool.InArray(pick, TypeShare) {
+		cb.Group(g, "share", cb.Apis.Share)
 	}
 	if !hasPick || go_tool.InArray(pick, TypeTypeConfig) {
 		cb.Group(g, "typeconfig", cb.Apis.TypeConfig)
@@ -600,6 +606,150 @@ func (c *MenuApi) Get(help *contact.GinHelp) {
 	help.Resource(item)
 }
 
+type ShareApi struct {
+	*Api
+	Filter             ShareApiFilter
+	SkipCreateAutoEdge bool
+	SkipUpdateAutoEdge bool
+}
+
+type ShareApiFilter struct {
+	CreatePipe   func(help *contact.GinHelp, createPipe *ShareCreate, edges ShareEdges)
+	CreateAfter  func(help *contact.GinHelp, item *Share, edges ShareEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *Share, updatePipe *ShareUpdateOne, edges ShareEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *Share, item *Share, edges ShareEdges)
+	ListPipe     func(help *contact.GinHelp, listPipe *ShareQuery)
+	ListData     func(help *contact.GinHelp, items []*Share) interface{}
+	DeleteBefore func(help *contact.GinHelp, item *Share)
+	GetPipe      func(help *contact.GinHelp, getPipe *ShareQuery)
+	GetData      func(help *contact.GinHelp, item *Share) *Share
+}
+
+func NewShareApi(client *Client, opt *ApiOption) *ShareApi {
+	return &ShareApi{Api: newApi(client, opt)}
+}
+
+func (c *ShareApi) List(help *contact.GinHelp) {
+	help.ResourcePage(func(start int, size int) (interface{}, int) {
+		pipe := c.Client.Share.Query()
+		if c.Filter.ListPipe != nil {
+			c.Filter.ListPipe(help, pipe)
+		}
+		clonePipe := pipe.Clone()
+
+		pipe = pipe.Offset(start).Limit(size)
+		items := pipe.AllX(help.AppContext)
+
+		var data interface{} = items
+		if c.Filter.ListData != nil {
+			data = c.Filter.ListData(help, items)
+		}
+		return data, clonePipe.CountX(help.AppContext)
+	})
+}
+
+func (c *ShareApi) Delete(help *contact.GinHelp) {
+	uri := &struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(uri)
+
+	item := c.Client.Share.GetX(help.AppContext, uri.Id)
+	if c.Filter.DeleteBefore != nil {
+		c.Filter.DeleteBefore(help, item)
+	}
+	c.Client.Share.DeleteOne(item).ExecX(help.AppContext)
+	help.ResourceDelete()
+}
+
+func (c *ShareApi) Create(help *contact.GinHelp) {
+	body := &Share{}
+	help.InValidBind(body)
+
+	pipe := c.Client.Share.Create()
+	if !c.Fields.Create.Has || c.Fields.Create.Fields[share.FieldEndAt] {
+		pipe.SetEndAt(body.EndAt)
+	}
+	if !c.SkipCreateAutoEdge {
+		if body.Edges.View != nil {
+			pipe.SetView(body.Edges.View)
+		}
+		if body.Edges.Creator != nil {
+			pipe.SetCreator(body.Edges.Creator)
+		}
+	}
+
+	if c.Filter.CreatePipe != nil {
+		c.Filter.CreatePipe(help, pipe, body.Edges)
+	}
+
+	item := pipe.SaveX(help.AppContext)
+
+	if c.Filter.CreateAfter != nil {
+		c.Filter.CreateAfter(help, item, body.Edges)
+	}
+
+	help.Resource(item)
+}
+
+func (c *ShareApi) Update(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	body := &Share{}
+	help.InValidBind(body)
+
+	item := c.Client.Share.GetX(help.AppContext, uri.Id)
+	if item == nil {
+		help.InValid("resource", "not found")
+	} else {
+		pipe := item.Update()
+		if !c.Fields.Update.Has || c.Fields.Update.Fields[share.FieldEndAt] {
+			pipe.SetEndAt(body.EndAt)
+		}
+		if !c.SkipUpdateAutoEdge {
+			if body.Edges.View != nil {
+				pipe.SetView(body.Edges.View)
+			}
+			if body.Edges.Creator != nil {
+				pipe.SetCreator(body.Edges.Creator)
+			}
+		}
+
+		if c.Filter.UpdatePipe != nil {
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
+		}
+		currentItem := pipe.SaveX(help.AppContext)
+		if c.Filter.UpdateAfter != nil {
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
+		}
+
+		item = currentItem
+	}
+	help.Resource(item)
+}
+
+func (c *ShareApi) Get(help *contact.GinHelp) {
+	uri := struct {
+		Id int `uri:"id"`
+	}{}
+	help.InValidBindUri(&uri)
+
+	pipe := c.Client.Share.Query().Where(share.ID(uri.Id))
+	if c.Filter.GetPipe != nil {
+		c.Filter.GetPipe(help, pipe)
+	}
+
+	item := pipe.FirstX(help.AppContext)
+	if c.Filter.GetData != nil {
+		item = c.Filter.GetData(help, item)
+	}
+
+	help.Resource(item)
+}
+
 type TypeConfigApi struct {
 	*Api
 	Filter             TypeConfigApiFilter
@@ -748,10 +898,10 @@ type UserApi struct {
 }
 
 type UserApiFilter struct {
-	CreatePipe   func(help *contact.GinHelp, createPipe *UserCreate)
-	CreateAfter  func(help *contact.GinHelp, item *User)
-	UpdatePipe   func(help *contact.GinHelp, old *User, updatePipe *UserUpdateOne)
-	UpdateAfter  func(help *contact.GinHelp, old *User, item *User)
+	CreatePipe   func(help *contact.GinHelp, createPipe *UserCreate, edges UserEdges)
+	CreateAfter  func(help *contact.GinHelp, item *User, edges UserEdges)
+	UpdatePipe   func(help *contact.GinHelp, old *User, updatePipe *UserUpdateOne, edges UserEdges)
+	UpdateAfter  func(help *contact.GinHelp, old *User, item *User, edges UserEdges)
 	ListPipe     func(help *contact.GinHelp, listPipe *UserQuery)
 	ListData     func(help *contact.GinHelp, items []*User) interface{}
 	DeleteBefore func(help *contact.GinHelp, item *User)
@@ -810,15 +960,20 @@ func (c *UserApi) Create(help *contact.GinHelp) {
 	if !c.Fields.Create.Has || c.Fields.Create.Fields[user.FieldEnable] {
 		pipe.SetEnable(body.Enable)
 	}
+	if !c.SkipCreateAutoEdge {
+		if body.Edges.Share != nil {
+			pipe.AddShare(body.Edges.Share...)
+		}
+	}
 
 	if c.Filter.CreatePipe != nil {
-		c.Filter.CreatePipe(help, pipe)
+		c.Filter.CreatePipe(help, pipe, body.Edges)
 	}
 
 	item := pipe.SaveX(help.AppContext)
 
 	if c.Filter.CreateAfter != nil {
-		c.Filter.CreateAfter(help, item)
+		c.Filter.CreateAfter(help, item, body.Edges)
 	}
 
 	help.Resource(item)
@@ -847,13 +1002,18 @@ func (c *UserApi) Update(help *contact.GinHelp) {
 		if !c.Fields.Update.Has || c.Fields.Update.Fields[user.FieldEnable] {
 			pipe.SetEnable(body.Enable)
 		}
+		if !c.SkipUpdateAutoEdge {
+			if body.Edges.Share != nil {
+				pipe.AddShare(body.Edges.Share...)
+			}
+		}
 
 		if c.Filter.UpdatePipe != nil {
-			c.Filter.UpdatePipe(help, item, pipe)
+			c.Filter.UpdatePipe(help, item, pipe, body.Edges)
 		}
 		currentItem := pipe.SaveX(help.AppContext)
 		if c.Filter.UpdateAfter != nil {
-			c.Filter.UpdateAfter(help, item, currentItem)
+			c.Filter.UpdateAfter(help, item, currentItem, body.Edges)
 		}
 
 		item = currentItem
@@ -954,6 +1114,9 @@ func (c *ViewApi) Create(help *contact.GinHelp) {
 		if body.Edges.Blocks != nil {
 			pipe.AddBlocks(body.Edges.Blocks...)
 		}
+		if body.Edges.Share != nil {
+			pipe.AddShare(body.Edges.Share...)
+		}
 	}
 
 	if c.Filter.CreatePipe != nil {
@@ -995,6 +1158,9 @@ func (c *ViewApi) Update(help *contact.GinHelp) {
 			}
 			if body.Edges.Blocks != nil {
 				pipe.AddBlocks(body.Edges.Blocks...)
+			}
+			if body.Edges.Share != nil {
+				pipe.AddShare(body.Edges.Share...)
 			}
 		}
 

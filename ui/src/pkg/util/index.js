@@ -170,8 +170,10 @@ const merge = function(dst, src) {
     return dst
 }
 
+const baseURL = () => `${window.location.origin}${window.location.pathname}`
+
 const newPage = (hash) => {
-    window.open(`${window.location.origin}${window.location.pathname}${window.location.search}#${hash}`)
+    window.open(`${baseURL()}${window.location.search}#${hash}`)
 }
 
 const util = {
@@ -188,7 +190,8 @@ const util = {
     isNumber,
     deepClone,
     merge,
-    newPage
+    newPage,
+    baseURL
 }
 
 export default {

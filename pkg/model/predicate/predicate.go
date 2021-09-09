@@ -15,6 +15,9 @@ type DataSet func(*sql.Selector)
 // Menu is the predicate function for menu builders.
 type Menu func(*sql.Selector)
 
+// Share is the predicate function for share builders.
+type Share func(*sql.Selector)
+
 // TypeConfig is the predicate function for typeconfig builders.
 type TypeConfig func(*sql.Selector)
 

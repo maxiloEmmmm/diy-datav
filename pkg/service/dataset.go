@@ -5,12 +5,12 @@ import (
 	"errors"
 	"github.com/maxiloEmmmm/diy-datav/pkg/app"
 	datasetUtil "github.com/maxiloEmmmm/diy-datav/pkg/dataset"
-	"github.com/maxiloEmmmm/diy-datav/pkg/permission"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model"
 	"github.com/maxiloEmmmm/diy-datav/pkg/types"
 )
 
 type DataSetServiceI7e interface {
-	Load(sdId int) (interface{}, error)
+	Load(sdId int, check func(view *model.View) bool) (interface{}, error)
 	LoadTmpEcho(echo *types.TmpEcho) (interface{}, error)
 }
 
@@ -22,14 +22,17 @@ func NewDataSetService(context context.Context) DataSetServiceI7e {
 	return &DataSetService{Context: context}
 }
 
-func (d *DataSetService) Load(sdId int) (interface{}, error) {
+func (d *DataSetService) Load(sdId int, check func(view *model.View) bool) (interface{}, error) {
 	dataset, err := app.Db.DataSet.Get(d.Context, sdId)
 	if err != nil {
 		return nil, err
 	}
 
 	view := dataset.QueryBlock().QueryView().FirstX(d.Context)
-	if !permission.Pass(app.User(d.Context), &permission.PRView{view}, permission.GetInfoAction) {
+	//if !permission.Pass(app.User(d.Context), &permission.PRView{view}, permission.GetInfoAction) {
+	//	return nil, errors.New("403")
+	//}
+	if !check(view) {
 		return nil, errors.New("403")
 	}
 

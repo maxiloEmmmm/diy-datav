@@ -13,6 +13,7 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/menu"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
@@ -40,6 +41,7 @@ func columnChecker(table string) func(string) error {
 		assets.Table:     assets.ValidColumn,
 		dataset.Table:    dataset.ValidColumn,
 		menu.Table:       menu.ValidColumn,
+		share.Table:      share.ValidColumn,
 		typeconfig.Table: typeconfig.ValidColumn,
 		user.Table:       user.ValidColumn,
 		view.Table:       view.ValidColumn,

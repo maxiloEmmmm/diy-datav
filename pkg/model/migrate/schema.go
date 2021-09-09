@@ -67,6 +67,33 @@ var (
 			},
 		},
 	}
+	// SharesColumns holds the columns for the "shares" table.
+	SharesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "end_at", Type: field.TypeTime},
+		{Name: "user_share", Type: field.TypeInt, Nullable: true},
+		{Name: "view_share", Type: field.TypeInt, Nullable: true},
+	}
+	// SharesTable holds the schema information for the "shares" table.
+	SharesTable = &schema.Table{
+		Name:       "shares",
+		Columns:    SharesColumns,
+		PrimaryKey: []*schema.Column{SharesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "shares_users_share",
+				Columns:    []*schema.Column{SharesColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "shares_views_share",
+				Columns:    []*schema.Column{SharesColumns[3]},
+				RefColumns: []*schema.Column{ViewsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// TypeConfigsColumns holds the columns for the "type_configs" table.
 	TypeConfigsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -142,6 +169,7 @@ var (
 		AssetsTable,
 		DataSetsTable,
 		MenusTable,
+		SharesTable,
 		TypeConfigsTable,
 		UsersTable,
 		ViewsTable,
@@ -152,6 +180,8 @@ var (
 func init() {
 	DataSetsTable.ForeignKeys[0].RefTable = ViewBlocksTable
 	MenusTable.ForeignKeys[0].RefTable = MenusTable
+	SharesTable.ForeignKeys[0].RefTable = UsersTable
+	SharesTable.ForeignKeys[1].RefTable = ViewsTable
 	ViewsTable.ForeignKeys[0].RefTable = AssetsTable
 	ViewBlocksTable.ForeignKeys[0].RefTable = ViewsTable
 }

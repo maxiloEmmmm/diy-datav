@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/predicate"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/viewblock"
 )
@@ -74,6 +75,21 @@ func (vu *ViewUpdate) AddBlocks(v ...*ViewBlock) *ViewUpdate {
 	return vu.AddBlockIDs(ids...)
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (vu *ViewUpdate) AddShareIDs(ids ...int) *ViewUpdate {
+	vu.mutation.AddShareIDs(ids...)
+	return vu
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (vu *ViewUpdate) AddShare(s ...*Share) *ViewUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return vu.AddShareIDs(ids...)
+}
+
 // Mutation returns the ViewMutation object of the builder.
 func (vu *ViewUpdate) Mutation() *ViewMutation {
 	return vu.mutation
@@ -104,6 +120,27 @@ func (vu *ViewUpdate) RemoveBlocks(v ...*ViewBlock) *ViewUpdate {
 		ids[i] = v[i].ID
 	}
 	return vu.RemoveBlockIDs(ids...)
+}
+
+// ClearShare clears all "share" edges to the Share entity.
+func (vu *ViewUpdate) ClearShare() *ViewUpdate {
+	vu.mutation.ClearShare()
+	return vu
+}
+
+// RemoveShareIDs removes the "share" edge to Share entities by IDs.
+func (vu *ViewUpdate) RemoveShareIDs(ids ...int) *ViewUpdate {
+	vu.mutation.RemoveShareIDs(ids...)
+	return vu
+}
+
+// RemoveShare removes "share" edges to Share entities.
+func (vu *ViewUpdate) RemoveShare(s ...*Share) *ViewUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return vu.RemoveShareIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -294,6 +331,60 @@ func (vu *ViewUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if vu.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vu.mutation.RemovedShareIDs(); len(nodes) > 0 && !vu.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vu.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{view.Label}
@@ -359,6 +450,21 @@ func (vuo *ViewUpdateOne) AddBlocks(v ...*ViewBlock) *ViewUpdateOne {
 	return vuo.AddBlockIDs(ids...)
 }
 
+// AddShareIDs adds the "share" edge to the Share entity by IDs.
+func (vuo *ViewUpdateOne) AddShareIDs(ids ...int) *ViewUpdateOne {
+	vuo.mutation.AddShareIDs(ids...)
+	return vuo
+}
+
+// AddShare adds the "share" edges to the Share entity.
+func (vuo *ViewUpdateOne) AddShare(s ...*Share) *ViewUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return vuo.AddShareIDs(ids...)
+}
+
 // Mutation returns the ViewMutation object of the builder.
 func (vuo *ViewUpdateOne) Mutation() *ViewMutation {
 	return vuo.mutation
@@ -389,6 +495,27 @@ func (vuo *ViewUpdateOne) RemoveBlocks(v ...*ViewBlock) *ViewUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return vuo.RemoveBlockIDs(ids...)
+}
+
+// ClearShare clears all "share" edges to the Share entity.
+func (vuo *ViewUpdateOne) ClearShare() *ViewUpdateOne {
+	vuo.mutation.ClearShare()
+	return vuo
+}
+
+// RemoveShareIDs removes the "share" edge to Share entities by IDs.
+func (vuo *ViewUpdateOne) RemoveShareIDs(ids ...int) *ViewUpdateOne {
+	vuo.mutation.RemoveShareIDs(ids...)
+	return vuo
+}
+
+// RemoveShare removes "share" edges to Share entities.
+func (vuo *ViewUpdateOne) RemoveShare(s ...*Share) *ViewUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return vuo.RemoveShareIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -595,6 +722,60 @@ func (vuo *ViewUpdateOne) sqlSave(ctx context.Context) (_node *View, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: viewblock.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if vuo.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vuo.mutation.RemovedShareIDs(); len(nodes) > 0 && !vuo.mutation.ShareCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vuo.mutation.ShareIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   view.ShareTable,
+			Columns: []string{view.ShareColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: share.FieldID,
 				},
 			},
 		}

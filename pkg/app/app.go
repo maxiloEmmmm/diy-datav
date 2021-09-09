@@ -166,6 +166,7 @@ func menuInit(ctx context.Context) {
 		{Title: "用户", Href: "/sys/user"},
 		{Title: "菜单", Href: "/sys/menu"},
 		{Title: "角色", Href: "/sys/role"},
+		{Title: "分享", Href: "/sys/share"},
 	}
 
 	for _, m := range menus {

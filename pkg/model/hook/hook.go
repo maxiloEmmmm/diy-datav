@@ -48,6 +48,19 @@ func (f MenuFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, er
 	return f(ctx, mv)
 }
 
+// The ShareFunc type is an adapter to allow the use of ordinary
+// function as Share mutator.
+type ShareFunc func(context.Context, *model.ShareMutation) (model.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ShareFunc) Mutate(ctx context.Context, m model.Mutation) (model.Value, error) {
+	mv, ok := m.(*model.ShareMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *model.ShareMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The TypeConfigFunc type is an adapter to allow the use of ordinary
 // function as TypeConfig mutator.
 type TypeConfigFunc func(context.Context, *model.TypeConfigMutation) (model.Value, error)

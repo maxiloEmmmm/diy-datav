@@ -13,8 +13,17 @@ const (
 	FieldPassword = "password"
 	// FieldEnable holds the string denoting the enable field in the database.
 	FieldEnable = "enable"
+	// EdgeShare holds the string denoting the share edge name in mutations.
+	EdgeShare = "share"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// ShareTable is the table the holds the share relation/edge.
+	ShareTable = "shares"
+	// ShareInverseTable is the table name for the Share entity.
+	// It exists in this package in order to avoid circular dependency with the "share" package.
+	ShareInverseTable = "shares"
+	// ShareColumn is the table column denoting the share relation/edge.
+	ShareColumn = "user_share"
 )
 
 // Columns holds all SQL columns for user fields.

@@ -15,6 +15,8 @@ const (
 	EdgeBg = "bg"
 	// EdgeBlocks holds the string denoting the blocks edge name in mutations.
 	EdgeBlocks = "blocks"
+	// EdgeShare holds the string denoting the share edge name in mutations.
+	EdgeShare = "share"
 	// Table holds the table name of the view in the database.
 	Table = "views"
 	// BgTable is the table the holds the bg relation/edge.
@@ -31,6 +33,13 @@ const (
 	BlocksInverseTable = "view_blocks"
 	// BlocksColumn is the table column denoting the blocks relation/edge.
 	BlocksColumn = "view_blocks"
+	// ShareTable is the table the holds the share relation/edge.
+	ShareTable = "shares"
+	// ShareInverseTable is the table name for the Share entity.
+	// It exists in this package in order to avoid circular dependency with the "share" package.
+	ShareInverseTable = "shares"
+	// ShareColumn is the table column denoting the share relation/edge.
+	ShareColumn = "view_share"
 )
 
 // Columns holds all SQL columns for view fields.

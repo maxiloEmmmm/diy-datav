@@ -3,7 +3,6 @@ import mockUtil from './mock'
 import http from 'pkg/http'
 import * as apiType from './type'
 import antdTool from 'pkg/antd-tool'
-import * as viewStore from '@/store/view'
 import store from '@/store'
 import router from '@/router'
 import {notification} from "ant-design-vue"
@@ -119,6 +118,9 @@ export const api = {
     [apiType.TmpEchoData](config) {
         return http.post(`data-tmp-echo`, config)
     },
+    [apiType.ShareData](sid, id) {
+        return http.get(`share.data/${sid}/${id}`)
+    },
     [apiType.StaticList]() {
         return http.get(`tc/kind/static`)
     },
@@ -171,6 +173,9 @@ export const api = {
     [apiType.Policy](rules) {
         return http.post(`/permission/change`, rules)
     },
+    [apiType.ViewShare](id) {
+        return http.get(`/share.view/${id}`)
+    }
 }
 
 export default {
@@ -185,6 +190,3 @@ export default {
         }
     }
 }
-
-viewStore.SetFetchEngine(api[apiType.Data])
-viewStore.SetFetchTmpEchoEngine(api[apiType.TmpEchoData])

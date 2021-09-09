@@ -12,7 +12,11 @@ const rootSidebar = () => [
             {text: '表格', link: '/block-module/table'},
             {text: '分栏容器', link: '/block-module/grid'}
         ]},
-    {text: '数据'},
+    {text: '数据', children: [
+            {text: "http", link: '/data/http'},
+            {text: "静态数据", link: '/data/static'},
+            {text: "数据库", link: '/data/sql'}
+        ]},
     {text: '其他', children: [
             {text: '吸附', link: '/other/adsorption'},
             {text: '背景', link: '/other/bg'}

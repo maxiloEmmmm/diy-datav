@@ -12,6 +12,7 @@ import (
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/assets"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/dataset"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/menu"
+	"github.com/maxiloEmmmm/diy-datav/pkg/model/share"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/typeconfig"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/user"
 	"github.com/maxiloEmmmm/diy-datav/pkg/model/view"
@@ -33,6 +34,8 @@ type Client struct {
 	DataSet *DataSetClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
+	// Share is the client for interacting with the Share builders.
+	Share *ShareClient
 	// TypeConfig is the client for interacting with the TypeConfig builders.
 	TypeConfig *TypeConfigClient
 	// User is the client for interacting with the User builders.
@@ -57,6 +60,7 @@ func (c *Client) init() {
 	c.Assets = NewAssetsClient(c.config)
 	c.DataSet = NewDataSetClient(c.config)
 	c.Menu = NewMenuClient(c.config)
+	c.Share = NewShareClient(c.config)
 	c.TypeConfig = NewTypeConfigClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.View = NewViewClient(c.config)
@@ -97,6 +101,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
 		Menu:       NewMenuClient(cfg),
+		Share:      NewShareClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
 		User:       NewUserClient(cfg),
 		View:       NewViewClient(cfg),
@@ -122,6 +127,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Assets:     NewAssetsClient(cfg),
 		DataSet:    NewDataSetClient(cfg),
 		Menu:       NewMenuClient(cfg),
+		Share:      NewShareClient(cfg),
 		TypeConfig: NewTypeConfigClient(cfg),
 		User:       NewUserClient(cfg),
 		View:       NewViewClient(cfg),
@@ -158,6 +164,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Assets.Use(hooks...)
 	c.DataSet.Use(hooks...)
 	c.Menu.Use(hooks...)
+	c.Share.Use(hooks...)
 	c.TypeConfig.Use(hooks...)
 	c.User.Use(hooks...)
 	c.View.Use(hooks...)
@@ -498,6 +505,128 @@ func (c *MenuClient) Hooks() []Hook {
 	return c.hooks.Menu
 }
 
+// ShareClient is a client for the Share schema.
+type ShareClient struct {
+	config
+}
+
+// NewShareClient returns a client for the Share from the given config.
+func NewShareClient(c config) *ShareClient {
+	return &ShareClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `share.Hooks(f(g(h())))`.
+func (c *ShareClient) Use(hooks ...Hook) {
+	c.hooks.Share = append(c.hooks.Share, hooks...)
+}
+
+// Create returns a create builder for Share.
+func (c *ShareClient) Create() *ShareCreate {
+	mutation := newShareMutation(c.config, OpCreate)
+	return &ShareCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Share entities.
+func (c *ShareClient) CreateBulk(builders ...*ShareCreate) *ShareCreateBulk {
+	return &ShareCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Share.
+func (c *ShareClient) Update() *ShareUpdate {
+	mutation := newShareMutation(c.config, OpUpdate)
+	return &ShareUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ShareClient) UpdateOne(s *Share) *ShareUpdateOne {
+	mutation := newShareMutation(c.config, OpUpdateOne, withShare(s))
+	return &ShareUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ShareClient) UpdateOneID(id int) *ShareUpdateOne {
+	mutation := newShareMutation(c.config, OpUpdateOne, withShareID(id))
+	return &ShareUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Share.
+func (c *ShareClient) Delete() *ShareDelete {
+	mutation := newShareMutation(c.config, OpDelete)
+	return &ShareDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ShareClient) DeleteOne(s *Share) *ShareDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ShareClient) DeleteOneID(id int) *ShareDeleteOne {
+	builder := c.Delete().Where(share.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ShareDeleteOne{builder}
+}
+
+// Query returns a query builder for Share.
+func (c *ShareClient) Query() *ShareQuery {
+	return &ShareQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Share entity by its id.
+func (c *ShareClient) Get(ctx context.Context, id int) (*Share, error) {
+	return c.Query().Where(share.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ShareClient) GetX(ctx context.Context, id int) *Share {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryView queries the view edge of a Share.
+func (c *ShareClient) QueryView(s *Share) *ViewQuery {
+	query := &ViewQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(share.Table, share.FieldID, id),
+			sqlgraph.To(view.Table, view.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, share.ViewTable, share.ViewColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCreator queries the creator edge of a Share.
+func (c *ShareClient) QueryCreator(s *Share) *UserQuery {
+	query := &UserQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(share.Table, share.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, share.CreatorTable, share.CreatorColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ShareClient) Hooks() []Hook {
+	return c.hooks.Share
+}
+
 // TypeConfigClient is a client for the TypeConfig schema.
 type TypeConfigClient struct {
 	config
@@ -673,6 +802,22 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
+// QueryShare queries the share edge of a User.
+func (c *UserClient) QueryShare(u *User) *ShareQuery {
+	query := &ShareQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(share.Table, share.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ShareTable, user.ShareColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -788,6 +933,22 @@ func (c *ViewClient) QueryBlocks(v *View) *ViewBlockQuery {
 			sqlgraph.From(view.Table, view.FieldID, id),
 			sqlgraph.To(viewblock.Table, viewblock.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, view.BlocksTable, view.BlocksColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryShare queries the share edge of a View.
+func (c *ViewClient) QueryShare(v *View) *ShareQuery {
+	query := &ShareQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(view.Table, view.FieldID, id),
+			sqlgraph.To(share.Table, share.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, view.ShareTable, view.ShareColumn),
 		)
 		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
 		return fromV, nil

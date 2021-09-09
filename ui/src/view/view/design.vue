@@ -5,6 +5,8 @@ import {mapState} from 'vuex'
 import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined } from '@ant-design/icons-vue';
 import * as designModel from './model'
+import * as apiType from "../../api/type";
+import * as viewStore from '@/store/view'
 export default {
   render() {
         let blocks = this.view.blocks.map(block => {
@@ -101,6 +103,7 @@ export default {
         }
     },
     created() {
+        this.$store.commit('view/setShare', this.isShare)
         this.mixinInitFocus()
 
         this.mixinAddHelp(HelpModule.ViewBlock, [
@@ -157,6 +160,9 @@ export default {
         isView() {
             return this.model === designModel.View
         },
+        isShare() {
+            return this.model === designModel.Share
+        },
         maxZIndex() {
             let zIndex = 1
             this.view.blocks.forEach(block => {
@@ -203,8 +209,16 @@ export default {
         },
         fetch() {
             if(this.id) {
-                this.$api[this.$apiType.ViewInfo](this.id, this.isDesign ? 'full' : 'show')
-                    .then(async response => {
+                if(this.isShare) {
+                    viewStore.SetFetchEngine(id => this.$api[this.$apiType.ShareData](this.id, id))
+                }else {
+                    viewStore.SetFetchEngine(this.$api[this.$apiType.Data])
+                }
+                viewStore.SetFetchTmpEchoEngine(this.$api[this.$apiType.TmpEchoData]);
+
+                (this.isShare
+                    ? this.$api[this.$apiType.ViewShare](this.id)
+                    : this.$api[this.$apiType.ViewInfo](this.id, this.isDesign ? 'full' : 'show')).then(async response => {
                         // store radio
                         // e = cb/ad
                         // 系数 = 显示器长*背景宽 / 背景长*显示器宽
