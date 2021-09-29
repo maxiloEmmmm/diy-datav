@@ -1,7 +1,7 @@
 import util from 'pkg/util'
 export const staticTypeConfigFilter = {
     data(t) {
-        return util.isNumber(t) ? t : staticInputConfigDefault.id()
+        return util.isString(t) ? t : staticTypeConfigDefault.data()
     },
 }
 

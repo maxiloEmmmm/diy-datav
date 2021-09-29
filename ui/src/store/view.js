@@ -184,9 +184,13 @@ const actions = {
                                 }
                             }
 
-                            pro.then(response => {
-                                ds.cb(response.data)
-                            })
+                            if(pro !== null) {
+                                pro.then(response => {
+                                    ds.cb(response.data)
+                                })
+                            }else {
+                                console.log('fetch ata engine is null, data id: ', ds.input.id)
+                            }
                         }
                     }
                 }

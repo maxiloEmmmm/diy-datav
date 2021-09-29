@@ -145,12 +145,12 @@ func User(ctx context.Context) string {
 	return ""
 }
 
-func AddAdminPolicy(resource permission.Resource, action *permission.Action) {
-	contact.Permission.AddPolicy(Config.Permission.Role, resource.Key(), action.Key, "allow")
+func AddAdminPolicy(resource permission.Resource, action *permission.Action) (bool, error) {
+	return contact.Permission.AddPolicy(Config.Permission.Role, resource.Key(), action.Key, "allow")
 }
 
-func RemoveAdminPolicy(resource permission.Resource, action *permission.Action) {
-	contact.Permission.RemovePolicy(Config.Permission.Role, resource.Key(), action.Key, "allow")
+func RemoveAdminPolicy(resource permission.Resource, action *permission.Action) (bool, error) {
+	return contact.Permission.RemovePolicy(Config.Permission.Role, resource.Key(), action.Key, "allow")
 }
 
 type menuItem struct {

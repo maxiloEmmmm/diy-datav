@@ -31,7 +31,7 @@ export default {
                 typeOptions: []
             },
             models: [
-                {title: '更新', disabled: ['id'], xhr: {method: 'patch'}},
+                {title: '更新', disabled: ['id'], omit: ['id'], xhr: {method: 'patch'}},
                 {title: '新增', hide: ['id'], omit: ['id'], xhr: {method: 'post'}, dispatchArea: 'topBar'},
                 {title: '删除', hide: '*', xhr: {method: 'delete'}}
             ]

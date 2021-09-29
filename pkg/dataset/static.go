@@ -19,6 +19,10 @@ type StaticConfig struct {
 	Id int
 }
 
+type StaticTypeConfig struct {
+	Data string `json:"data"`
+}
+
 func (h *static) Load(ctx context.Context, config string) (interface{}, error) {
 	sc := &StaticConfig{}
 	err := json.Unmarshal([]byte(config), sc)
@@ -35,8 +39,14 @@ func (h *static) Load(ctx context.Context, config string) (interface{}, error) {
 		return nil, errors.New("engine type not eq")
 	}
 
+	stc := new(StaticTypeConfig)
+	err = json.Unmarshal([]byte(tc.Config), stc)
+	if err != nil {
+		return EmptyData{}, err
+	}
+
 	td := EmptyData{}
-	err = json.Unmarshal([]byte(tc.Config), &td)
+	err = json.Unmarshal([]byte(stc.Data), &td)
 	if err != nil {
 		return EmptyData{}, err
 	}

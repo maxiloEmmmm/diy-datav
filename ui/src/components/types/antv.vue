@@ -141,6 +141,10 @@ export default {
                         fields,
                     })
 
+                if(this.cfg.label.enable && this.cfg.label.field !== "") {
+                    geometry.label(this.cfg.label.field)
+                }
+
                 if(layer.adjust.enable) {
                     geometry.adjust(layer.adjust.type)
                 }

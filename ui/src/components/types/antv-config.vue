@@ -211,6 +211,12 @@ export default {
                     <a-divider type="vertical"/>
                     <a-input-number size="small" vModel={[this.cfg.type.legend.maxRow, 'value']} onChange={this.onChange}/>
                 </a-tab-pane>
+                <a-tab-pane key="label" tab="标签">
+                    <a-divider orientation="left">开启</a-divider>
+                    <a-switch size="small" vModel={[this.cfg.type.label.enable, 'checked']} onChange={this.onChange}/>
+                    <a-divider orientation="left">字段</a-divider>
+                    <a-input size="small" vModel={[this.cfg.type.label.field, 'value']} onChange={this.onChange}/>
+                </a-tab-pane>
                 <a-tab-pane key="layers" tab="层">
                     <more initCount={this.cfg.type.layers.length} onAdd={payload => {
                         this.cfg.type.layers[payload.count] = AntVConfigDefault.layer()

@@ -42,8 +42,11 @@ func AuthLogin(c *contact.GinHelp) {
 }
 
 func RefreshToken(c *contact.GinHelp) {
-	auth, _ := c.Get("auth")
-	c.Resource(contact.H{"token": auth.(*contact.JwtLib).RefreshToken(7 * 24 * time.Hour)})
+	auth := contact.AuthByContext(c.AppContext)
+	if auth == nil {
+		c.InValid("auth", "invalid token")
+	}
+	c.Resource(contact.H{"token": auth.RefreshToken(7 * 24 * time.Hour)})
 }
 
 func AuthMenu(c *contact.GinHelp) {

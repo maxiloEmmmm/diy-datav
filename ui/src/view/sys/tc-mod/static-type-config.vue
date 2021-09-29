@@ -1,6 +1,7 @@
 <script lang="jsx">
 import typeConfigMixin from './type-config-mixin'
 import {staticTypeConfig, staticTypeConfigParse} from "./types";
+import util from 'pkg/util'
 export default {
     mixins: [typeConfigMixin],
     data() {
@@ -13,6 +14,15 @@ export default {
             this.$refs.form.setFields([
                 {title: '数据', field: 'data', type: 'code', option: {
                     language: 'json'
+                }, onChange(val, item) {
+                    try {
+                        // 去除换行符等不必要的字符
+                        let vk = util.uuid("staticTc").replaceAll("-", "")
+                        window.eval(`window.${vk}=${val};`)
+                        item.data = JSON.stringify(window[vk])
+                    }catch(e) {
+                    // 不处理
+                    }
                 }},
             ])
             this.$refs.form.setModels([

@@ -208,13 +208,12 @@ export default {
             })
         },
         fetch() {
+            viewStore.SetFetchEngine(this.$api[this.$apiType.Data])
+            viewStore.SetFetchTmpEchoEngine(this.$api[this.$apiType.TmpEchoData])
             if(this.id) {
                 if(this.isShare) {
                     viewStore.SetFetchEngine(id => this.$api[this.$apiType.ShareData](this.id, id))
-                }else {
-                    viewStore.SetFetchEngine(this.$api[this.$apiType.Data])
                 }
-                viewStore.SetFetchTmpEchoEngine(this.$api[this.$apiType.TmpEchoData]);
 
                 (this.isShare
                     ? this.$api[this.$apiType.ViewShare](this.id)

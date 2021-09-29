@@ -247,6 +247,20 @@ export const AntVConfigFilter = {
 
         return lt
     },
+    label(label) {
+        let cfg = AntVConfigDefault.label()
+        if (util.isObject(label)) {
+            cfg.enable = AntVConfigFilter.labelEnable(label.enable)
+            cfg.field = AntVConfigFilter.labelField(label.field)
+        }
+        return cfg
+    },
+    labelEnable(t) {
+        return util.isBoolean(t) ? t : AntVConfigDefault.labelEnable()
+    },
+    labelField(t) {
+        return util.isString(t) ? t : AntVConfigDefault.labelField()
+    },
     legend(legend) {
         let cfg = AntVConfigDefault.legend()
         if (util.isObject(legend)) {
@@ -506,6 +520,18 @@ export const AntVConfigDefault = {
             type: AntVConfigDefault.scaleType()
         }
     },
+    label() {
+        return {
+            enable: AntVConfigDefault.labelEnable(),
+            field: AntVConfigDefault.labelField()
+        }
+    },
+    labelEnable() {
+        return false
+    },
+    labelField() {
+        return ''
+    },
     legend() {
         return {
             enable: AntVConfigDefault.legendEnable(),
@@ -539,6 +565,7 @@ export const AntVConfigParse = function(config) {
     cfg.scale = AntVConfigFilter.scale(config?.scale)
     cfg.layers = AntVConfigFilter.layers(config?.layers)
     cfg.legend = AntVConfigFilter.legend(config?.legend)
+    cfg.label = AntVConfigFilter.label(config?.label)
     cfg.facet = AntVConfigFilter.facet(config?.facet)
     cfg.dataIndex = AntVConfigFilter.dataIndex(config?.dataIndex)
 
@@ -550,6 +577,8 @@ export const AntVConfig = function() {
         coordinate: AntVConfigDefault.coordinate(),
         scale: AntVConfigDefault.scale(),
         layers: AntVConfigDefault.layers(),
+        legend: AntVConfigDefault.legend(),
+        label: AntVConfigDefault.label(),
         facet: AntVConfigDefault.facet(),
         dataIndex: AntVConfigDefault.dataIndex(),
     }

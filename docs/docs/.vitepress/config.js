@@ -1,7 +1,7 @@
 const rootSidebar = () => [
     {text: '基础', children: [
             {text: '介绍', link: '/'},
-            {text: '安装', link: '/other/install'}
+            {text: '安装', link: '/other/install'},
         ]},
     {text: '教程', children: [
             {text: 'Dota', link: '/tutorial/dota'},
@@ -19,7 +19,8 @@ const rootSidebar = () => [
         ]},
     {text: '其他', children: [
             {text: '吸附', link: '/other/adsorption'},
-            {text: '背景', link: '/other/bg'}
+            {text: '背景', link: '/other/bg'},
+            {text: '配置', link: '/other/config'}
         ]}
 ]
 
