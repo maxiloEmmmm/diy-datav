@@ -26,6 +26,13 @@ export default {
         onChange(typ, config) {
             try {
                 const oldConfig = JSON.parse(this.currentConfigBlockConfig)
+
+                switch(typ){
+                    case componentType.Grid:
+                        oldConfig.zIndex = 1
+                        break
+                }
+
                 this.mixinSetConfigTypeAndConfig(typ, JSON.stringify({
                         common: oldConfig.common,
                         type: config
