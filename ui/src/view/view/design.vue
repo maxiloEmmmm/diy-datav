@@ -168,7 +168,7 @@ export default {
             this.view.blocks.forEach(block => {
                 try {
                     let b = JSON.parse(block.config)
-                    b.common.zIndex > zIndex && (zIndex = b.common)
+                    b.common.zIndex > zIndex && (zIndex = b.common.zIndex)
                 }catch (e) {
                     console.log('parse block config err', e)
                 }
