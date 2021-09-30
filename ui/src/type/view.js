@@ -97,13 +97,15 @@ export const ViewBLockTypeCommonParse = (t) => {
     cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(t.zIndex)
     return cfg
 }
+// grid is one(config-bar setup), other is two
+const miniBlockIndex = 2
 
 export const ViewBLockTypeCommon = () => {
     return {
         position: common.PositionType(),
         input: [],
         refresh: 10,
-        zIndex: 1,
+        zIndex: miniBlockIndex,
     }
 }
 
@@ -138,11 +140,11 @@ export const ViewType = function() {
         },
         newBlockAndStore() {
             let block = this.newBlock()
-            let zIndex = 1
+            let zIndex = miniBlockIndex
             this.blocks.forEach(block => {
                 try {
                     let b = JSON.parse(block.config)
-                    b.common.zIndex > zIndex && (zIndex = b.common)
+                    b.common.zIndex > zIndex && (zIndex = b.common.zIndex)
                 }catch (e) {
                     console.log('parse block config err', e)
                 }
