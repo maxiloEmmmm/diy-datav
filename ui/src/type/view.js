@@ -3,7 +3,8 @@ import util from 'pkg/util'
 import * as inputType from '@/components/input/type'
 import * as typeType from '@/components/types/type'
 import {httpInputConfig} from 'type/input'
-import {TextConfig} from 'type/types'
+import {TextConfig, TextConfigParse} from 'type/types'
+import {PositionType, PositionTypeParse} from "./common";
 
 // .config 要存数据库 为json字符串
 // .config.common.input.*.config 要存数据库 为json字符串
@@ -75,26 +76,77 @@ export const ViewBLockTypeCommonFilter = {
     },
     zIndex(t) {
         return util.isNumber(t) && t >= 1 ? t : ViewBLockTypeCommonDefault.zIndex()
+    },
+    refresh(t) {
+        return util.isNumber(t) && t > 0 ? t : ViewBLockTypeCommonDefault.refresh()
+    },
+    desc(t) {
+        let cfg = ViewBLockTypeCommonDefault.desc()
+        if(!util.isObject(t)) {
+            return cfg
+        }
+
+        cfg.textConfig = ViewBLockTypeCommonFilter.descTextConfig(t.textConfig)
+        cfg.positionType = ViewBLockTypeCommonFilter.descPositionType(t.positionType)
+        cfg.position = ViewBLockTypeCommonFilter.descPosition(t.position)
+        return cfg
+    },
+    descTextConfig(t) {
+        return TextConfigParse(t)
+    },
+    descPosition(t) {
+        return common.PositionTypeParse(t)
+    },
+    descPositionType(t) {
+        return descPosition.includes(t) ? t : ViewBLockTypeCommonDefault.descPositionType()
     }
 }
 
+export const descPosition = ['top', 'bottom']
 export const ViewBLockTypeCommonDefault = {
     input() {
         return []
     },
     zIndex() {
-        return 1
+        return miniBlockIndex
+    },
+    position() {
+        return common.PositionType()
+    },
+    refresh() {
+        return 10
+    },
+    desc() {
+        return {
+            textConfig: ViewBLockTypeCommonDefault.descTextConfig(),
+            positionType: ViewBLockTypeCommonDefault.descPositionType(),
+            position: ViewBLockTypeCommonDefault.descPosition()
+        }
+    },
+    descPosition() {
+        return common.PositionType()
+    },
+    descPositionType() {
+        return descPosition[0]
+    },
+    descTextConfig() {
+        return TextConfig()
+    },
+    descText() {
+        return ''
     }
 }
 
 export const ViewBLockTypeCommonParse = (t) => {
     let cfg = {
         ...ViewBLockTypeCommon(),
-        // TODO: format other field
         ...t
     }
+    cfg.position = common.PositionTypeParse(t.position)
     cfg.input = ViewBLockTypeCommonFilter.input(t.input)
     cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(t.zIndex)
+    cfg.refresh = ViewBLockTypeCommonFilter.refresh(t.refresh)
+    cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
     return cfg
 }
 // grid is one(config-bar setup), other is two
@@ -104,8 +156,9 @@ export const ViewBLockTypeCommon = () => {
     return {
         position: common.PositionType(),
         input: [],
-        refresh: 10,
-        zIndex: miniBlockIndex,
+        refresh: ViewBLockTypeCommonDefault.refresh(),
+        zIndex: ViewBLockTypeCommonDefault.zIndex(),
+        desc: ViewBLockTypeCommonDefault.desc()
     }
 }
 

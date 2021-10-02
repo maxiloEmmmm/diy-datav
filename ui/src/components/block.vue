@@ -2,15 +2,33 @@
 import components from './types/component.js'
 import util from 'pkg/util'
 import {toRefs, provide} from 'vue'
-import {ViewBLockTypeCommonInputItemParse, ViewBlockTypeConfig} from 'type'
+import textComponent from './types/text.vue'
+import {ViewBLockTypeCommonInputItemParse, ViewBlockTypeConfig, ViewBLockTypeCommonParse} from 'type'
 export default {
     name: 'view-block',
+    components: {
+        innerTextComponent: textComponent
+    },
     render() {
         let Component = components[this.type]
+        let hasDesc = !!this.cfg.common.desc.textConfig.text
+        let isTop = this.cfg.common.desc.positionType
+
+        let desc = <div style={{
+            flexBasis: `${this.cfg.common.desc.position.height}%`,
+            flexGrow: 0,
+            flexShrink: 0
+        }}>
+            <inner-text-component config={this.cfg.common.desc.textConfig}/>
+        </div>
 
         return !Component
             ? <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}}>unknown block type: {this.type}</div>
-            : <Component config={this.cfg.type} data={this.data} edit={this.edit}/>
+            : <div style="display:flex; flex-direction: column; height: 100%;">
+                {hasDesc && isTop ? desc : null}
+                <Component style={{flexGrow: 1}} config={this.cfg.type} data={this.data} edit={this.edit}/>
+                {hasDesc && !isTop ? desc : null}
+            </div>
     },
     data() {
         return {
@@ -45,6 +63,7 @@ export default {
         transformTypeConfig() {
             const cfg = JSON.parse(this.config)
             cfg.common.input = this.normalInput(cfg.common.input)
+            cfg.common = ViewBLockTypeCommonParse(cfg.common)
             this.cfg = cfg
             this.fetch()
         },

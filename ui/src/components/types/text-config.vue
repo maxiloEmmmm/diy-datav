@@ -21,6 +21,12 @@ import inputChoose from './input-choose.vue'
 export default {
     components: {inputChoose},
     mixins: [configMixin],
+    props: {
+        objectValue: {
+            default: false,
+            type: Boolean
+        }
+    },
     data() {
         return {
             cfg: {
@@ -86,23 +92,32 @@ export default {
             }}>
                 <a-select style="width:200px" options={this.store.size} size="small" vModel={[this.cfg.type.size, 'value']} onChange={this.onChange}/>
             </ysz-list-item>
-            <ysz-list-item v-slots={{
-                left: () => '动态数据'
-            }}>
-                <inputChoose inputs={this.cfg.common.input}
-                             value={this.cfg.type.dataIndex}
-                             onChange={value => {
-                                 this.cfg.type.dataIndex = value
-                                 this.onChange()
-                             }} />
-            </ysz-list-item>
+            {this.objectValue
+                ? null
+                : <ysz-list-item v-slots={{
+                    left: () => '动态数据'
+                }}>
+                    <inputChoose inputs={this.cfg.common.input}
+                                 value={this.cfg.type.dataIndex}
+                                 onChange={value => {
+                                     this.cfg.type.dataIndex = value
+                                     this.onChange()
+                                 }} />
+                </ysz-list-item>}
         </div>
     },
     methods: {
         transformConfig() {
+
             try {
-                const blockCfg = JSON.parse(this.config)
-                blockCfg.type = TextConfigParse(blockCfg.type)
+                let blockCfg
+                if(this.objectValue) {
+                    blockCfg = {type: this.config}
+                }else {
+                    blockCfg = JSON.parse(this.config)
+                    blockCfg.type = TextConfigParse(blockCfg.type)
+                }
+
                 this.cfg = blockCfg
             }catch(e) {
                 console.log('static text config parse failed', e, this.config)

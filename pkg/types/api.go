@@ -26,6 +26,7 @@ type ViewBlockCommonConfig struct {
 	Refresh  float64         `json:"refresh"`
 	Position *CommonPosition `json:"position"`
 	ZIndex   int             `json:"zIndex"`
+	Desc     interface{}     `json:"desc"`
 }
 
 type CommonPosition struct {

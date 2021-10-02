@@ -2,9 +2,11 @@
 import {mapState} from "vuex";
 import configComponent from '@/components/types/config.js'
 import inputComponent from '@/components/input/config.js'
-import {ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault, ViewBLockTypeCommonParse} from 'type'
+import * as configComponentType from '@/components/types/type.js'
+import {descPosition, ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault, ViewBLockTypeCommonParse} from 'type'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import inputConfigComponent from '@/components/input/type-config.vue'
+import {Text} from "./types/type";
 export default {
     components: {
         typeConfigComponent,
@@ -32,6 +34,9 @@ export default {
     data() {
         return {
             cfg: ViewBLockTypeCommon(),
+            store: {
+                descTypes: descPosition.map(t => ({label: t, value: t}))
+            }
         }
     },
     methods: {
@@ -77,6 +82,7 @@ export default {
     },
     render() {
         let cm = configComponent[this.currentConfigBlockType]
+        let textCM = configComponent[configComponentType.Text]
         return <a-tabs size="small">
             <a-tab-pane key="type" tab="类型">
                 <type-config-component/>
@@ -85,6 +91,19 @@ export default {
             </a-tab-pane>
             <a-tab-pane key="common" tab="通用">
                 <a-tabs class='common-config' size="small" tab-position="left">
+                    <a-tab-pane key="desc" tab="描述">
+                        <textCM config={this.cfg.desc.textConfig} onChange={this.onChange} objectValue handleChange/>
+                        <ysz-list-item-top v-slots={{
+                            top: () => '高度占比'
+                        }}>
+                            <a-input-number size="small" vModel={[this.cfg.desc.position.height, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                        <ysz-list-item-top v-slots={{
+                            top: () => '位置'
+                        }}>
+                            <a-select size="small" options={this.store.descTypes} vModel={[this.cfg.desc.positionType, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                    </a-tab-pane>
                     <a-tab-pane key="position" tab="布局">
                         <ysz-list-item-top v-slots={{
                             top: () => '层叠位置'

@@ -2,10 +2,49 @@ import util from 'pkg/util'
 
 export const PositionType = function() {
     return {
-        left: 0,
-        top: 0,
-        width: 10,
-        height: 10
+        left: PositionTypeDefault.left(),
+        top: PositionTypeDefault.top(),
+        width: PositionTypeDefault.width(),
+        height: PositionTypeDefault.height()
+    }
+}
+
+export const PositionTypeParse = t => {
+    let pt = PositionType()
+    pt.top = PositionTypeFilter.top(t.top)
+    pt.left = PositionTypeFilter.top(t.left)
+    pt.width = PositionTypeFilter.top(t.width)
+    pt.height = PositionTypeFilter.top(t.height)
+    return pt
+}
+
+export const PositionTypeFilter =  {
+    top(t) {
+        return util.isNumber(t) && t >= 0 ? t : PositionTypeDefault.top()
+    },
+    left(t) {
+        return util.isNumber(t) && t >= 0 ? t : PositionTypeDefault.left()
+    },
+    width(t) {
+        return util.isNumber(t) && t >= 0 ? t : PositionTypeDefault.width()
+    },
+    height(t) {
+        return util.isNumber(t) && t >= 0 ? t : PositionTypeDefault.height()
+    }
+}
+
+export const PositionTypeDefault = {
+    top() {
+        return 0
+    },
+    left() {
+        return 0
+    },
+    width() {
+        return 10
+    },
+    height() {
+        return 10
     }
 }
 
