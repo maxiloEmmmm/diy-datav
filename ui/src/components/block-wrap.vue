@@ -23,12 +23,14 @@ export default {
         }
 
         let help = this.edit && this.hasHelp && this.app_mixin.focus.in ? <div class="ext-help" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>
-            {this.helps.map(help => {
-                const Component = help.component()
-                return <Component
-                    onMousedown={e => this.onHelpComponentClick(e, help, 'mousedown')}
-                    onClick={e => this.onHelpComponentClick(e, help, 'click')}/>
-            })}
+            <div style="background-color:#fff;border-radius: 6px; padding: 0 0.3rem">
+                {this.helps.map(help => {
+                    const Component = help.component()
+                    return <Component
+                        onMousedown={e => this.onHelpComponentClick(e, help, 'mousedown')}
+                        onClick={e => this.onHelpComponentClick(e, help, 'click')}/>
+                })}
+            </div>
         </div> : null
 
         let extIndex = this.edit ? <span class="ext-index" style={{pointerEvents: this.pointerEventsNone ? 'none' : 'all'}}>层叠位置: {this.cfg.common.zIndex}</span> : null
