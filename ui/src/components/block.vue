@@ -24,7 +24,9 @@ export default {
 
         return !Component
             ? <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}}>unknown block type: {this.type}</div>
-            : <div style="display:flex; flex-direction: column; height: 100%;">
+            : <div style="display:flex; flex-direction: column; height: 100%;" style={{
+                backgroundColor: !!this.cfg.common.bg ? this.cfg.common.bg : 'transparent'
+            }}>
                 {hasDesc && isTop ? desc : null}
                 <Component style={{flexGrow: 1}} config={this.cfg.type} data={this.data} edit={this.edit}/>
                 {hasDesc && !isTop ? desc : null}
@@ -61,6 +63,7 @@ export default {
     },
     methods: {
         transformTypeConfig() {
+            console.log("block config change")
             const cfg = JSON.parse(this.config)
             cfg.common.input = this.normalInput(cfg.common.input)
             cfg.common = ViewBLockTypeCommonParse(cfg.common)

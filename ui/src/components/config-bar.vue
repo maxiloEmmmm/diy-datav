@@ -91,6 +91,13 @@ export default {
             </a-tab-pane>
             <a-tab-pane key="common" tab="通用">
                 <a-tabs class='common-config' size="small" tab-position="left">
+                    <a-tab-pane key="bg" tab="背景">
+                        <ysz-list-item-top v-slots={{
+                            top: () => '颜色'
+                        }}>
+                            <color-pick size="small" vModel={[this.cfg.bg, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                    </a-tab-pane>
                     <a-tab-pane key="desc" tab="描述">
                         <textCM config={this.cfg.desc.textConfig} onChange={this.onChange} objectValue handleChange/>
                         <ysz-list-item-top v-slots={{

@@ -80,6 +80,9 @@ export const ViewBLockTypeCommonFilter = {
     refresh(t) {
         return util.isNumber(t) && t > 0 ? t : ViewBLockTypeCommonDefault.refresh()
     },
+    bg(t) {
+        return util.isString(t) ? t : ViewBLockTypeCommonDefault.bg()
+    },
     desc(t) {
         let cfg = ViewBLockTypeCommonDefault.desc()
         if(!util.isObject(t)) {
@@ -116,6 +119,10 @@ export const ViewBLockTypeCommonDefault = {
     refresh() {
         return 10
     },
+    bg() {
+        // transparent
+        return ''
+    },
     desc() {
         return {
             textConfig: ViewBLockTypeCommonDefault.descTextConfig(),
@@ -132,9 +139,6 @@ export const ViewBLockTypeCommonDefault = {
     descTextConfig() {
         return TextConfig()
     },
-    descText() {
-        return ''
-    }
 }
 
 export const ViewBLockTypeCommonParse = (t) => {
@@ -147,6 +151,7 @@ export const ViewBLockTypeCommonParse = (t) => {
     cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(t.zIndex)
     cfg.refresh = ViewBLockTypeCommonFilter.refresh(t.refresh)
     cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
+    cfg.bg = ViewBLockTypeCommonFilter.bg(t.bg)
     return cfg
 }
 // grid is one(config-bar setup), other is two

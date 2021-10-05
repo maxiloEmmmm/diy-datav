@@ -43,6 +43,7 @@ export default {
             deep: true,
             handler() {
                 // config maybe change after chart init than in dom
+                console.log('antv.watch')
                 this.$nextTick(() => {
                     if(this.chart) {
                         this.chart.destroy()

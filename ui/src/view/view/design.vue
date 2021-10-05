@@ -18,13 +18,15 @@ export default {
         })
         let bg = this._has_bg ? <div id='diy-data-view_bg' style={this._bg_style} /> : <a-spin id='diy-data-view_bg' class="center"/>
         let util = <div id='diy-data-view_util'>
-            {this.isDesign ?
-                [
-                    <ysz-list-item v-slots={{left: () => '布局线'}}><a-switch vModel={[this.adsorptionEnable, 'checked']}/></ysz-list-item>,
-                    <a-button onClick={this.newBlock}>添加块</a-button>,
-                    <a-button onClick={() => this.saveModal = true}>保存</a-button>
-                ] : null}
-            <a-button>全屏</a-button>
+            <a-space>
+                {this.isDesign ?
+                    [
+                        <ysz-list-item v-slots={{left: () => '布局线'}}><a-switch size="small" vModel={[this.adsorptionEnable, 'checked']}/></ysz-list-item>,
+                        <a-button size="small" onClick={this.newBlock}>添加块</a-button>,
+                        <a-button size="small" onClick={() => this.saveModal = true}>保存</a-button>
+                    ] : null}
+                <a-button size="small">全屏</a-button>
+            </a-space>
         </div>
 
         let preSaveModal = this.isDesign ? <a-modal vModel={[this.saveModal, 'visible']} title="保存" onOk={this.save}>
@@ -61,7 +63,7 @@ export default {
         const configBarProps = {
             maxZIndex: this.maxZIndex
         }
-        let configBar = this.isDesign ? <a-drawer mask={false} width="40vw" visible={this.configShow} onClose={this.onConfigBarClose}>
+        let configBar = this.isDesign ? <a-drawer mask={false} width="40vw" visible={this.configShow} onAfterClose={this.onConfigBarClose} onClose={this.mixinConfigHidden}>
             <config-bar {...configBarProps}/>
         </a-drawer> : null
 
@@ -255,9 +257,7 @@ export default {
             this.mixinDoFocus()
         },
         onConfigBarClose() {
-            this.mixinConfigHidden()
-            // 等关闭了再销毁配置
-            this.$nextTick(this.mixinClearConfig)
+            this.mixinClearConfig()
         },
         onTypeChange(typ) {
             const block = this.view.blocks.filter(block => block.getKey() === this.currentConfigBlockKey)[0]
@@ -325,7 +325,7 @@ export default {
     }
 
     #diy-data-view_util {
-        position: absolute; right: 0; top: 0; z-index: 2;
+        position: absolute; right: 5px; top: 5px; z-index: 2;
     }
 
     .diy-data-view_block {
