@@ -3,7 +3,7 @@ import { ViewType, ViewBlockType, PositionType } from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
 import {Module as HelpModule} from '@/mixins/help'
-import { BarChartOutlined } from '@ant-design/icons-vue';
+import { BarChartOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import * as designModel from './model'
 import * as apiType from "../../api/type";
 import * as viewStore from '@/store/view'
@@ -121,7 +121,19 @@ export default {
                     }
                     this.blockConfigReplace(payload.blockKey)
                 },
-            }
+            }, {key: "remove", component() {
+                    return <CloseOutlined twoToneColor="red"/>
+                }, cb: (payload) => {
+                    if(payload.type !== 'click') {
+                        return
+                    }
+
+                    if(!payload.blockKey) {
+                        return
+                    }
+                    this.removeBlock(payload.blockKey)
+                },
+            },
         ])
 
         this.fetch()
@@ -274,6 +286,17 @@ export default {
         onBlockMouseDown(blockKey) {
             if(this.configShow) {
                 this.blockConfigReplace(blockKey)
+            }
+        },
+        removeBlock(blockKey) {
+            if(this.isView) {
+                return
+            }
+
+            const block = this.view.blocks.findIndex(block => block.getKey() === blockKey)
+            if (block !== -1) {
+                this.mixinConfigHidden()
+                this.view.blocks.splice(block, 1)
             }
         },
         blockConfigReplace(blockKey) {
