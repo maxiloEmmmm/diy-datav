@@ -338,7 +338,7 @@ export default {
 
 <style lang="scss" scoped>
 #diy-datav-view {
-    width: 100vw; height: 100vh; position: relative;
+    width: 100vw; height: 100vh; position: relative; overflow: hidden;
 
     #diy-data-view_bg {
         position: absolute; top: 0; right: 0; left: 0; bottom: 0; z-index: 1;

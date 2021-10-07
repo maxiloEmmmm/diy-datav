@@ -144,11 +144,14 @@ export default {
             this.status.mouse.oldPosition.domLeft = this.$refs.move.offsetLeft
             this.status.mouse.oldPosition.domTop = this.$refs.move.offsetTop
 
+            let maxX = document.body.clientWidth - this.status.mouse.oldPosition.domLeft
+            let maxY = document.body.clientHeight - this.status.mouse.oldPosition.domTop
+
             let moveCb = (e) => {
                 let x = this.status.mouse.oldPosition.domLeft + e.clientX - this.status.mouse.oldPosition.left
                 let y = this.status.mouse.oldPosition.domTop + e.clientY - this.status.mouse.oldPosition.top
-                x = x < 0 ? 0 : (x > document.body.clientWidth ? document.body.clientWidth : x)
-                y = y < 0 ? 0 : (y > document.body.clientHeight ? document.body.clientHeight : y)
+                x = x < 0 ? 0 : (x > maxX ? maxX : x)
+                y = y < 0 ? 0 : (y > maxY ? maxY : y)
 
                 this.status.box.left = parseFloat((x / document.body.clientWidth).toFixed(3)) * 100
                 this.status.box.top = parseFloat((y / document.body.clientHeight).toFixed(3)) * 100
@@ -202,15 +205,15 @@ export default {
             this.status.box.old.width = this.$refs.move.clientWidth
             this.status.box.old.height = this.$refs.move.clientHeight
 
+            let maxWidth = document.body.clientWidth - this.status.mouse.oldPosition.domLeft
+            let maxHeight = document.body.clientHeight - this.status.mouse.oldPosition.domTop
             e.preventDefault()
             e.stopPropagation()
             this.status.barMouse.down = true
             let moveCb = (e) => {
                 let width = this.status.box.old.width + e.clientX - this.status.mouse.oldPosition.left
                 let height = this.status.box.old.height + e.clientY - this.status.mouse.oldPosition.top
-                let maxWidth = document.body.clientWidth - this.status.mouse.oldPosition.domLeft
                 width = width < 0 ? 0 : (width > maxWidth ? maxWidth : width)
-                let maxHeight = document.body.clientHeight - this.status.mouse.oldPosition.domTop
                 height = height < 0 ? 0 : (height > maxHeight ? maxHeight : height)
 
                 this.status.box.width = parseFloat((width / document.body.clientWidth).toFixed(3)) * 100
