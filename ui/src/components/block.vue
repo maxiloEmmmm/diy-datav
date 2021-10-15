@@ -25,7 +25,8 @@ export default {
         return !Component
             ? <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}}>unknown block type: {this.type}</div>
             : <div style="display:flex; flex-direction: column; height: 100%;" style={{
-                backgroundColor: !!this.cfg.common.bg ? this.cfg.common.bg : 'transparent'
+                backgroundColor: !!this.cfg.common.bg ? this.cfg.common.bg : 'transparent',
+                border: `${this.cfg.common.border.width}rem ${this.cfg.common.border.color} ${this.cfg.common.border.style}`
             }}>
                 {hasDesc && isTop ? desc : null}
                 <Component style={{flexGrow: 1}} config={this.cfg.type} data={this.data} edit={this.edit}/>

@@ -3,10 +3,9 @@ import {mapState} from "vuex";
 import configComponent from '@/components/types/config.js'
 import inputComponent from '@/components/input/config.js'
 import * as configComponentType from '@/components/types/type.js'
-import {descPosition, ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault, ViewBLockTypeCommonParse} from 'type'
+import {borderStyle, descPosition, ViewBLockTypeCommon, ViewBLockTypeCommonInputItem, ViewBLockTypeCommonInputItemDefault, ViewBLockTypeCommonParse} from 'type'
 import typeConfigComponent from '@/components/types/type-config.vue'
 import inputConfigComponent from '@/components/input/type-config.vue'
-import {Text} from "./types/type";
 export default {
     components: {
         typeConfigComponent,
@@ -35,7 +34,8 @@ export default {
         return {
             cfg: ViewBLockTypeCommon(),
             store: {
-                descTypes: descPosition.map(t => ({label: t, value: t}))
+                descTypes: descPosition.map(t => ({label: t, value: t})),
+                borderStyles: borderStyle.map(t => ({label: t, value: t})),
             }
         }
     },
@@ -109,6 +109,23 @@ export default {
                             top: () => '位置'
                         }}>
                             <a-select size="small" options={this.store.descTypes} vModel={[this.cfg.desc.positionType, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                    </a-tab-pane>
+                    <a-tab-pane key="border" tab="边框">
+                        <ysz-list-item-top v-slots={{
+                            top: () => '粗细'
+                        }}>
+                            <a-input-number size="small" vModel={[this.cfg.border.width, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                        <ysz-list-item-top v-slots={{
+                            top: () => '颜色'
+                        }}>
+                            <color-pick size="small" vModel={[this.cfg.border.color, 'value']} onChange={this.onChange}/>
+                        </ysz-list-item-top>
+                        <ysz-list-item-top v-slots={{
+                            top: () => '风格'
+                        }}>
+                            <a-select size="small" options={this.store.borderStyles} vModel={[this.cfg.border.style, 'value']} onChange={this.onChange}/>
                         </ysz-list-item-top>
                     </a-tab-pane>
                     <a-tab-pane key="position" tab="布局">

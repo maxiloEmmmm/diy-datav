@@ -102,10 +102,30 @@ export const ViewBLockTypeCommonFilter = {
     },
     descPositionType(t) {
         return descPosition.includes(t) ? t : ViewBLockTypeCommonDefault.descPositionType()
+    },
+    border(t) {
+        let cfg = ViewBLockTypeCommonDefault.border()
+        if(!util.isObject(t)) {
+            return cfg
+        }
+        cfg.width = ViewBLockTypeCommonFilter.borderWidth(t.width)
+        cfg.color = ViewBLockTypeCommonFilter.borderColor(t.color)
+        cfg.style = ViewBLockTypeCommonFilter.borderStyle(t.style)
+        return cfg
+    },
+    borderWidth(t) {
+        return util.isNumber(t) && t >= 0 ? t : ViewBLockTypeCommonDefault.borderWidth()
+    },
+    borderColor(t) {
+        return util.isString(t) && t ? t : ViewBLockTypeCommonDefault.borderColor()
+    },
+    borderStyle(t) {
+        return borderStyle.includes(t) ? t : ViewBLockTypeCommonDefault.borderStyle()
     }
 }
 
 export const descPosition = ['top', 'bottom']
+export const borderStyle = ['solid', 'dashed', 'dotted', 'double', 'groove', 'inset', 'outset', 'ridge']
 export const ViewBLockTypeCommonDefault = {
     input() {
         return []
@@ -139,6 +159,22 @@ export const ViewBLockTypeCommonDefault = {
     descTextConfig() {
         return TextConfig()
     },
+    border() {
+        return {
+            width: ViewBLockTypeCommonDefault.borderWidth(),
+            color: ViewBLockTypeCommonDefault.borderColor(),
+            style: ViewBLockTypeCommonDefault.borderStyle()
+        }
+    },
+    borderWidth() {
+        return 0.1
+    },
+    borderColor() {
+        return '#000'
+    },
+    borderStyle() {
+        return borderStyle[0]
+    }
 }
 
 export const ViewBLockTypeCommonParse = (t) => {
@@ -152,6 +188,7 @@ export const ViewBLockTypeCommonParse = (t) => {
     cfg.refresh = ViewBLockTypeCommonFilter.refresh(t.refresh)
     cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
     cfg.bg = ViewBLockTypeCommonFilter.bg(t.bg)
+    cfg.border= ViewBLockTypeCommonFilter.border(t.border)
     return cfg
 }
 // grid is one(config-bar setup), other is two
@@ -163,7 +200,8 @@ export const ViewBLockTypeCommon = () => {
         input: [],
         refresh: ViewBLockTypeCommonDefault.refresh(),
         zIndex: ViewBLockTypeCommonDefault.zIndex(),
-        desc: ViewBLockTypeCommonDefault.desc()
+        desc: ViewBLockTypeCommonDefault.desc(),
+        border: ViewBLockTypeCommonDefault.border()
     }
 }
 
