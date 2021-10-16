@@ -6,6 +6,9 @@ import {httpInputConfig} from 'type/input'
 import {TextConfig, TextConfigParse} from 'type/types'
 import {PositionType, PositionTypeParse} from "./common";
 
+export const NormalDesignMode = "normal"
+export const LayoutDesignMode = "layout"
+
 // .config 要存数据库 为json字符串
 // .config.common.input.*.config 要存数据库 为json字符串
 

@@ -1,15 +1,18 @@
 <script lang="jsx">
-import { ViewType, ViewBlockType, PositionType } from 'type'
+import {
+    ViewType, ViewBlockType, PositionType,
+    NormalDesignMode, LayoutDesignMode
+} from 'type'
 import bgAssetsDev from '@/assets/bg_design.png'
 import {mapState} from 'vuex'
 import {Module as HelpModule} from '@/mixins/help'
 import { BarChartOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import * as designModel from './model'
-import * as apiType from "../../api/type";
 import * as viewStore from '@/store/view'
+import * as blockType from '@/components/types/type'
 export default {
   render() {
-        let blocks = this.view.blocks.map(block => {
+        let blocks = this.view.blocks.filter(block => LayoutDesignMode !== this.designMode || block.type === blockType.Grid).map(block => {
             let blockKey = block.getKey()
             let pen = this.blockMoving !== "" && this.blockMoving === blockKey
             return <block-wrap pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
@@ -22,6 +25,10 @@ export default {
                 {this.isDesign ?
                     [
                         <ysz-list-item v-slots={{left: () => '布局线'}}><a-switch size="small" vModel={[this.adsorptionEnable, 'checked']}/></ysz-list-item>,
+                        <a-radio-group size="small" value={this.designMode} button-style="solid" onChange={e => this.$store.commit('view/setDesignMode', e.target.value)}>
+                            <a-radio-button value={NormalDesignMode}>{NormalDesignMode}</a-radio-button>
+                            <a-radio-button value={LayoutDesignMode}>{LayoutDesignMode}</a-radio-button>
+                        </a-radio-group>,
                         <a-button size="small" onClick={this.newBlock}>添加块</a-button>,
                         <a-button size="small" onClick={() => this.saveModal = true}>保存</a-button>
                     ] : null}
@@ -155,7 +162,7 @@ export default {
         dragBlockID() {
             return this.$store.state.view.dragBlockId
         },
-        ...mapState('view', ['radio', 'blockMoving', 'adsorption']),
+        ...mapState('view', ['radio', 'blockMoving', 'adsorption', 'designMode']),
         ...mapState('config', {
             configShow: 'show',
             currentConfigBlockType: state => state.block.type,

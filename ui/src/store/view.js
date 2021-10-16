@@ -1,6 +1,6 @@
 import util from 'pkg/util'
 import {api, type as apiType} from '@/api'
-import {PositionType} from 'type'
+import {PositionType, NormalDesignMode} from 'type'
 const clockStop = -1
 const clockStart = 0
 
@@ -27,7 +27,8 @@ const state = {
     },
     dataSet: {},
     clock: -1,
-    share: false
+    share: false,
+    designMode: NormalDesignMode
 }
 
 const getters = {
@@ -51,6 +52,9 @@ function normalHelp(help) {
 }
 
 const mutations = {
+    setDesignMode(state, mode) {
+        state.designMode = mode
+    },
     setShare(state, share) {
         state.share = share
     },
