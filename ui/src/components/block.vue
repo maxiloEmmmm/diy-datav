@@ -29,7 +29,7 @@ export default {
                 border: `${this.cfg.common.border.width}rem ${this.cfg.common.border.color} ${this.cfg.common.border.style}`
             }}>
                 {hasDesc && isTop ? desc : null}
-                <Component style={{flexGrow: 1}} config={this.cfg.type} data={this.data} edit={this.edit}/>
+                <Component style={{flexGrow: 1}} common={this.cfg.common} config={this.cfg.type} data={this.data} edit={this.edit}/>
                 {hasDesc && !isTop ? desc : null}
             </div>
     },

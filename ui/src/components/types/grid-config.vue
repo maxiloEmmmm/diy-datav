@@ -156,7 +156,7 @@ export default {
                                 top: () => '列配置'
                             }}
                         >
-                            <more onAdd={payload => {
+                            <more initCount={this.cfg.type.rows[index].rowCols.length} onAdd={payload => {
                                 this.cfg.type.rows[index].rowCols[payload.count] = GridConfigDefault.rowCol()
                                 this.onChange()
                                 payload.done()

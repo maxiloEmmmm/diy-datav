@@ -29,7 +29,7 @@ export default {
 
                 switch(typ){
                     case componentType.Grid:
-                        oldConfig.zIndex = 1
+                        oldConfig.common.zIndex = 1
                         break
                 }
 
