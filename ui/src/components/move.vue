@@ -107,8 +107,11 @@ export default {
         }
     },
     created() {
+        let key = `resize-${this.blockKey}`
+        // 重绘后先清除 不然this执行之前的实例
+        this.mixinRemoveHelp(HelpModule.ViewBlock, key)
         this.mixinAddHelp(HelpModule.ViewBlock, [
-            {key: `resize-${this.blockKey}`, component() {
+            {key: key, component: () => {
                     return <RadiusBottomrightOutlined twoToneColor="red"/>
                 }, cb: (payload) => {
                     if(payload.type !== 'mousedown') {
@@ -144,8 +147,8 @@ export default {
             this.status.mouse.oldPosition.domLeft = this.$refs.move.offsetLeft
             this.status.mouse.oldPosition.domTop = this.$refs.move.offsetTop
 
-            let maxX = document.body.clientWidth - this.status.mouse.oldPosition.domLeft
-            let maxY = document.body.clientHeight - this.status.mouse.oldPosition.domTop
+            let maxX = document.body.clientWidth - this.$refs.move.clientWidth
+            let maxY = document.body.clientHeight - this.$refs.move.clientHeight
 
             let moveCb = (e) => {
                 let x = this.status.mouse.oldPosition.domLeft + e.clientX - this.status.mouse.oldPosition.left
@@ -155,6 +158,7 @@ export default {
 
                 this.status.box.left = parseFloat((x / document.body.clientWidth).toFixed(3)) * 100
                 this.status.box.top = parseFloat((y / document.body.clientHeight).toFixed(3)) * 100
+
                 this.status.mouse.move = true
                 this.$store.commit("view/setBlockMoving", this.blockKey)
             }
@@ -198,6 +202,7 @@ export default {
         onMouseEnter(e) {},
         onMouseLeave(e) {},
         onBarDown(e) {
+            console.dir(this)
             this.status.mouse.oldPosition.left = e.clientX
             this.status.mouse.oldPosition.top = e.clientY
             this.status.mouse.oldPosition.domLeft = this.$refs.move.offsetLeft
