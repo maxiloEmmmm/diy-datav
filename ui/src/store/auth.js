@@ -1,5 +1,5 @@
-const TokenKey = "store.token"
-const ForwardKey = "store.forward"
+const TokenKey = "diy-datav.store.token"
+const ForwardKey = "diy-datav.store.forward"
 const storageEngine = window.localStorage
 const state = {
     token: storageEngine.getItem(TokenKey),

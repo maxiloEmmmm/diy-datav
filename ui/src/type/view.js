@@ -9,6 +9,10 @@ import {PositionType, PositionTypeParse} from "./common";
 export const NormalDesignMode = "normal"
 export const LayoutDesignMode = "layout"
 
+export const miniNormalBlockIndex = 20
+export const miniLayoutBlockIndex = 1
+export const maxiLayoutBlockIndex = 19
+
 // .config 要存数据库 为json字符串
 // .config.common.input.*.config 要存数据库 为json字符串
 
@@ -69,7 +73,6 @@ export const ViewBLockTypeCommonInputItemDefault = {
 
 export const ViewBLockTypeCommonInputItemParse = (t) => {
     t.key = ViewBLockTypeCommonInputItemFilter.key(t.key)
-    // t.refresh = ViewBLockTypeCommonInputItemFilter.refresh(t.refresh)
     return t
 }
 
@@ -77,8 +80,22 @@ export const ViewBLockTypeCommonFilter = {
     input(t) {
         return util.isArray(t) ? t : ViewBLockTypeCommonDefault.input()
     },
-    zIndex(t) {
-        return util.isNumber(t) && t >= 1 ? t : ViewBLockTypeCommonDefault.zIndex()
+    zIndex(typ, t) {
+        if(!util.isNumber(t)) {
+            return ViewBLockTypeCommonDefault.zIndex(typ)
+        }
+        switch (typ) {
+        case typeType.Grid:
+            if(t > maxiLayoutBlockIndex) {
+                t = maxiLayoutBlockIndex
+            }
+            break
+        default:
+            if(t < miniNormalBlockIndex) {
+                t = miniNormalBlockIndex
+            }
+        }
+        return t
     },
     refresh(t) {
         return util.isNumber(t) && t > 0 ? t : ViewBLockTypeCommonDefault.refresh()
@@ -133,8 +150,13 @@ export const ViewBLockTypeCommonDefault = {
     input() {
         return []
     },
-    zIndex() {
-        return miniBlockIndex
+    zIndex(typ) {
+        switch (typ) {
+        case typeType.Grid:
+            return miniLayoutBlockIndex
+        default:
+            return miniNormalBlockIndex
+        }
     },
     position() {
         return common.PositionType()
@@ -180,22 +202,20 @@ export const ViewBLockTypeCommonDefault = {
     }
 }
 
-export const ViewBLockTypeCommonParse = (t) => {
+export const ViewBLockTypeCommonParse = (type, t) => {
     let cfg = {
         ...ViewBLockTypeCommon(),
         ...t
     }
     cfg.position = common.PositionTypeParse(t.position)
     cfg.input = ViewBLockTypeCommonFilter.input(t.input)
-    cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(t.zIndex)
+    cfg.zIndex = ViewBLockTypeCommonFilter.zIndex(type, t.zIndex)
     cfg.refresh = ViewBLockTypeCommonFilter.refresh(t.refresh)
     cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
     cfg.bg = ViewBLockTypeCommonFilter.bg(t.bg)
     cfg.border= ViewBLockTypeCommonFilter.border(t.border)
     return cfg
 }
-// grid is one(config-bar setup), other is two
-const miniBlockIndex = 2
 
 export const ViewBLockTypeCommon = () => {
     return {
@@ -239,7 +259,7 @@ export const ViewType = function() {
         },
         newBlockAndStore() {
             let block = this.newBlock()
-            let zIndex = miniBlockIndex
+            let zIndex = miniNormalBlockIndex
             this.blocks.forEach(block => {
                 try {
                     let b = JSON.parse(block.config)

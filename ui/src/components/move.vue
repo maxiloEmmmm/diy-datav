@@ -123,7 +123,7 @@ export default {
             }
         ])
     },
-    emits: ['mousedown', 'position'],
+    emits: ['mousedown', 'position', 'adsorptionEnd'],
     inject: ['pointerEventsNone'],
     computed: {
         ...mapState('view', ['adsorption']),
@@ -171,6 +171,8 @@ export default {
                 document.removeEventListener('mousemove', moveCb)
                 if (this.hasAdsorptionDesign || this.hasAdsorptionGrid) {
                     if(this.hasAdsorptionGrid) {
+                        //todo: if current box is grid, should update zIndex = adsorption grid + 1
+                        this.$emit('adsorptionEnd')
                         this.status.box.left = this.adsorption.grid.pos.left
                         this.status.box.top = this.adsorption.grid.pos.top
                         this.status.box.width = this.adsorption.grid.pos.width

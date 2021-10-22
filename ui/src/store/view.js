@@ -41,7 +41,7 @@ const getters = {
     },
     fetchAble(state) {
         return state.clock !== clockStop
-    }
+    },
 }
 
 function normalHelp(help) {

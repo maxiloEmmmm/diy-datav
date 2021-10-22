@@ -29,7 +29,7 @@ export default {
         // if grid resize and move end
         // same resize and move block
         const editBorder = this.edit ? row => `1px ${row ? 'dashed' : 'solid'} red` : () => 'unset'
-        return <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}} style={{display: 'flex', flexDirection: 'column', height: '100%', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
+        return <div style={{display: 'flex', flexDirection: 'column', height: '100%', padding: `${this.cfg.padding.top}% ${this.cfg.padding.right}% ${this.cfg.padding.bottom}% ${this.cfg.padding.left}%`}}>
             {this.cfg.rows.map((row, ri) => <div style={{border: editBorder(true), display: 'flex', flexDirection: 'row', flex: `0 0 ${row.height}%`, padding: `${row.padding.top}% ${row.padding.right}% ${row.padding.bottom}% ${row.padding.left}%`}}>
                 {row.rowCols.map((col, ci) => <div ref={`${this.makeRCKey(ri, ci)}`} style={{
                     border: editBorder(false),

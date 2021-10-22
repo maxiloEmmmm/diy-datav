@@ -15,7 +15,7 @@ export default {
         let blocks = this.view.blocks.filter(block => LayoutDesignMode !== this.designMode || block.type === blockType.Grid).map(block => {
             let blockKey = block.getKey()
             let pen = this.blockMoving !== "" && this.blockMoving === blockKey
-            return <block-wrap pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
+            return <block-wrap view={this.view} pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} type={block.type} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
                 <view-block pointerEventsNone={pen} type={block.type} config={block.config} edit={this.isDesign}/>
             </block-wrap>
         })

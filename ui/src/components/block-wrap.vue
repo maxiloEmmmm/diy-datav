@@ -1,9 +1,11 @@
 <script lang="tsx">
 import move from './move.vue'
-import {mapGetters} from "vuex"
+import {mapGetters, mapState} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
 import {ViewBlockTypeConfig, ViewBLockTypeCommonParse} from 'type'
 import {provide, toRefs} from "vue";
+import * as configComponentType from '@/components/types/type.js'
+
 export default {
     name: 'block-wrap',
     components: {
@@ -42,6 +44,7 @@ export default {
             enable={this.app_mixin.focus.in}
             edit={this.edit}
             position={this.cfg.common.position}
+            onAdsorptionEnd={this.onAdsorptionEnd}
         >
             {extIndex}
             {help}
@@ -52,6 +55,9 @@ export default {
         return {cfg: ViewBlockTypeConfig()}
     },
     computed: {
+        ...mapState('view', {
+            adsorptionGridBlockKey: state => state.adsorption.grid.blockKey,
+        }),
         ...mapGetters('view', {
             appHelp: 'help',
         }),
@@ -76,6 +82,7 @@ export default {
     props: {
         blockKey: {type: String},
         config: String,
+        type: String,
         edit: {
             type: Boolean,
             default: true
@@ -83,7 +90,8 @@ export default {
         pointerEventsNone: {
             type: Boolean,
             default: false
-        }
+        },
+        view: {type: Object}
     },
     created() {
         this.mixinInitFocus()
@@ -92,7 +100,7 @@ export default {
     methods: {
         transformTypeConfig() {
             let cfg = JSON.parse(this.config)
-            cfg.common = ViewBLockTypeCommonParse(cfg.common)
+            cfg.common = ViewBLockTypeCommonParse(this.type, cfg.common)
             this.cfg = cfg
         },
         onPosition(position) {
@@ -119,6 +127,24 @@ export default {
                 blockKey: this.blockKey,
                 type: typ,
             })
+        },
+        onAdsorptionEnd() {
+            // grid1落到了grid2上 保证grid1.zIndex > grid2.zIndex 防止同级dom带来block无法降落到grid1的问题
+            if(this.type === configComponentType.Grid) {
+                let targetBlock = this.view.blocks.filter(block => this.adsorptionGridBlockKey === block.getKey())[0]
+                if(targetBlock) {
+                    try {
+                        let cfg = JSON.parse(targetBlock.config)
+                        if(cfg.common.zIndex >= this.cfg.common.zIndex) {
+                            this.cfg.common.zIndex = cfg.common.zIndex + 1
+                            this.mixinSetConfigKey(this.blockKey)
+                            this.mixinSetConfigConfig(JSON.stringify(this.cfg))
+                        }
+                    }catch(e) {
+                        console.log('update adsorption grid index failed', e)
+                    }
+                }
+            }
         }
     }
 }

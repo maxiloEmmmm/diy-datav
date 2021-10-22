@@ -64,10 +64,9 @@ export default {
     },
     methods: {
         transformTypeConfig() {
-            console.log("block config change")
             const cfg = JSON.parse(this.config)
             cfg.common.input = this.normalInput(cfg.common.input)
-            cfg.common = ViewBLockTypeCommonParse(cfg.common)
+            cfg.common = ViewBLockTypeCommonParse(this.type, cfg.common)
             this.cfg = cfg
             this.fetch()
         },
