@@ -40,11 +40,17 @@ export const GridConfigFilter = {
         return {
             width: GridConfigFilter.rowColWidth(t.width),
             padding: GridConfigFilter.rowColPadding(t.padding),
-            keys: GridConfigFilter.rowColKey(t.key),
+            keys: GridConfigFilter.rowColKeys(t.keys),
         }
     },
+    rowColKeys(t) {
+        if(!util.isArray(t)) {
+            return GridConfigDefault.rowColKeys()
+        }
+        return t.filter(t => !!t).map(GridConfigFilter.rowColKey)
+    },
     rowColKey(t) {
-        return util.isString(t) ? t : GridConfigDefault.rowColKey()
+        return util.isString(t) ? t :  GridConfigDefault.rowColKey()
     },
     rowColWidth(t) {
         return !util.isNumber(t) || t > 100 || t < 0 ? GridConfigDefault.rowColWidth() : t
@@ -79,8 +85,11 @@ export const GridConfigDefault = {
         return {
             width: GridConfigDefault.rowColWidth(),
             padding: GridConfigDefault.rowColPadding(),
-            keys: GridConfigDefault.rowColKey()
+            keys: GridConfigDefault.rowColKeys()
         }
+    },
+    rowColKeys() {
+        return []
     },
     rowColKey() {
         return ''

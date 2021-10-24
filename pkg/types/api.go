@@ -29,6 +29,7 @@ type ViewBlockCommonConfig struct {
 	Desc     interface{}     `json:"desc"`
 	Border   interface{}     `json:"border"`
 	Bg       string          `json:"bg"`
+	Grid     string          `json:"grid"`
 }
 
 type CommonPosition struct {

@@ -83,9 +83,15 @@ export default {
             return `r${r}c${c}`
         },
         onColMouseleave(r, c) {
+            if(!this.blockMoving) {
+                return
+            }
             this.$store.commit("view/setAdsorptionGrid", {blockKey: ""})
         },
         onColMousemove(r, c) {
+            if(!this.blockMoving) {
+                return
+            }
             this.moveFocusCol = this.makeRCKey(r, c)
             let obj = this.$refs[`${this.makeRCKey(r, c)}`]
             let l = 0, t = 0
@@ -97,6 +103,8 @@ export default {
             this.$store.commit("view/setAdsorptionGrid", {
                 blockKey: this.blockKey, row: r, col: c, blockOn: function (bk) {
                     this.cfg.rows[r].rowCols[c].key = bk
+                }, meta: {
+                    r, c
                 }, pos: {
                     left: parseFloat((l / document.body.clientWidth).toFixed(3)) * 100,
                     top: parseFloat((t / document.body.clientHeight).toFixed(3)) * 100,

@@ -2,7 +2,7 @@
 import move from './move.vue'
 import {mapGetters, mapState} from "vuex"
 import {Module as HelpModule} from '@/mixins/help'
-import {ViewBlockTypeConfig, ViewBLockTypeCommonParse} from 'type'
+import {ViewBlockTypeConfig, ViewBLockTypeCommonParse, GridConfigParse} from 'type'
 import {provide, toRefs} from "vue";
 import * as configComponentType from '@/components/types/type.js'
 
@@ -45,6 +45,7 @@ export default {
             edit={this.edit}
             position={this.cfg.common.position}
             onAdsorptionEnd={this.onAdsorptionEnd}
+            onMarkAdsorptionGridKeys={this.onMarkAdsorptionGridKeys}
         >
             {extIndex}
             {help}
@@ -128,10 +129,11 @@ export default {
                 type: typ,
             })
         },
-        onAdsorptionEnd() {
+        onAdsorptionEnd(meta) {
             // grid1落到了grid2上 保证grid1.zIndex > grid2.zIndex 防止同级dom带来block无法降落到grid1的问题
             if(this.type === configComponentType.Grid) {
                 let targetBlock = this.view.blocks.filter(block => this.adsorptionGridBlockKey === block.getKey())[0]
+                // targetBlock肯定是grid 无需断言
                 if(targetBlock) {
                     try {
                         let cfg = JSON.parse(targetBlock.config)
@@ -143,6 +145,31 @@ export default {
                     }catch(e) {
                         console.log('update adsorption grid index failed', e)
                     }
+                }
+            }
+
+            // 更新block与grid关系
+            try {
+                const config = JSON.parse(this.config)
+                config.common.grid = meta.grid
+                this.$emit('config', JSON.stringify(config))
+            }catch (e) {
+                console.log('block-wrap link grid error', e)
+            }
+        },
+        onMarkAdsorptionGridKeys(meta) {
+            let targetBlock = this.view.blocks.filter(block => meta.grid === block.getKey())[0]
+            if(targetBlock) {
+                try {
+                    let cfg = JSON.parse(targetBlock.config)
+                    cfg.type = GridConfigParse(cfg.type)
+                    let {meta: indexMeta} = meta
+                    cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys = cfg.type.rows[indexMeta.r].rowCols[indexMeta.c].keys.filter(k => k !== meta.key)
+                    cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys.push(meta.key)
+                    this.mixinSetConfigKey(meta.grid)
+                    this.mixinSetConfigConfig(JSON.stringify(cfg))
+                }catch(e) {
+                    console.log('update adsorption grid index failed', e)
                 }
             }
         }

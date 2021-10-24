@@ -141,6 +141,9 @@ export const ViewBLockTypeCommonFilter = {
     },
     borderStyle(t) {
         return borderStyle.includes(t) ? t : ViewBLockTypeCommonDefault.borderStyle()
+    },
+    grid(t) {
+        return util.isString(t) ? t : ViewBLockTypeCommonDefault.grid()
     }
 }
 
@@ -199,6 +202,9 @@ export const ViewBLockTypeCommonDefault = {
     },
     borderStyle() {
         return borderStyle[0]
+    },
+    grid() {
+        return ''
     }
 }
 
@@ -214,6 +220,7 @@ export const ViewBLockTypeCommonParse = (type, t) => {
     cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
     cfg.bg = ViewBLockTypeCommonFilter.bg(t.bg)
     cfg.border= ViewBLockTypeCommonFilter.border(t.border)
+    cfg.grid = ViewBLockTypeCommonFilter.grid(t.grid)
     return cfg
 }
 
@@ -224,7 +231,8 @@ export const ViewBLockTypeCommon = () => {
         refresh: ViewBLockTypeCommonDefault.refresh(),
         zIndex: ViewBLockTypeCommonDefault.zIndex(),
         desc: ViewBLockTypeCommonDefault.desc(),
-        border: ViewBLockTypeCommonDefault.border()
+        border: ViewBLockTypeCommonDefault.border(),
+        grid: ViewBLockTypeCommonDefault.grid()
     }
 }
 

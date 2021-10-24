@@ -123,7 +123,7 @@ export default {
             }
         ])
     },
-    emits: ['mousedown', 'position', 'adsorptionEnd'],
+    emits: ['mousedown', 'position', 'adsorptionEnd', 'markAdsorptionGridKeys'],
     inject: ['pointerEventsNone'],
     computed: {
         ...mapState('view', ['adsorption']),
@@ -172,11 +172,21 @@ export default {
                 if (this.hasAdsorptionDesign || this.hasAdsorptionGrid) {
                     if(this.hasAdsorptionGrid) {
                         //todo: if current box is grid, should update zIndex = adsorption grid + 1
-                        this.$emit('adsorptionEnd')
+                        // 触发放置结束
+                        this.$emit('adsorptionEnd', {
+                            grid: this.adsorption.grid.blockKey
+                        })
                         this.status.box.left = this.adsorption.grid.pos.left
                         this.status.box.top = this.adsorption.grid.pos.top
                         this.status.box.width = this.adsorption.grid.pos.width
                         this.status.box.height = this.adsorption.grid.pos.height
+                        // 标记grid与block的关系
+                        this.$emit('markAdsorptionGridKeys', {
+                            key: this.blockKey,
+                            meta: this.adsorption.grid.meta,
+                            grid: this.adsorption.grid.blockKey
+                        })
+                        // 结束放置
                         this.$store.commit('view/setAdsorptionGrid', {
                             blockKey: ""
                         })

@@ -4,6 +4,10 @@ import {PositionType, NormalDesignMode} from 'type'
 const clockStop = -1
 const clockStart = 0
 
+function emptyGridMeta() {
+    return {r: 0, c: 0}
+}
+
 const state = {
     radio: 1,
     focus: {
@@ -22,6 +26,7 @@ const state = {
             row: 0,
             col: 0,
             cb: (blockKey) => {},
+            meta: emptyGridMeta(),
             pos: PositionType()
         }
     },
@@ -65,13 +70,15 @@ const mutations = {
     setAdsorptionDesign(state, payload = {lineIndex: 0, pos: PositionType()}) {
         state.adsorption.design.lineIndex = payload.lineIndex
         state.adsorption.design.pos = payload.pos
+
     },
-    setAdsorptionGrid(state, payload = {blockKey: "", row: 0, col: 0, blockOn: Function, pos: PositionType()}) {
+    setAdsorptionGrid(state, payload = {blockKey: "", row: 0, col: 0, blockOn: Function, pos: PositionType(), meta: emptyGridMeta()}) {
         state.adsorption.grid.blockKey = payload.blockKey
         state.adsorption.grid.row = payload.row
         state.adsorption.grid.col = payload.col
         state.adsorption.grid.cb = payload.blockOn
         state.adsorption.grid.pos = payload.pos
+        state.adsorption.grid.meta = payload.meta
     },
     addHelp(state, payload = {typ: "", helps: []}) {
         if(!state.help[payload.typ]) {
