@@ -21,4 +21,6 @@ app.use(store)
 import router from './router.js'
 app.use(router)
 
+import subscribe from './pkg/subscribe.js'
+app.config.globalProperties.$sub = new subscribe
 app.mount('#app')

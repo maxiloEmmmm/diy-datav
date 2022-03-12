@@ -8,6 +8,7 @@ import {
     RightCircleOutlined,
     RadiusBottomrightOutlined,
 } from '@ant-design/icons-vue'
+import { BlockMouseUp } from '../type/resource';
 
 export default {
     render() {
@@ -94,9 +95,19 @@ export default {
         }
     },
     watch: {
+        'position': {
+            deep: true,
+            handler: function() {
+                this.status.box.left = this.position.left
+                this.status.box.top = this.position.top
+                this.status.box.width = this.position.width
+                this.status.box.height = this.position.height
+            }
+        },
         'status.box': {
             deep: true,
             handler: util.debounce(function() {
+                console.log(this.status.box.width)
                 this.$emit('position', {
                     left: this.status.box.left,
                     top: this.status.box.top,
@@ -123,7 +134,7 @@ export default {
             }
         ])
     },
-    emits: ['mousedown', 'position', 'adsorptionEnd', 'markAdsorptionGridKeys'],
+    emits: ['mousedown', 'moveEnd', 'position', 'adsorptionEnd', 'markAdsorptionGridKeys'],
     inject: ['pointerEventsNone'],
     computed: {
         ...mapState('view', ['adsorption']),
@@ -163,7 +174,7 @@ export default {
                 this.$store.commit("view/setBlockMoving", this.blockKey)
             }
 
-            let upCb = () => {
+            let upCb = (e) => {
                 this.status.mouse.down = false
                 this.status.mouse.move = false
                 this.$store.commit("view/setBlockMoving", "")
@@ -204,6 +215,7 @@ export default {
                         })
                     }
                 }
+                this.$sub.dispatch(BlockMouseUp, {blockKey: this.blockKey})
             }
 
             document.addEventListener('mouseup', upCb)

@@ -2,6 +2,8 @@
 import {GridConfig, GridConfigParse} from 'type'
 import {mapState} from 'vuex'
 import componentCommon from './component-common'
+import * as resource from 'type/resource.js'
+import { BlockPositions } from '../../type/resource'
 export default {
     mixins: [componentCommon],
     props: {
@@ -21,6 +23,9 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    created() {
+        this.$sub.addHandle(resource.BlockMouseUp, this.onBlockMouseUp)
     },
     render() {
         // if block dragend and grid col is mark (when block is close to grid col, col will be mark)
@@ -69,6 +74,28 @@ export default {
         },
     },
     methods: {
+        onBlockMouseUp(payload) {
+            if(this.blockKey !== payload.blockKey) {
+                return
+            }
+            const req = []
+            this.cfg.rows.forEach((r, ri) => {
+                r.rowCols.forEach((c, ci) => {
+                    if(c.keys.length !== 0) {
+                        const position = this.computedRCPosition(ri, ci)
+                        position.left = parseFloat((position.left / document.body.clientWidth).toFixed(3)) * 100
+                        position.top = parseFloat((position.top / document.body.clientHeight).toFixed(3)) * 100
+                        c.keys.forEach(key => {
+                            req.push({
+                                blockKey: key,
+                                ...position
+                            })
+                        })
+                    }
+                })
+            })
+            this.$sub.dispatch(BlockPositions, req)
+        },
         shouldHighlightCol(r, c) {
             return this.blockMoving !== "" && this.makeRCKey(r, c) === this.moveFocusCol
         },
@@ -88,11 +115,7 @@ export default {
             }
             this.$store.commit("view/setAdsorptionGrid", {blockKey: ""})
         },
-        onColMousemove(r, c) {
-            if(!this.blockMoving) {
-                return
-            }
-            this.moveFocusCol = this.makeRCKey(r, c)
+        computedRCPosition(r, c) {
             let obj = this.$refs[`${this.makeRCKey(r, c)}`]
             let l = 0, t = 0
             while(obj) {
@@ -100,14 +123,20 @@ export default {
                 t += obj.offsetTop
                 obj = obj.offsetParent
             }
+            return {top: t, left: l}
+        },
+        onColMousemove(r, c) {
+            if(!this.blockMoving) {
+                return
+            }
+            this.moveFocusCol = this.makeRCKey(r, c)
+            const {top, left} = this.computedRCPosition(r, c)
             this.$store.commit("view/setAdsorptionGrid", {
-                blockKey: this.blockKey, row: r, col: c, blockOn: function (bk) {
-                    this.cfg.rows[r].rowCols[c].key = bk
-                }, meta: {
+                blockKey: this.blockKey, row: r, col: c, meta: {
                     r, c
                 }, pos: {
-                    left: parseFloat((l / document.body.clientWidth).toFixed(3)) * 100,
-                    top: parseFloat((t / document.body.clientHeight).toFixed(3)) * 100,
+                    left: parseFloat((left / document.body.clientWidth).toFixed(3)) * 100,
+                    top: parseFloat((top / document.body.clientHeight).toFixed(3)) * 100,
                     width: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientWidth / document.body.clientWidth).toFixed(3)) * 100,
                     height: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientHeight / document.body.clientHeight).toFixed(3)) * 100,
                 }

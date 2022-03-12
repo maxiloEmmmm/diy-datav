@@ -10,6 +10,7 @@ import { BarChartOutlined, CloseOutlined } from '@ant-design/icons-vue';
 import * as designModel from './model'
 import * as viewStore from '@/store/view'
 import * as blockType from '@/components/types/type'
+import { BlockPositions } from '../../type/resource';
 export default {
   render() {
         let blocks = this.view.blocks.filter(block => LayoutDesignMode !== this.designMode || block.type === blockType.Grid).map(block => {
@@ -112,6 +113,7 @@ export default {
         }
     },
     created() {
+        this.$sub.addHandle(BlockPositions, this.onBlockPositions)
         this.$store.commit('view/setShare', this.isShare)
         this.mixinInitFocus()
 
@@ -268,6 +270,26 @@ export default {
                     }
                 })
             }
+        },
+        onBlockPositions(req) {
+            this.$nextTick(() => {
+                req.forEach(b => {
+                    const block = this.view.blocks.filter(block => block.getKey() === b.blockKey)[0]
+                    if (!!block) {
+                        try {
+                            const config = JSON.parse(block.config)
+                            config.common.position = {
+                                ...config.common.position,
+                                top: b.top,
+                                left: b.left
+                            }
+                            block.config = JSON.stringify(config)
+                        }catch (e) {
+                            console.log('block-wrap onBlockPositions error', e)
+                        }
+                    }
+                })
+            })
         },
         newBlock() {
             this.view.newBlockAndStore()

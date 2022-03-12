@@ -5,7 +5,7 @@ import {Module as HelpModule} from '@/mixins/help'
 import {ViewBlockTypeConfig, ViewBLockTypeCommonParse, GridConfigParse} from 'type'
 import {provide, toRefs} from "vue";
 import * as configComponentType from '@/components/types/type.js'
-
+const contextRef = "ctx"
 export default {
     name: 'block-wrap',
     components: {
@@ -158,20 +158,26 @@ export default {
             }
         },
         onMarkAdsorptionGridKeys(meta) {
-            let targetBlock = this.view.blocks.filter(block => meta.grid === block.getKey())[0]
-            if(targetBlock) {
-                try {
-                    let cfg = JSON.parse(targetBlock.config)
-                    cfg.type = GridConfigParse(cfg.type)
-                    let {meta: indexMeta} = meta
-                    cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys = cfg.type.rows[indexMeta.r].rowCols[indexMeta.c].keys.filter(k => k !== meta.key)
-                    cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys.push(meta.key)
-                    this.mixinSetConfigKey(meta.grid)
-                    this.mixinSetConfigConfig(JSON.stringify(cfg))
-                }catch(e) {
-                    console.log('update adsorption grid index failed', e)
-                }
-            }
+            this.$nextTick(() => {
+                let targetBlock = this.view.blocks.filter(block => meta.grid === block.getKey())[0]
+                if(targetBlock) {
+                    try {
+                        let cfg = JSON.parse(targetBlock.config)
+                        cfg.type = GridConfigParse(cfg.type)
+                        let {meta: indexMeta} = meta
+                        cfg.type.rows.forEach(r => {
+                            r.rowCols.forEach(c => {
+                                c.keys = c.keys.filter(k => k !== meta.key)
+                            })
+                        })
+                        cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys.push(meta.key)
+                        this.mixinSetConfigKey(meta.grid)
+                        this.mixinSetConfigConfig(JSON.stringify(cfg))
+                    }catch(e) {
+                        console.log('update adsorption grid index failed', e)
+                    }
+                }   
+            })
         }
     }
 }
