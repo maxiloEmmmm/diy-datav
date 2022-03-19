@@ -3,8 +3,7 @@ import util from 'pkg/util'
 export default {
     props: {
         config: {
-            type: [String, Object],
-            default: ''
+            type: Object,
         },
         handleChange: {
             type: Boolean,
@@ -17,14 +16,9 @@ export default {
             handler: 'transformConfig'
         }
     },
-    data() {
-        return {
-            cfg: {}
-        }
-    },
     methods: {
         transformConfig() {
-            console.log('impl `transformConfig` function')
+            this.cfg = this.$util.merge({}, this.config)
         },
         onChange: util.debounce(function(){
             if(this.handleChange) {
@@ -33,7 +27,7 @@ export default {
             }
 
             try {
-                this.mixinSetConfigConfig(JSON.stringify(this.cfg))
+                this.mixinSetConfigConfig(this.cfg)
             }catch(e) {
                 console.log('config change json parse err', e, this.cfg)
             }

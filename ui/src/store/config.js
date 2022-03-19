@@ -1,8 +1,9 @@
+import {ViewBlockTypeConfig} from 'type/view.js'
 const state = {
     global: {},
     block: {
         type: '',
-        config: '',
+        config: ViewBlockTypeConfig(),
         key: '',
         history: [],
         current: -1,

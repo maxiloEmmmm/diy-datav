@@ -383,15 +383,6 @@ export default {
         }
     },
     methods: {
-        transformConfig() {
-            try {
-                const blockCfg = JSON.parse(this.config)
-                blockCfg.type = AntVConfigParse(blockCfg.type)
-                this.cfg = blockCfg
-            }catch(e) {
-                console.log('AntV config parse failed in antv-config', e, this.config)
-            }
-        },
         onModelChange() {
             this.optionActiveKey = this.easyModel ? 'type' : 'coordinate'
         },

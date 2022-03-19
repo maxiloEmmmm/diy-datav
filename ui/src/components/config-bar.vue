@@ -33,7 +33,6 @@ export default {
     data() {
         return {
             cfg: ViewBLockTypeCommon(),
-            type: '',
             store: {
                 descTypes: descPosition.map(t => ({label: t, value: t})),
                 borderStyles: borderStyle.map(t => ({label: t, value: t})),
@@ -42,13 +41,7 @@ export default {
     },
     methods: {
         transformConfig() {
-            try {
-                const config = JSON.parse(this.currentConfigBlockConfig)
-                config.common.input = this.normalInput(config.common.input)
-                this.cfg = ViewBLockTypeCommonParse(this.currentConfigBlockType, config.common)
-            }catch (e) {
-                console.log('config-bar parse config err', e)
-            }
+            this.cfg = this.$util.merge({}, this.currentConfigBlockConfig.common)
         },
         normalInput(inputs) {
             if(!Array.isArray(inputs)) {
@@ -62,15 +55,7 @@ export default {
             this.cfg.input[index].id = ViewBLockTypeCommonInputItemDefault.id()
         },
         onChange() {
-            try {
-                const config = JSON.parse(this.currentConfigBlockConfig)
-                this.mixinSetConfigConfig(JSON.stringify({
-                    common: ViewBLockTypeCommonParse(this.currentConfigBlockType, this.cfg),
-                    type: config.type
-                }))
-            }catch(e) {
-                console.log('config change json parse err', e, this.cfg)
-            }
+            this.mixinSetConfigConfig(this.$util.merge(this.currentConfigBlockConfig, {common: this.cfg}))
         },
         onBottomZIndex() {
             this.cfg.zIndex = 1

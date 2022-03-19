@@ -7,7 +7,7 @@ function uuid() {
     return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
 }
 
-function debounce(cb, timeout) {
+function debounce(cb, timeout, debug) {
     let handler = null
     return function() {
         if(handler) {

@@ -105,24 +105,6 @@ export default {
                                  }} />
                 </ysz-list-item>}
         </div>
-    },
-    methods: {
-        transformConfig() {
-
-            try {
-                let blockCfg
-                if(this.objectValue) {
-                    blockCfg = {type: this.config}
-                }else {
-                    blockCfg = JSON.parse(this.config)
-                    blockCfg.type = TextConfigParse(blockCfg.type)
-                }
-
-                this.cfg = blockCfg
-            }catch(e) {
-                console.log('static text config parse failed', e, this.config)
-            }
-        },
     }
 }
 </script>

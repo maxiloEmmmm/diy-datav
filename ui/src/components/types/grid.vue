@@ -82,13 +82,10 @@ export default {
             this.cfg.rows.forEach((r, ri) => {
                 r.rowCols.forEach((c, ci) => {
                     if(c.keys.length !== 0) {
-                        const position = this.computedRCPosition(ri, ci)
-                        position.left = parseFloat((position.left / document.body.clientWidth).toFixed(3)) * 100
-                        position.top = parseFloat((position.top / document.body.clientHeight).toFixed(3)) * 100
                         c.keys.forEach(key => {
                             req.push({
                                 blockKey: key,
-                                ...position
+                                rect: this.computedRCRect(ri, ci)
                             })
                         })
                     }
@@ -125,21 +122,24 @@ export default {
             }
             return {top: t, left: l}
         },
+        computedRCRect(r, c) {
+            const {top, left} = this.computedRCPosition(r, c)
+            return {
+                left: parseFloat((left / document.body.clientWidth).toFixed(3)) * 100,
+                top: parseFloat((top / document.body.clientHeight).toFixed(3)) * 100,
+                width: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientWidth / document.body.clientWidth).toFixed(3)) * 100,
+                height: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientHeight / document.body.clientHeight).toFixed(3)) * 100,
+            }
+        },
         onColMousemove(r, c) {
             if(!this.blockMoving) {
                 return
             }
             this.moveFocusCol = this.makeRCKey(r, c)
-            const {top, left} = this.computedRCPosition(r, c)
             this.$store.commit("view/setAdsorptionGrid", {
                 blockKey: this.blockKey, row: r, col: c, meta: {
                     r, c
-                }, pos: {
-                    left: parseFloat((left / document.body.clientWidth).toFixed(3)) * 100,
-                    top: parseFloat((top / document.body.clientHeight).toFixed(3)) * 100,
-                    width: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientWidth / document.body.clientWidth).toFixed(3)) * 100,
-                    height: parseFloat((this.$refs[`${this.makeRCKey(r, c)}`].clientHeight / document.body.clientHeight).toFixed(3)) * 100,
-                }
+                }, pos: this.computedRCRect(r, c)
             })
         }
     }

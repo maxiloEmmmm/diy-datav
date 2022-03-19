@@ -16,7 +16,7 @@ export default {
         let blocks = this.view.blocks.filter(block => LayoutDesignMode !== this.designMode || block.type === blockType.Grid).map(block => {
             let blockKey = block.getKey()
             let pen = this.blockMoving !== "" && this.blockMoving === blockKey
-            return <block-wrap view={this.view} pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} type={block.type} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(blockKey, config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
+            return <block-wrap view={this.view} pointerEventsNone={pen} class="diy-data-view_block" edit={this.isDesign} type={block.type} config={block.config} key={blockKey} block-key={blockKey} onConfig={config => this.onBlockWrapConfig(config.key, config.config)} onMousedown={e => this.onBlockMouseDown(blockKey)}>
                 <view-block pointerEventsNone={pen} type={block.type} config={block.config} edit={this.isDesign}/>
             </block-wrap>
         })
@@ -189,12 +189,7 @@ export default {
         maxZIndex() {
             let zIndex = 1
             this.view.blocks.forEach(block => {
-                try {
-                    let b = JSON.parse(block.config)
-                    b.common.zIndex > zIndex && (zIndex = b.common.zIndex)
-                }catch (e) {
-                    console.log('parse block config err', e)
-                }
+                block.config.common.zIndex > zIndex && (zIndex = block.config.common.zIndex)
             })
             return zIndex
         }
@@ -272,23 +267,17 @@ export default {
             }
         },
         onBlockPositions(req) {
-            this.$nextTick(() => {
-                req.forEach(b => {
-                    const block = this.view.blocks.filter(block => block.getKey() === b.blockKey)[0]
-                    if (!!block) {
-                        try {
-                            const config = JSON.parse(block.config)
-                            config.common.position = {
-                                ...config.common.position,
-                                top: b.top,
-                                left: b.left
-                            }
-                            block.config = JSON.stringify(config)
-                        }catch (e) {
-                            console.log('block-wrap onBlockPositions error', e)
+            req.forEach(b => {
+                const block = this.view.blocks.filter(block => block.getKey() === b.blockKey)[0]
+                if (!!block) {
+                    try {
+                        block.config.common.position = {
+                            ...b.rect
                         }
+                    }catch (e) {
+                        console.log('block-wrap onBlockPositions error', e)
                     }
-                })
+                }
             })
         },
         newBlock() {
@@ -344,7 +333,8 @@ export default {
         onBlockWrapConfig(key, config) {
             const block = this.view.blocks.filter(block => block.getKey() === key)[0]
             if (!!block) {
-                block.config = config
+                console.log(key, block.type, config)
+                block.config = this.$util.merge(block.config, config)
             }
         },
         save() {

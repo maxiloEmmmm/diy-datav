@@ -80,6 +80,9 @@ const mutations = {
         state.adsorption.grid.pos = payload.pos
         state.adsorption.grid.meta = payload.meta
     },
+    clearAdsorptionGrid(state) {
+        state.adsorption.grid.blockKey = ""
+    },
     addHelp(state, payload = {typ: "", helps: []}) {
         if(!state.help[payload.typ]) {
             state.help[payload.typ] = []
@@ -119,8 +122,8 @@ const mutations = {
     updateDataRefresh(state, payload = {id: "", refresh: 10}) {
 
     },
-    loadData(state, payload = {input: {key: String}, refresh: 10, cb: Function}) {
-        state.dataSet[payload.input.key] = payload
+    loadData(state, payload = {input: {id: String}, refresh: 10, cb: Function}) {
+        state.dataSet[payload.input.id] = payload
     },
     clearLoadData(state) {
         state.dataSet = {}

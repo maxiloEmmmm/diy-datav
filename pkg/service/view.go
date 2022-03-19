@@ -111,20 +111,14 @@ func (v *ViewService) Store(view *types.View) (*types.View, error) {
 		}
 
 		for _, block := range view.Blocks {
-			blockInstance, err := tx.ViewBlock.Create().SetConfig(block.Config).SetType(block.Type).SetView(viewModel).Save(v.Context)
+			blockInstance, err := tx.ViewBlock.Create().SetConfig("").SetType(block.Type).SetView(viewModel).Save(v.Context)
 			if err != nil {
 				return err
 			}
 
 			block.Id = blockInstance.ID
 
-			vbci := &types.ViewBlockConfig{}
-			err = json.Unmarshal([]byte(block.Config), vbci)
-			if err != nil {
-				return err
-			}
-
-			for _, dsc := range vbci.Common.Input {
+			for _, dsc := range block.Config.Common.Input {
 				dsInstance, err := tx.DataSet.Create().SetTitle(dsc.Title).SetType(dsc.Type).SetConfig(dsc.Config).SetBlock(blockInstance).Save(v.Context)
 				if err != nil {
 					return err
@@ -132,13 +126,11 @@ func (v *ViewService) Store(view *types.View) (*types.View, error) {
 				dsc.Id = dsInstance.ID
 			}
 
-			lastConfig, err := json.Marshal(vbci)
+			cj, err := json.Marshal(block.Config)
 			if err != nil {
 				return err
 			}
-
-			block.Config = string(lastConfig)
-			if err = tx.ViewBlock.UpdateOne(blockInstance).SetConfig(block.Config).Exec(v.Context); err != nil {
+			if err = tx.ViewBlock.UpdateOne(blockInstance).SetConfig(string(cj)).Exec(v.Context); err != nil {
 				return err
 			}
 		}

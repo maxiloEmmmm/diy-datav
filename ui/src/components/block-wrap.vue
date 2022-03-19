@@ -45,6 +45,7 @@ export default {
             edit={this.edit}
             position={this.cfg.common.position}
             onAdsorptionEnd={this.onAdsorptionEnd}
+            onAdsorptionNoExist={this.onAdsorptionNoExist}
             onMarkAdsorptionGridKeys={this.onMarkAdsorptionGridKeys}
         >
             {extIndex}
@@ -69,20 +70,22 @@ export default {
             return this.appHelp[HelpModule.ViewBlock].filter(help => !help.key.startsWith("resize-") || help.key === `resize-${this.blockKey}`) || []
         },
     },
-    watch: {
-        config: {
-            immediate: true,
-            handler: 'transformTypeConfig'
-        }
-    },
     setup(props) {
         let {pointerEventsNone} = toRefs(props)
         provide('pointerEventsNone', pointerEventsNone)
         provide('blockKey', props.blockKey)
     },
+    watch: {
+        config: {
+            immediate: true,
+            handler() {
+                this.cfg = this.$util.merge({}, this.config)
+            }
+        }
+    },
     props: {
         blockKey: {type: String},
-        config: String,
+        config: Object,
         type: String,
         edit: {
             type: Boolean,
@@ -99,19 +102,15 @@ export default {
         // TODO: design model add ctrl+z / ctrl shift z
     },
     methods: {
-        transformTypeConfig() {
-            let cfg = JSON.parse(this.config)
-            cfg.common = ViewBLockTypeCommonParse(this.type, cfg.common)
-            this.cfg = cfg
-        },
         onPosition(position) {
-            try {
-                const config = JSON.parse(this.config)
-                config.common.position = position
-                this.$emit('config', JSON.stringify(config))
-            }catch (e) {
-                console.log('block-wrap onPosition error', e)
-            }
+            this.$emit('config', {
+                config: {
+                    common: {
+                        position
+                    }
+                },
+                key: this.blockKey
+            })
         },
         onMouseDown(e) {
             if(!this.edit) {
@@ -130,29 +129,63 @@ export default {
             })
         },
         onAdsorptionEnd(meta) {
-            // grid1落到了grid2上 保证grid1.zIndex > grid2.zIndex 防止同级dom带来block无法降落到grid1的问题
-            if(this.type === configComponentType.Grid) {
-                let targetBlock = this.view.blocks.filter(block => this.adsorptionGridBlockKey === block.getKey())[0]
-                // targetBlock肯定是grid 无需断言
+            // grid或block落到了grid2上 保证grid1.zIndex > grid2.zIndex 防止同级dom带来block无法降落到grid1的问题
+            let targetBlock = this.view.blocks.filter(block => this.adsorptionGridBlockKey === block.getKey())[0]
+            if(targetBlock) {
+                try {
+                    if(targetBlock.config.common.zIndex >= this.config.common.zIndex) {
+                        this.$emit('config', {
+                            config: {
+                                common: {
+                                    zIndex: targetBlock.config.common.zIndex + 1,
+                                    grid: meta.grid
+                                }
+                            },
+                            key: this.blockKey
+                        })
+                    }
+                }catch(e) {
+                    console.log('update adsorption grid index failed', e)
+                }
+            }
+        },
+        onAdsorptionNoExist() {
+            try {
+                const grid = this.config.common.grid
+                console.log(grid)
+                let targetBlock = this.view.blocks.filter(block => grid === block.getKey())[0]
                 if(targetBlock) {
                     try {
-                        let cfg = JSON.parse(targetBlock.config)
-                        if(cfg.common.zIndex >= this.cfg.common.zIndex) {
-                            this.cfg.common.zIndex = cfg.common.zIndex + 1
-                            this.mixinSetConfigKey(this.blockKey)
-                            this.mixinSetConfigConfig(JSON.stringify(this.cfg))
-                        }
+                        targetBlock.config.type = GridConfigParse(targetBlock.config.type)
+                        targetBlock.config.type.rows.forEach(r => {
+                            r.rowCols.forEach(c => {
+                                c.keys = c.keys.filter(k => k !== this.blockKey)
+                            })
+                        })
+                       
+                        this.$emit('config', {
+                            config: {
+                                type: {
+                                    rows: targetBlock.config.type.rows,
+                                }
+                            },
+                            key: grid
+                        })
                     }catch(e) {
                         console.log('update adsorption grid index failed', e)
                     }
-                }
-            }
+                }  
 
-            // 更新block与grid关系
-            try {
-                const config = JSON.parse(this.config)
-                config.common.grid = meta.grid
-                this.$emit('config', JSON.stringify(config))
+                this.$nextTick(() => {
+                    this.$emit('config', {
+                        config: {
+                            common: {
+                                grid: ""
+                            }
+                        },
+                        key: this.blockKey
+                    })
+                })
             }catch (e) {
                 console.log('block-wrap link grid error', e)
             }
@@ -162,17 +195,22 @@ export default {
                 let targetBlock = this.view.blocks.filter(block => meta.grid === block.getKey())[0]
                 if(targetBlock) {
                     try {
-                        let cfg = JSON.parse(targetBlock.config)
-                        cfg.type = GridConfigParse(cfg.type)
+                        targetBlock.config.type = GridConfigParse(targetBlock.config.type)
                         let {meta: indexMeta} = meta
-                        cfg.type.rows.forEach(r => {
+                        targetBlock.config.type.rows.forEach(r => {
                             r.rowCols.forEach(c => {
                                 c.keys = c.keys.filter(k => k !== meta.key)
                             })
                         })
-                        cfg.type.rows[meta.meta.r].rowCols[indexMeta.c].keys.push(meta.key)
-                        this.mixinSetConfigKey(meta.grid)
-                        this.mixinSetConfigConfig(JSON.stringify(cfg))
+                        targetBlock.config.type.rows[meta.meta.r].rowCols[indexMeta.c].keys.push(meta.key)
+                        this.$emit('config', {
+                            config: {
+                                type: {
+                                    rows: targetBlock.config.type.rows,
+                                }
+                            },
+                            key: meta.grid
+                        })
                     }catch(e) {
                         console.log('update adsorption grid index failed', e)
                     }

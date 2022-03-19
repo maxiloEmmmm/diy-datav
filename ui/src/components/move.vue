@@ -106,18 +106,12 @@ export default {
         },
         'status.box': {
             deep: true,
-            handler: util.debounce(function() {
-                console.log(this.status.box.width)
-                this.$emit('position', {
-                    left: this.status.box.left,
-                    top: this.status.box.top,
-                    width: this.status.box.width,
-                    height: this.status.box.height
-                })
-            }, 100)
+            handler: 'onStatusBoxChange'
         }
     },
     created() {
+        // watch handler 以及 method 是从同一个原型调用的会有多个实例指向同一个回调的问题
+        // 在这里手动分配
         let key = `resize-${this.blockKey}`
         // 重绘后先清除 不然this执行之前的实例
         this.mixinRemoveHelp(HelpModule.ViewBlock, key)
@@ -134,7 +128,7 @@ export default {
             }
         ])
     },
-    emits: ['mousedown', 'moveEnd', 'position', 'adsorptionEnd', 'markAdsorptionGridKeys'],
+    emits: ['mousedown', 'moveEnd', 'position', 'adsorptionEnd', 'markAdsorptionGridKeys', 'adsorptionNoExist'],
     inject: ['pointerEventsNone'],
     computed: {
         ...mapState('view', ['adsorption']),
@@ -146,6 +140,14 @@ export default {
         }
     },
     methods: {
+        onStatusBoxChange() {
+            this.$emit('position', {
+                left: this.status.box.left,
+                top: this.status.box.top,
+                width: this.status.box.width,
+                height: this.status.box.height
+            })
+        },
         onMouseDown(e) {
             e.preventDefault()
             e.stopPropagation()
@@ -169,7 +171,6 @@ export default {
 
                 this.status.box.left = parseFloat((x / document.body.clientWidth).toFixed(3)) * 100
                 this.status.box.top = parseFloat((y / document.body.clientHeight).toFixed(3)) * 100
-
                 this.status.mouse.move = true
                 this.$store.commit("view/setBlockMoving", this.blockKey)
             }
@@ -180,13 +181,11 @@ export default {
                 this.$store.commit("view/setBlockMoving", "")
                 document.removeEventListener('mouseup', upCb)
                 document.removeEventListener('mousemove', moveCb)
-                if (this.hasAdsorptionDesign || this.hasAdsorptionGrid) {
-                    if(this.hasAdsorptionGrid) {
+                const hasAdsorptionGrid = this.hasAdsorptionGrid
+                if (this.hasAdsorptionDesign || hasAdsorptionGrid) {
+                    if(hasAdsorptionGrid) {
                         //todo: if current box is grid, should update zIndex = adsorption grid + 1
                         // 触发放置结束
-                        this.$emit('adsorptionEnd', {
-                            grid: this.adsorption.grid.blockKey
-                        })
                         this.status.box.left = this.adsorption.grid.pos.left
                         this.status.box.top = this.adsorption.grid.pos.top
                         this.status.box.width = this.adsorption.grid.pos.width
@@ -197,9 +196,14 @@ export default {
                             meta: this.adsorption.grid.meta,
                             grid: this.adsorption.grid.blockKey
                         })
+                        const grid = this.adsorption.grid.blockKey
                         // 结束放置
-                        this.$store.commit('view/setAdsorptionGrid', {
-                            blockKey: ""
+                        this.$store.commit('view/clearAdsorptionGrid')
+                        // 这里也会改变数据 考虑同一封装 方便调试
+                        this.$nextTick(() => {
+                            this.$emit('adsorptionEnd', {
+                                grid: grid
+                            })
                         })
                     }else {
                         if (this.adsorption.design.pos.left !== 0) {
@@ -215,6 +219,12 @@ export default {
                         })
                     }
                 }
+                
+                if(!hasAdsorptionGrid){
+                    this.$nextTick(() => {
+                        this.$emit('adsorptionNoExist')
+                    })
+                }
                 this.$sub.dispatch(BlockMouseUp, {blockKey: this.blockKey})
             }
 
@@ -226,7 +236,6 @@ export default {
         onMouseEnter(e) {},
         onMouseLeave(e) {},
         onBarDown(e) {
-            console.dir(this)
             this.status.mouse.oldPosition.left = e.clientX
             this.status.mouse.oldPosition.top = e.clientY
             this.status.mouse.oldPosition.domLeft = this.$refs.move.offsetLeft

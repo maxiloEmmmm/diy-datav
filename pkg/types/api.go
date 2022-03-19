@@ -13,7 +13,7 @@ type View struct {
 type ViewBlock struct {
 	Id     int    `json:"id"`
 	Type   string `json:"type"`
-	Config string `json:"config"`
+	Config *ViewBlockConfig `json:"config"`
 }
 
 type ViewBlockConfig struct {

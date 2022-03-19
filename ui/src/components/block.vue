@@ -11,31 +11,30 @@ export default {
     },
     render() {
         let Component = components[this.type]
-        let hasDesc = !!this.cfg.common.desc.textConfig.text
-        let isTop = this.cfg.common.desc.positionType
+        let hasDesc = !!this.config.common.desc.textConfig.text
+        let isTop = this.config.common.desc.positionType
 
         let desc = <div style={{
-            flexBasis: `${this.cfg.common.desc.position.height}%`,
+            flexBasis: `${this.config.common.desc.position.height}%`,
             flexGrow: 0,
             flexShrink: 0
         }}>
-            <inner-text-component config={this.cfg.common.desc.textConfig}/>
+            <inner-text-component config={this.config.common.desc.textConfig}/>
         </div>
 
         return !Component
             ? <div style={{pointerEvents: this.pointerEventsNone.value ? 'none' : 'all'}}>unknown block type: {this.type}</div>
             : <div style="display:flex; flex-direction: column; height: 100%;" style={{
-                backgroundColor: !!this.cfg.common.bg ? this.cfg.common.bg : 'transparent',
-                border: `${this.cfg.common.border.width}rem ${this.cfg.common.border.color} ${this.cfg.common.border.style}`
+                backgroundColor: !!this.config.common.bg ? this.config.common.bg : 'transparent',
+                border: `${this.config.common.border.width}rem ${this.config.common.border.color} ${this.config.common.border.style}`
             }}>
                 {hasDesc && isTop ? desc : null}
-                <Component ref="component"  style={{flexGrow: 1}} common={this.cfg.common} config={this.cfg.type} data={this.data} edit={this.edit}/>
+                <Component ref="component"  style={{flexGrow: 1}} common={this.config.common} config={this.config.type} data={this.data} edit={this.edit}/>
                 {hasDesc && !isTop ? desc : null}
             </div>
     },
     data() {
         return {
-            cfg: ViewBlockTypeConfig(),
             data: []
         }
     },
@@ -46,10 +45,7 @@ export default {
             default: "",
         },
         config: {
-            type: String,
-            default() {
-                return ""
-            },
+            type: Object
         },
         edit: {
             type: Boolean,
@@ -64,10 +60,6 @@ export default {
     },
     methods: {
         transformTypeConfig() {
-            const cfg = JSON.parse(this.config)
-            cfg.common.input = this.normalInput(cfg.common.input)
-            cfg.common = ViewBLockTypeCommonParse(this.type, cfg.common)
-            this.cfg = cfg
             this.fetch()
         },
         normalInput(inputs) {
@@ -78,10 +70,10 @@ export default {
             return inputs.map(ViewBLockTypeCommonInputItemParse)
         },
         fetch() {
-            this.cfg.common.input.forEach((input, index) => {
+            this.config.common.input.forEach((input, index) => {
                 this.$store.commit('view/loadData', {
                     input,
-                    refresh: this.cfg.common.refresh,
+                    refresh: this.config.common.refresh,
                     cb: (data) => {
                         this.data[index] = data
                     }

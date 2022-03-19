@@ -91,7 +91,7 @@ export const ViewBLockTypeCommonFilter = {
             }
             break
         default:
-            if(t < miniNormalBlockIndex) {
+            if(t < miniLayoutBlockIndex) {
                 t = miniNormalBlockIndex
             }
         }
@@ -209,6 +209,7 @@ export const ViewBLockTypeCommonDefault = {
 }
 
 export const ViewBLockTypeCommonParse = (type, t) => {
+    console.log('cg pre', t.grid)
     let cfg = {
         ...ViewBLockTypeCommon(),
         ...t
@@ -220,6 +221,7 @@ export const ViewBLockTypeCommonParse = (type, t) => {
     cfg.desc = ViewBLockTypeCommonFilter.desc(t.desc)
     cfg.bg = ViewBLockTypeCommonFilter.bg(t.bg)
     cfg.border= ViewBLockTypeCommonFilter.border(t.border)
+    console.log('cg', t.grid)
     cfg.grid = ViewBLockTypeCommonFilter.grid(t.grid)
     return cfg
 }
@@ -244,7 +246,7 @@ export const ViewBlockType = function() {
         },
         id: 0,
         type: ViewBLockTypeType(),
-        config: JSON.stringify(ViewBlockTypeConfig())
+        config: ViewBlockTypeConfig()
     }
 }
 
@@ -270,21 +272,13 @@ export const ViewType = function() {
             let zIndex = miniNormalBlockIndex
             this.blocks.forEach(block => {
                 try {
-                    let b = JSON.parse(block.config)
-                    b.common.zIndex > zIndex && (zIndex = b.common.zIndex)
+                    block.config.common.zIndex > zIndex && (zIndex = block.config.common.zIndex)
                 }catch (e) {
                     console.log('parse block config err', e)
                 }
             })
 
-            try {
-                let b = JSON.parse(block.config)
-                b.common.zIndex = zIndex
-                block.config = JSON.stringify(b)
-            }catch (e) {
-                console.log('parse block config err', e)
-            }
-
+            block.config.common.zIndex = zIndex
             this.blocks.push(block)
             return block
         },

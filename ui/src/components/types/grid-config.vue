@@ -218,15 +218,6 @@ export default {
             }
             this.onChange()
         },
-        transformConfig() {
-            try {
-                const blockCfg = JSON.parse(this.config)
-                blockCfg.type = GridConfigParse(blockCfg.type)
-                this.cfg = blockCfg
-            }catch(e) {
-                console.log('grid config parse failed', e, this.config)
-            }
-        },
         rowHeightAvg() {
             const len = this.cfg.type.rows.length
 

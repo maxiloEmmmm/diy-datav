@@ -72,29 +72,23 @@ func NewView(v *model.View, isFull bool) (*types.View, error) {
 	vd.Desc = v.Desc
 	vd.Blocks = make([]*types.ViewBlock, 0, len(v.Edges.Blocks))
 	for _, block := range v.Edges.Blocks {
+		c := new(types.ViewBlockConfig)
+		err := json.Unmarshal([]byte(block.Config), c)
+		if err != nil {
+			return nil, err
+		}
 		b := &types.ViewBlock{
 			Id:     block.ID,
 			Type:   block.Type,
-			Config: block.Config,
+			Config: c,
 		}
 
 		if !isFull {
-			vbci := &types.ViewBlockConfig{}
-			err := json.Unmarshal([]byte(b.Config), vbci)
-			if err != nil {
-				return nil, err
-			}
-			for _, input := range vbci.Common.Input {
-				input = &types.DataSet{
+			for _, input := range c.Common.Input {
+				*input = types.DataSet{
 					Id: input.Id,
 				}
 			}
-
-			res, err := json.Marshal(vbci)
-			if err != nil {
-				return nil, err
-			}
-			b.Config = string(res)
 		}
 
 		vd.Blocks = append(vd.Blocks, b)

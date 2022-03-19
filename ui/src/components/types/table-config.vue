@@ -65,16 +65,5 @@ export default {
             </ysz-list-item>
         </div>
     },
-    methods: {
-        transformConfig() {
-            try {
-                const blockCfg = JSON.parse(this.config)
-                blockCfg.type = TableConfigParse(blockCfg.type)
-                this.cfg = blockCfg
-            }catch(e) {
-                console.log('static table config parse failed', e, this.config)
-            }
-        },
-    }
 }
 </script>

@@ -25,7 +25,7 @@ export default {
     methods: {
         onChange(typ, config) {
             try {
-                const oldConfig = JSON.parse(this.currentConfigBlockConfig)
+                const oldConfig = {...this.currentConfigBlockConfig}
 
                 switch(typ){
                     case componentType.Grid:
@@ -33,10 +33,10 @@ export default {
                         break
                 }
 
-                this.mixinSetConfigTypeAndConfig(typ, JSON.stringify({
+                this.mixinSetConfigTypeAndConfig(typ, {
                         common: oldConfig.common,
                         type: config
-                }))
+                })
             }catch(e) {
                 console.log('config change json parse err', e, this.cfg)
             }
